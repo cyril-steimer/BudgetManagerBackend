@@ -1,5 +1,6 @@
 package ch.cyril.budget.manager.backend.service.expense
 
+import ch.cyril.budget.manager.backend.model.Amount
 import ch.cyril.budget.manager.backend.model.Expense
 import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.model.Name
@@ -12,7 +13,7 @@ class ExpenseSort(val field: ExpenseSortField, val direction: SortDirection)
 enum class ExpenseSortField(val fieldName: String, val sorter: Comparator<Expense>) {
 
     ID("id", Comparator.comparing<Expense, Int> { e -> e.id.id }),
-    AMOUNT("amount", Comparator.comparing<Expense, BigDecimal> { e -> e.amount }),
+    AMOUNT("amount", Comparator.comparing<Expense, BigDecimal> { e -> e.amount.amount }),
     NAME("name", Comparator.comparing<Expense, String> { e -> e.name.name }),
     CATEGORY("category", Comparator.comparing<Expense, String> { e -> e.category.name }),
     DATE("date", Comparator.comparing<Expense, LocalDate> { e -> e.date });

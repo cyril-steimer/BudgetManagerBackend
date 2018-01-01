@@ -14,8 +14,6 @@ import java.time.LocalDate
 
 val GSON = GsonBuilder()
         .registerTypeAdapter(Id::class.java, IdTypeAdapter().nullSafe())
-        .registerTypeAdapter(Name::class.java, NameTypeAdapter().nullSafe())
-        .registerTypeAdapter(Category::class.java, CategoryTypeAdapter().nullSafe())
         .registerTypeAdapter(LocalDate::class.java, LocalDateTypeAdapter().nullSafe())
         .registerTypeAdapter(SimpleExpenseQueryDescriptor::class.java, SimpleQueryDescriptorAdapter().nullSafe())
         .registerTypeAdapter(ExpenseSortField::class.java, ExpenseSortFieldAdapter().nullSafe())
@@ -29,26 +27,6 @@ private class IdTypeAdapter : TypeAdapter<Id>() {
 
     override fun write(out: JsonWriter, value: Id) {
         out.value(value.id)
-    }
-}
-
-private class NameTypeAdapter : TypeAdapter<Name>() {
-    override fun read(`in`: JsonReader): Name {
-        return Name(`in`.nextString())
-    }
-
-    override fun write(out: JsonWriter, value: Name) {
-        out.value(value.name)
-    }
-}
-
-private class CategoryTypeAdapter : TypeAdapter<Category>() {
-    override fun read(`in`: JsonReader): Category {
-        return Category(`in`.nextString())
-    }
-
-    override fun write(out: JsonWriter, value: Category) {
-        out.value(value.name)
     }
 }
 

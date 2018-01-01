@@ -1,9 +1,6 @@
 package ch.cyril.budget.manager.backend.service.filebased.expense
 
-import ch.cyril.budget.manager.backend.model.Category
-import ch.cyril.budget.manager.backend.model.Expense
-import ch.cyril.budget.manager.backend.model.Id
-import ch.cyril.budget.manager.backend.model.Name
+import ch.cyril.budget.manager.backend.model.*
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDate
@@ -36,7 +33,7 @@ class ExpenseParser() {
         val split = line.split(",")
         val id = Id(split[0].toInt())
         val name = Name(split[1])
-        val amount = split[2].toBigDecimal()
+        val amount = Amount(split[2].toBigDecimal())
         val category = Category(split[3])
         val date = LocalDate.parse(split[4])
         return Expense(id, name, amount, category, date)

@@ -95,7 +95,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
             query: ExpenseQuery?,
             sort: ExpenseSort?,
             pagination: Pagination?): RestResult {
-        
+
         val res = expenseDao.getExpenses(query, sort, pagination)
         val json = GSON.toJson(res)
         return RestResult.json(json)
