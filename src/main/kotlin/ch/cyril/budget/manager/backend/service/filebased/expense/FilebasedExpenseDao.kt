@@ -5,9 +5,9 @@ import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
 import ch.cyril.budget.manager.backend.service.expense.ExpenseQuery
 import ch.cyril.budget.manager.backend.service.Pagination
+import ch.cyril.budget.manager.backend.service.SubList
 import ch.cyril.budget.manager.backend.service.expense.ExpenseSort
 import java.nio.file.Path
-import kotlin.math.exp
 
 class FilebasedExpenseDao(val file: Path): ExpenseDao {
 
@@ -16,7 +16,7 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
     override fun getExpenses(
             query: ExpenseQuery?,
             sort: ExpenseSort?,
-            pagination: Pagination?): List<Expense> {
+            pagination: Pagination?): SubList<Expense> {
 
         var expenses = getAllExpenses()
         if (query != null) {
@@ -27,10 +27,9 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
             expenses = expenses.sortedWith(comp)
         }
         if (pagination != null) {
-            val to = minOf(expenses.size, pagination.from + pagination.count)
-            expenses = expenses.subList(pagination.from, to)
+            return SubList.of(expenses, pagination.from, pagination.count)
         }
-        return expenses
+        return SubList.of(expenses)
     }
 
     override fun addExpense(expense: Expense) {

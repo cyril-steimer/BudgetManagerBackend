@@ -1,9 +1,6 @@
 package ch.cyril.budget.manager.backend.rest.lib
 
-
 interface RestContext {
-
-    fun apply(result: RestResult)
 
     fun getBody(): String
 

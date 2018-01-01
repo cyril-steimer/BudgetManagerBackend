@@ -6,11 +6,6 @@ import io.javalin.Context
 
 class JavalinRestContext(val ctx: Context) : RestContext {
 
-    override fun apply(result: RestResult) {
-        ctx.contentType(result.contentType)
-        ctx.result(result.data)
-    }
-
     override fun getBody(): String {
         return ctx.body()
     }

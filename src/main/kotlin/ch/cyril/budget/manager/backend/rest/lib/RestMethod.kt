@@ -5,18 +5,31 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 
-class RestHandlerInvoker(private val parser: RestParamParser) {
+class RestMethod private constructor(
+        private val owner: Any,
+        private val method: HttpMethod,
+        private val function: KFunction<*>,
+        private val parser: RestParamParser) {
 
-    fun invoke(handler: KFunction<*>, ctx: RestContext) {
-        val params = gatherParams(handler, ctx)
-        val res = handler.call(*params)
+    fun invoke(ctx: RestContext): RestResult? {
+        val params = gatherParams(ctx)
+        val res = function.call(owner, *params)
         if (res is RestResult) {
-            ctx.apply(res)
+            return res
         }
+        return null
     }
 
-    private fun gatherParams(handler: KFunction<*>, ctx: RestContext): Array<Any?> {
-        return handler.parameters
+    fun verb(): HttpVerb {
+        return method.verb
+    }
+
+    fun path(): String {
+        return method.path
+    }
+
+    private fun gatherParams(ctx: RestContext): Array<Any?> {
+        return function.parameters
                 .filter { p -> p.name != null }
                 .map { p -> getParamValue(p, ctx) }
                 .toTypedArray()
@@ -72,5 +85,18 @@ class RestHandlerInvoker(private val parser: RestParamParser) {
 
     private fun isArray(cls: KClass<*>): Boolean {
         return cls.qualifiedName!!.endsWith("kotlin.Array")
+    }
+
+    companion object {
+        fun of(owner: Any, function: KFunction<*>, parser: RestParamParser): RestMethod? {
+            val method = function.findAnnotation<HttpMethod>()
+            val returnType = function.returnType.classifier
+            if (returnType != RestResult::class && returnType != Unit::class) {
+                return null
+            } else if (method == null) {
+                return null
+            }
+            return RestMethod(owner, method, function, parser)
+        }
     }
 }
