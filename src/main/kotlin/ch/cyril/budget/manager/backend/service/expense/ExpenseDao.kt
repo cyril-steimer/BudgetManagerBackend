@@ -17,6 +17,8 @@ interface ExpenseDao {
         return expenses.firstOrNull()
     }
 
+    fun addExpense(expense: Expense)
+
     fun updateExpense(expense: Expense)
 
     fun deleteExpense(expense: Expense)

@@ -5,7 +5,7 @@ import ch.cyril.budget.manager.backend.rest.GSON
 import ch.cyril.budget.manager.backend.rest.lib.RestHandlerInvoker
 import ch.cyril.budget.manager.backend.rest.lib.gson.GsonRestParamParser
 import ch.cyril.budget.manager.backend.rest.lib.javalin.JavalinRestContext
-import ch.cyril.budget.manager.backend.service.expense.filebased.FilebasedExpenseDao
+import ch.cyril.budget.manager.backend.service.filebased.FilebasedServiceFactory
 import io.javalin.Context
 import io.javalin.Javalin
 import java.nio.file.Paths
@@ -16,7 +16,8 @@ val invoker = RestHandlerInvoker(GsonRestParamParser(GSON))
 
 fun main(args: Array<String>) {
     val file = Paths.get("C:\\Users\\Cyril\\Projects\\BudgetManager\\budget.txt")
-    val dao = FilebasedExpenseDao(file)
+    val factory = FilebasedServiceFactory(file)
+    val dao = factory.createExpenseDao()
     val handler = ExpenseRestHandler(dao)
 
     val app = Javalin.create()
@@ -27,7 +28,11 @@ fun main(args: Array<String>) {
     app.get("/api/v1/expenses/search/:arg") { ctx -> handle(handler::search, ctx) }
     app.get("/api/v1/expenses/:query/:arg") { ctx -> handle(handler::handleSimpleQuery, ctx) }
 
+    app.post("/api/v1/expenses") { ctx -> handle(handler::addExpense, ctx) }
+
     app.put("/api/v1/expenses") { ctx -> handle(handler::updateExpense, ctx) }
+
+    app.delete("/api/v1/expenses") { ctx -> handle(handler::deleteExpense, ctx) }
 }
 
 fun handle(function: KFunction<*>, ctx: Context) {
@@ -35,6 +40,6 @@ fun handle(function: KFunction<*>, ctx: Context) {
         invoker.invoke(function, JavalinRestContext(ctx))
     } catch (e: Throwable) {
         e.printStackTrace()
-        ctx.response().sendError(HttpServletResponse.SC_BAD_REQUEST)
+        ctx.response().sendError(HttpServletResponse.SC_BAD_REQUEST, e.message)
     }
 }

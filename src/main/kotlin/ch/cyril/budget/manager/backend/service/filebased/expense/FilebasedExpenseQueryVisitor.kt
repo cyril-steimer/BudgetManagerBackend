@@ -1,4 +1,4 @@
-package ch.cyril.budget.manager.backend.service.expense.filebased
+package ch.cyril.budget.manager.backend.service.filebased.expense
 
 import ch.cyril.budget.manager.backend.model.Expense
 import ch.cyril.budget.manager.backend.service.expense.*

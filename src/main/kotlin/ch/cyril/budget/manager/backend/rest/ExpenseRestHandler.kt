@@ -44,10 +44,6 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
 
-    fun updateExpense(@Body expense: Expense) {
-        expenseDao.updateExpense(expense)
-    }
-
     fun getAllExpenses(
             @QueryParam("sort") field: ExpenseSortField?,
             @QueryParam("dir") dir: SortDirection?,
@@ -55,6 +51,18 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
             @QueryParam("count") count: Int?,
             @QueryParam("single") single: Boolean?): RestResult {
         return handleQuery(null, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
+    }
+
+    fun updateExpense(@Body expense: Expense) {
+        expenseDao.updateExpense(expense)
+    }
+
+    fun addExpense(@Body expense: Expense) {
+        expenseDao.addExpense(expense)
+    }
+
+    fun deleteExpense(@Body expense: Expense) {
+        expenseDao.deleteExpense(expense)
     }
 
     private fun handleQuery(
