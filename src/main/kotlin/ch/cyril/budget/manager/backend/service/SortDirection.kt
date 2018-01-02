@@ -1,6 +1,8 @@
 package ch.cyril.budget.manager.backend.service
 
-enum class SortDirection(val direction: String) {
+import ch.cyril.budget.manager.backend.util.Identifiable
+
+enum class SortDirection(override val identifier: String) : Identifiable {
     ASCENDING("asc"),
     DESCENDING("desc");
 
@@ -9,12 +11,5 @@ enum class SortDirection(val direction: String) {
             return sorter.reversed()
         }
         return sorter
-    }
-
-    companion object {
-        fun byDirection(dir: String): SortDirection {
-            val res = values().find { d -> d.direction.equals(dir) }
-            return res ?: throw IllegalArgumentException("No sort direction '$dir'")
-        }
     }
 }

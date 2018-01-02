@@ -8,9 +8,9 @@ interface ExpenseQueryVisitor<A, R> {
 
     fun visitCategoryQuery(query: CategoryExpenseQuery, arg: A): R
 
-    fun visitSinceQuery(query: SinceExpenseQuery, arg: A): R
+    fun visitDateQuery(query: DateExpenseQuery, arg: A): R
 
-    fun visitBeforeQuery(query: BeforeExpenseQuery, arg: A): R
+    fun visitAmountQuery(query: AmountExpenseQuery, arg: A): R
 
     fun visitOrQuery(query: OrExpenseQuery, arg: A): R
 

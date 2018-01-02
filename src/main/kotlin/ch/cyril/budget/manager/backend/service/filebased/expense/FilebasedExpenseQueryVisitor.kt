@@ -1,29 +1,102 @@
 package ch.cyril.budget.manager.backend.service.filebased.expense
 
 import ch.cyril.budget.manager.backend.model.Expense
+import ch.cyril.budget.manager.backend.service.MathComparisonSwitch
+import ch.cyril.budget.manager.backend.service.StringCaseSwitch
+import ch.cyril.budget.manager.backend.service.StringComparisonSwitch
 import ch.cyril.budget.manager.backend.service.expense.*
-import com.sun.org.apache.xpath.internal.operations.Bool
 
 class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<List<Expense>, List<Expense>> {
 
-    override fun visitNameQuery(query: NameExpenseQuery, arg: List<Expense>): List<Expense> {
-        return arg.filter { e -> containsIgnoringCase(e.name.name, query.name.name) }
+    private class MathComparatorSwitch<T : Comparable<T>>(val query: T) : MathComparisonSwitch<T, Boolean> {
+
+        override fun caseLt(arg: T): Boolean {
+            return arg < query
+        }
+
+        override fun caseLte(arg: T): Boolean {
+            return arg <= query
+        }
+
+        override fun caseEq(arg: T): Boolean {
+            return arg == query
+        }
+
+        override fun caseNeq(arg: T): Boolean {
+            return arg != query
+        }
+
+        override fun caseGte(arg: T): Boolean {
+            return arg >= query
+        }
+
+        override fun caseGt(arg: T): Boolean {
+            return arg > query
+        }
+    }
+
+    private class CaseSensitivityConverter : StringCaseSwitch<String, String> {
+
+        override fun caseCaseSensitive(arg: String): String {
+            return arg
+        }
+
+        override fun caseCaseInsensitive(arg: String): String {
+            return arg.toLowerCase()
+        }
+    }
+
+    private class StringComparatorSwitch(val query: String) : StringComparisonSwitch<String, Boolean> {
+
+        override fun caseStartsWith(arg: String): Boolean {
+            return arg.startsWith(query)
+        }
+
+        override fun caseContains(arg: String): Boolean {
+            return arg.contains(query)
+        }
+
+        override fun caseEndsWith(arg: String): Boolean {
+            return arg.endsWith(query)
+        }
+
+        override fun caseEq(arg: String): Boolean {
+            return arg == query
+        }
     }
 
     override fun visitIdQuery(query: IdExpenseQuery, arg: List<Expense>): List<Expense> {
         return arg.filter { e -> e.id == query.id }
     }
 
+    override fun visitNameQuery(query: NameExpenseQuery, arg: List<Expense>): List<Expense> {
+        val caseSwitch = CaseSensitivityConverter()
+        val queryCased = query.case.switch(caseSwitch, query.name.name)
+        val comparator = StringComparatorSwitch(queryCased)
+        return arg.filter { e ->
+            val nameCased = query.case.switch(caseSwitch, e.name.name)
+            query.comparison.switch(comparator, nameCased)
+        }
+    }
+
     override fun visitCategoryQuery(query: CategoryExpenseQuery, arg: List<Expense>): List<Expense> {
-        return arg.filter { e -> containsIgnoringCase(e.category.name, query.category.name) }
+        val caseSwitch = CaseSensitivityConverter()
+        val queryCased = query.case.switch(caseSwitch, query.category.name)
+        val comparator = StringComparatorSwitch(queryCased)
+        return arg.filter { e ->
+            val nameCased = query.case.switch(caseSwitch, e.category.name)
+            query.comparison.switch(comparator, nameCased)
+        }
     }
 
-    override fun visitSinceQuery(query: SinceExpenseQuery, arg: List<Expense>): List<Expense> {
-        return arg.filter { e -> !e.date.isBefore(query.since) }
+    override fun visitDateQuery(query: DateExpenseQuery, arg: List<Expense>): List<Expense> {
+        val switch = MathComparatorSwitch(query.date)
+        return arg.filter { e -> query.comparison.switch(switch, e.date) }
     }
 
-    override fun visitBeforeQuery(query: BeforeExpenseQuery, arg: List<Expense>): List<Expense> {
-        return arg.filter { e -> e.date.isBefore(query.before) }
+    override fun visitAmountQuery(query: AmountExpenseQuery, arg: List<Expense>): List<Expense> {
+        val switch = MathComparatorSwitch(query.amount.amount)
+        return arg.filter { e -> query.comparison.switch(switch, e.amount.amount) }
     }
 
     override fun visitAndQuery(query: AndExpenseQuery, arg: List<Expense>): List<Expense> {
@@ -40,9 +113,5 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<List<Expense>, List<Exp
             res.addAll(q.accept(this, arg))
         }
         return res.toList()
-    }
-
-    private fun containsIgnoringCase(value: String, search: String): Boolean {
-        return value.toLowerCase().contains(search.toLowerCase())
     }
 }

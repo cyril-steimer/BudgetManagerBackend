@@ -1,8 +1,12 @@
 package ch.cyril.budget.manager.backend.service.expense
 
+import ch.cyril.budget.manager.backend.model.Amount
 import ch.cyril.budget.manager.backend.model.Category
 import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.model.Name
+import ch.cyril.budget.manager.backend.service.MathComparison
+import ch.cyril.budget.manager.backend.service.StringCase
+import ch.cyril.budget.manager.backend.service.StringComparison
 import java.time.LocalDate
 
 interface ExpenseQuery {
@@ -10,10 +14,23 @@ interface ExpenseQuery {
     fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R
 }
 
-class NameExpenseQuery(val name: Name) : ExpenseQuery {
+class NameExpenseQuery(
+        val name: Name,
+        val comparison: StringComparison,
+        val case: StringCase) : ExpenseQuery {
 
     override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
         return visitor.visitNameQuery(this, arg)
+    }
+}
+
+class CategoryExpenseQuery(
+        val category: Category,
+        val comparison: StringComparison,
+        val case: StringCase) : ExpenseQuery {
+
+    override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
+        return visitor.visitCategoryQuery(this, arg)
     }
 }
 
@@ -24,24 +41,17 @@ class IdExpenseQuery(val id: Id) : ExpenseQuery {
     }
 }
 
-class CategoryExpenseQuery(val category: Category) : ExpenseQuery {
+class DateExpenseQuery(val date: LocalDate, val comparison: MathComparison) : ExpenseQuery {
 
     override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
-        return visitor.visitCategoryQuery(this, arg)
+        return visitor.visitDateQuery(this, arg)
     }
 }
 
-class SinceExpenseQuery(val since: LocalDate) : ExpenseQuery {
+class AmountExpenseQuery(val amount: Amount, val comparison: MathComparison) : ExpenseQuery {
 
     override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
-        return visitor.visitSinceQuery(this, arg)
-    }
-}
-
-class BeforeExpenseQuery(val before: LocalDate) : ExpenseQuery {
-
-    override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
-        return visitor.visitBeforeQuery(this, arg)
+        return visitor.visitAmountQuery(this, arg)
     }
 }
 

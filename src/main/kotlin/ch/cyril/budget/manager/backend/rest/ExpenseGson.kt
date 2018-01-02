@@ -1,11 +1,10 @@
 package ch.cyril.budget.manager.backend.rest
 
-import ch.cyril.budget.manager.backend.model.Category
 import ch.cyril.budget.manager.backend.model.Id
-import ch.cyril.budget.manager.backend.model.Name
 import ch.cyril.budget.manager.backend.service.expense.SimpleExpenseQueryDescriptor
 import ch.cyril.budget.manager.backend.service.SortDirection
 import ch.cyril.budget.manager.backend.service.expense.ExpenseSortField
+import ch.cyril.budget.manager.backend.util.Identifiable
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
@@ -42,31 +41,30 @@ private class LocalDateTypeAdapter : TypeAdapter<LocalDate>() {
 
 private class SimpleQueryDescriptorAdapter : TypeAdapter<SimpleExpenseQueryDescriptor>() {
     override fun read(`in`: JsonReader): SimpleExpenseQueryDescriptor {
-        return SimpleExpenseQueryDescriptor.byQueryName(`in`.nextString())
+        return Identifiable.byIdentifier(`in`.nextString())
     }
 
     override fun write(out: JsonWriter, value: SimpleExpenseQueryDescriptor) {
-        out.value(value.queryName)
+        out.value(value.identifier)
     }
 }
 
 private class SortDirectionAdapter : TypeAdapter<SortDirection>() {
     override fun read(`in`: JsonReader): SortDirection {
-        return SortDirection.byDirection(`in`.nextString())
+        return Identifiable.byIdentifier(`in`.nextString())
     }
 
     override fun write(out: JsonWriter, value: SortDirection) {
-        out.value(value.direction)
+        out.value(value.identifier)
     }
 }
 
 private class ExpenseSortFieldAdapter : TypeAdapter<ExpenseSortField>() {
     override fun read(`in`: JsonReader): ExpenseSortField {
-        return ExpenseSortField.byFieldName(`in`.nextString())
+        return Identifiable.byIdentifier(`in`.nextString())
     }
 
     override fun write(out: JsonWriter, value: ExpenseSortField) {
-        out.value(value.fieldName)
+        out.value(value.identifier)
     }
-
 }
