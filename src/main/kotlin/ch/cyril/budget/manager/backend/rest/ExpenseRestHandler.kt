@@ -5,10 +5,24 @@ import ch.cyril.budget.manager.backend.rest.lib.*
 import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.service.SortDirection
 import ch.cyril.budget.manager.backend.service.expense.*
+import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import java.util.*
 
 class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
+
+    @HttpMethod(HttpVerb.POST, "/api/v1/expenses/search")
+    fun search(
+            @Body body: JsonObject,
+            @QueryParam("sort") field: ExpenseSortField?,
+            @QueryParam("dir") dir: SortDirection?,
+            @QueryParam("from") from: Int?,
+            @QueryParam("count") count: Int?,
+            @QueryParam("single") single: Boolean?): RestResult {
+
+        val query = ExpenseQueryDescriptor.createQuery(body)
+        return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
+    }
 
     @HttpMethod(HttpVerb.GET, "/api/v1/expenses/search/:arg")
     fun search(
