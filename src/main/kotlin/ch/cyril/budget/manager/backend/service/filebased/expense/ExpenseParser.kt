@@ -23,7 +23,7 @@ class ExpenseParser() {
         return listOf(
                 expense.id.id,
                 expense.name.name,
-                expense.amount,
+                expense.amount.amount,
                 expense.category.name,
                 expense.date)
                 .joinToString(",")
