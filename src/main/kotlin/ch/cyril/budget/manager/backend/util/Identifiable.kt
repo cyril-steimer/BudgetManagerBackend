@@ -16,5 +16,15 @@ interface Identifiable {
             }
             throw IllegalArgumentException("No enum constant with identifier '$identifier'")
         }
+
+        inline fun <reified T> byIdentifierOrDefault(identifier: String, dflt: T): T
+                where T: Enum<T>, T: Identifiable {
+
+            try {
+                return byIdentifier(identifier)
+            } catch (e: Exception) {
+                return dflt
+            }
+        }
     }
 }

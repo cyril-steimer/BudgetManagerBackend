@@ -5,6 +5,7 @@ import ch.cyril.budget.manager.backend.rest.lib.*
 import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.service.SortDirection
 import ch.cyril.budget.manager.backend.service.expense.*
+import com.google.gson.JsonPrimitive
 import java.util.*
 
 class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
@@ -21,7 +22,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         val queries = LinkedList<ExpenseQuery>()
         for (desc in SimpleExpenseQueryDescriptor.values()) {
             try {
-                queries.add(desc.createQuery(arg))
+                queries.add(desc.createQuery(JsonPrimitive(arg)))
             } catch (e: Exception) {
                 //Ignore, can happen if e.g. arg is not int
             }
@@ -40,7 +41,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
             @QueryParam("count") count: Int?,
             @QueryParam("single") single: Boolean?): RestResult {
 
-        val query = desc.createQuery(arg)
+        val query = desc.createQuery(JsonPrimitive(arg))
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
 
