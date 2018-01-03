@@ -1,4 +1,4 @@
-package ch.cyril.budget.manager.backend.service
+package ch.cyril.budget.manager.backend.util
 
 class SubList<T> private constructor(val count: Int, val values: List<T>) {
 

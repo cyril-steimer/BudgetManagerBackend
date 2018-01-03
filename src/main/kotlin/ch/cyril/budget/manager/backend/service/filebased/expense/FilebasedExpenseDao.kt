@@ -5,7 +5,7 @@ import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
 import ch.cyril.budget.manager.backend.service.expense.ExpenseQuery
 import ch.cyril.budget.manager.backend.service.Pagination
-import ch.cyril.budget.manager.backend.service.SubList
+import ch.cyril.budget.manager.backend.util.SubList
 import ch.cyril.budget.manager.backend.service.expense.ExpenseSort
 import java.nio.file.Path
 

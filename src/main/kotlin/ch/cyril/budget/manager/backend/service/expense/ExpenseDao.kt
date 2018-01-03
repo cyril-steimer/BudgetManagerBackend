@@ -2,7 +2,7 @@ package ch.cyril.budget.manager.backend.service.expense
 
 import ch.cyril.budget.manager.backend.model.Expense
 import ch.cyril.budget.manager.backend.service.Pagination
-import ch.cyril.budget.manager.backend.service.SubList
+import ch.cyril.budget.manager.backend.util.SubList
 
 interface ExpenseDao {
 
