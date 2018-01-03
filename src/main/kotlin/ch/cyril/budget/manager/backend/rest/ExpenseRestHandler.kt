@@ -24,24 +24,32 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
 
-    @HttpMethod(HttpVerb.GET, "/api/v1/expenses/search/:arg")
+    @HttpMethod(HttpVerb.POST, "/api/v1/expenses/search/:filter")
     fun search(
-            @PathParam("arg") arg: String,
+            @PathParam("filter") filter: String,
+            @Body body: JsonObject,
             @QueryParam("sort") field: ExpenseSortField?,
             @QueryParam("dir") dir: SortDirection?,
             @QueryParam("from") from: Int?,
             @QueryParam("count") count: Int?,
             @QueryParam("single") single: Boolean?): RestResult {
 
-        val queries = LinkedList<ExpenseQuery>()
-        for (desc in SimpleExpenseQueryDescriptor.values()) {
-            try {
-                queries.add(desc.createQuery(JsonPrimitive(arg)))
-            } catch (e: Exception) {
-                //Ignore, can happen if e.g. arg is not int
-            }
-        }
-        val query = OrExpenseQuery(queries)
+        val filterQuery = filterQuery(filter)
+        val searchQuery = ExpenseQueryDescriptor.createQuery(body)
+        val query = AndExpenseQuery(listOf(filterQuery, searchQuery))
+        return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
+    }
+
+    @HttpMethod(HttpVerb.GET, "/api/v1/expenses/search/:filter")
+    fun search(
+            @PathParam("filter") filter: String,
+            @QueryParam("sort") field: ExpenseSortField?,
+            @QueryParam("dir") dir: SortDirection?,
+            @QueryParam("from") from: Int?,
+            @QueryParam("count") count: Int?,
+            @QueryParam("single") single: Boolean?): RestResult {
+
+        val query = filterQuery(filter)
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
 
@@ -83,6 +91,18 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
     @HttpMethod(HttpVerb.DELETE, "/api/v1/expenses")
     fun deleteExpense(@Body expense: Expense) {
         expenseDao.deleteExpense(expense)
+    }
+
+    private fun filterQuery(filter: String): ExpenseQuery {
+        val queries = LinkedList<ExpenseQuery>()
+        for (desc in SimpleExpenseQueryDescriptor.values()) {
+            try {
+                queries.add(desc.createQuery(JsonPrimitive(filter)))
+            } catch (e: Exception) {
+                //Ignore, can happen if e.g. arg is not int
+            }
+        }
+        return OrExpenseQuery(queries)
     }
 
     private fun handleQuery(
