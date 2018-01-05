@@ -1,0 +1,15 @@
+package ch.cyril.budget.manager.backend.rest
+
+import ch.cyril.budget.manager.backend.rest.lib.HttpMethod
+import ch.cyril.budget.manager.backend.rest.lib.HttpVerb
+import ch.cyril.budget.manager.backend.rest.lib.RestResult
+import ch.cyril.budget.manager.backend.service.budget.BudgetDao
+
+class BudgetRestHandler(private val budgetDao: BudgetDao) {
+
+    @HttpMethod(HttpVerb.GET, "/api/v1/budget")
+    fun getBudgets(): RestResult {
+        val res = budgetDao.getBudgets()
+        return RestResult.json(GSON.toJson(res))
+    }
+}
