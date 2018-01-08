@@ -6,6 +6,9 @@ import java.nio.file.Path
 abstract class LineBasedFileParser<T> {
 
     fun load(file: Path): List<T> {
+        if (!Files.exists(file)) {
+            return emptyList()
+        }
         val lines = Files.readAllLines(file)
         return lines
                 .map { l -> fromLine(l) }

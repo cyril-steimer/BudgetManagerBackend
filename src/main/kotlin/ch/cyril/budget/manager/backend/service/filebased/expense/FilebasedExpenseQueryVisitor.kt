@@ -90,8 +90,8 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<List<Expense>, List<Exp
     }
 
     override fun visitDateQuery(query: DateExpenseQuery, arg: List<Expense>): List<Expense> {
-        val switch = MathComparatorSwitch(query.date)
-        return arg.filter { e -> query.comparison.switch(switch, e.date) }
+        val switch = MathComparatorSwitch(query.date.timestamp)
+        return arg.filter { e -> query.comparison.switch(switch, e.date.timestamp) }
     }
 
     override fun visitAmountQuery(query: AmountExpenseQuery, arg: List<Expense>): List<Expense> {

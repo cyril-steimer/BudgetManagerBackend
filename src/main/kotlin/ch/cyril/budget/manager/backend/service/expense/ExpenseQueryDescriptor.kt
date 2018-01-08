@@ -1,9 +1,6 @@
 package ch.cyril.budget.manager.backend.service.expense
 
-import ch.cyril.budget.manager.backend.model.Id
-import ch.cyril.budget.manager.backend.model.Name
-import ch.cyril.budget.manager.backend.model.Category
-import ch.cyril.budget.manager.backend.model.Amount
+import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.util.Identifiable
 import ch.cyril.budget.manager.backend.service.StringComparison
 import ch.cyril.budget.manager.backend.service.MathComparison
@@ -86,11 +83,11 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     },
     DATE("date") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
-            return DateExpenseQuery(LocalDate.parse(value.asString), MathComparison.EQ)
+            return DateExpenseQuery(Timestamp(getBigDecimal(value).toLong()), MathComparison.EQ)
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {
-            val date = LocalDate.parse(value.get("date").asString)
+            val date = Timestamp(value.get("date").asLong)
             val comparison = Identifiable.byIdentifier<MathComparison>(value.get("comparison").asString)
             return DateExpenseQuery(date, comparison)
         }

@@ -1,9 +1,6 @@
 package ch.cyril.budget.manager.backend.service.expense
 
-import ch.cyril.budget.manager.backend.model.Amount
-import ch.cyril.budget.manager.backend.model.Category
-import ch.cyril.budget.manager.backend.model.Id
-import ch.cyril.budget.manager.backend.model.Name
+import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.MathComparison
 import ch.cyril.budget.manager.backend.service.StringCase
 import ch.cyril.budget.manager.backend.service.StringComparison
@@ -41,7 +38,7 @@ class IdExpenseQuery(val id: Id) : ExpenseQuery {
     }
 }
 
-class DateExpenseQuery(val date: LocalDate, val comparison: MathComparison) : ExpenseQuery {
+class DateExpenseQuery(val date: Timestamp, val comparison: MathComparison) : ExpenseQuery {
 
     override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
         return visitor.visitDateQuery(this, arg)
