@@ -12,7 +12,7 @@ import java.nio.file.Paths
 
 
 fun main(args: Array<String>) {
-    val expensesFile = Paths.get("C:\\Users\\Cyril\\Projects\\BudgetManager\\expenses.txt")
+    val expensesFile = Paths.get("C:\\Users\\Cyril\\Projects\\BudgetManager\\real-expenses.txt")
     val budgetFile = Paths.get("C:\\Users\\Cyril\\Projects\\BudgetManager\\budget.txt")
     val factory = FilebasedServiceFactory(expensesFile, budgetFile)
     val expenseDao = factory.createExpenseDao()

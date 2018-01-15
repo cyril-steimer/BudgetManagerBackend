@@ -2,8 +2,10 @@ package ch.cyril.budget.manager.backend.service.filebased.budget
 
 import ch.cyril.budget.manager.backend.model.Amount
 import ch.cyril.budget.manager.backend.model.Budget
+import ch.cyril.budget.manager.backend.model.BudgetPeriod
 import ch.cyril.budget.manager.backend.model.Category
 import ch.cyril.budget.manager.backend.service.filebased.LineBasedFileParser
+import ch.cyril.budget.manager.backend.util.Identifiable
 
 class BudgetParser() : LineBasedFileParser<Budget>() {
 
@@ -18,6 +20,7 @@ class BudgetParser() : LineBasedFileParser<Budget>() {
         val split = line.split(",")
         val category = Category(split[0])
         val amount = Amount(split[1].toBigDecimal())
-        return Budget(category, amount)
+        val period = Identifiable.byIdentifier<BudgetPeriod>(split[2])
+        return Budget(category, amount, period)
     }
 }

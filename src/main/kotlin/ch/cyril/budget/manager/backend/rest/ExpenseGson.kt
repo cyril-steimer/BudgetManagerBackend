@@ -1,5 +1,6 @@
 package ch.cyril.budget.manager.backend.rest
 
+import ch.cyril.budget.manager.backend.model.BudgetPeriod
 import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.service.expense.SimpleExpenseQueryDescriptor
 import ch.cyril.budget.manager.backend.service.SortDirection
@@ -17,6 +18,7 @@ val GSON = GsonBuilder()
         .registerTypeAdapter(SimpleExpenseQueryDescriptor::class.java, SimpleQueryDescriptorAdapter().nullSafe())
         .registerTypeAdapter(ExpenseSortField::class.java, ExpenseSortFieldAdapter().nullSafe())
         .registerTypeAdapter(SortDirection::class.java, SortDirectionAdapter().nullSafe())
+        .registerTypeAdapter(BudgetPeriod::class.java, BudgetPeriodAdapter().nullSafe())
         .create()
 
 private class IdTypeAdapter : TypeAdapter<Id>() {
@@ -65,6 +67,16 @@ private class ExpenseSortFieldAdapter : TypeAdapter<ExpenseSortField>() {
     }
 
     override fun write(out: JsonWriter, value: ExpenseSortField) {
+        out.value(value.identifier)
+    }
+}
+
+private class BudgetPeriodAdapter : TypeAdapter<BudgetPeriod>() {
+    override fun read(`in`: JsonReader): BudgetPeriod {
+        return Identifiable.byIdentifier(`in`.nextString())
+    }
+
+    override fun write(out: JsonWriter, value: BudgetPeriod) {
         out.value(value.identifier)
     }
 }
