@@ -1,5 +1,6 @@
 package ch.cyril.budget.manager.backend.rest.lib
 
+import ch.cyril.budget.manager.backend.model.Validatable
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -58,6 +59,9 @@ class RestMethod private constructor(
         val cls = param.type.classifier as KClass<*>
         if (value != null && !cls.isInstance(value)) {
             throw IllegalArgumentException("Value '$value' for param '$param' is of wrong type")
+        }
+        if (value is Validatable) {
+            value.validate()
         }
     }
 

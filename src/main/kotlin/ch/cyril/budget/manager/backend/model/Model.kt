@@ -5,16 +5,34 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 
-data class Budget(val category: Category, val amount: Amount, val period: BudgetPeriod)
+data class Budget(val category: Category, val amount: Amount, val period: BudgetPeriod) : Validatable {
+
+    override fun validate() {
+        amount.validate()
+    }
+}
 
 enum class BudgetPeriod(override val identifier: String) : Identifiable {
     YEARLY("yearly"),
     MONTHLY("monthly")
 }
 
-data class Expense(val id: Id, val name: Name, val amount: Amount, val category: Category, val date: Timestamp)
+data class Expense(val id: Id, val name: Name, val amount: Amount, val category: Category, val date: Timestamp) : Validatable {
 
-data class Amount(val amount: BigDecimal)
+    override fun validate() {
+        amount.validate()
+    }
+
+}
+
+data class Amount(val amount: BigDecimal) : Validatable {
+
+    override fun validate() {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw ValidationException("Amount must be greater than zero")
+        }
+    }
+}
 
 data class Id(val id: Int)
 
