@@ -12,4 +12,10 @@ class BudgetRestHandler(private val budgetDao: BudgetDao) {
         val res = budgetDao.getBudgets()
         return RestResult.json(GSON.toJson(res))
     }
+
+    @HttpMethod(HttpVerb.GET, "/api/v1/category")
+    fun getCategories(): RestResult {
+        val res = budgetDao.getCategories()
+        return RestResult.json(GSON.toJson(res))
+    }
 }
