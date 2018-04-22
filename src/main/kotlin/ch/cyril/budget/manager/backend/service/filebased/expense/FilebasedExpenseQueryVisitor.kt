@@ -79,6 +79,16 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<List<Expense>, List<Exp
         }
     }
 
+    override fun visitMethodQuery(query: MethodExpenseQuery, arg: List<Expense>): List<Expense> {
+        val caseSwitch = CaseSensitivityConverter()
+        val queryCased = query.case.switch(caseSwitch, query.method.name)
+        val comparator = StringComparatorSwitch(queryCased)
+        return arg.filter { e ->
+            val methodCased = query.case.switch(caseSwitch, e.method.name)
+            query.comparison.switch(comparator, methodCased)
+        }
+    }
+
     override fun visitCategoryQuery(query: CategoryExpenseQuery, arg: List<Expense>): List<Expense> {
         val caseSwitch = CaseSensitivityConverter()
         val queryCased = query.case.switch(caseSwitch, query.category.name)

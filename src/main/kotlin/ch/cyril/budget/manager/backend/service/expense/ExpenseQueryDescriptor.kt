@@ -91,6 +91,19 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
             val comparison = Identifiable.byIdentifier<MathComparison>(value.get("comparison").asString)
             return DateExpenseQuery(date, comparison)
         }
+    },
+    METHOD("method") {
+        override fun createQuery(value: JsonPrimitive): ExpenseQuery {
+            return MethodExpenseQuery(PaymentMethod(value.asString), StringComparison.CONTAINS, StringCase.CASE_INSENSITIVE)
+        }
+
+        override fun createQuery(value: JsonObject): ExpenseQuery {
+            val name = value.get("method").asString
+            val comparison = Identifiable.byIdentifier<StringComparison>(value.get("comparison").asString)
+            val case = Identifiable.byIdentifier<StringCase>(value.get("case").asString)
+            return MethodExpenseQuery(PaymentMethod(name), comparison, case)
+        }
+
     };
 
     override fun createQuery(value: JsonElement): ExpenseQuery {

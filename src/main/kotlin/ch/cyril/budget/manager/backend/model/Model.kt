@@ -17,13 +17,20 @@ enum class BudgetPeriod(override val identifier: String) : Identifiable {
     MONTHLY("monthly")
 }
 
-data class Expense(val id: Id, val name: Name, val amount: Amount, val category: Category, val date: Timestamp) : Validatable {
+data class Expense(
+        val id: Id,
+        val name: Name,
+        val amount: Amount,
+        val category: Category,
+        val date: Timestamp,
+        val method: PaymentMethod) : Validatable {
 
     override fun validate() {
         amount.validate()
     }
-
 }
+
+data class PaymentMethod(val name: String)
 
 data class Amount(val amount: BigDecimal) : Validatable {
 

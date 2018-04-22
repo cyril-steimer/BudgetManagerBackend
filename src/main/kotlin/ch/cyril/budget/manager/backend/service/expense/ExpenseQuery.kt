@@ -21,6 +21,16 @@ class NameExpenseQuery(
     }
 }
 
+class MethodExpenseQuery(
+        val method: PaymentMethod,
+        val comparison: StringComparison,
+        val case: StringCase) : ExpenseQuery {
+
+    override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
+        return visitor.visitMethodQuery(this, arg)
+    }
+}
+
 class CategoryExpenseQuery(
         val category: Category,
         val comparison: StringComparison,

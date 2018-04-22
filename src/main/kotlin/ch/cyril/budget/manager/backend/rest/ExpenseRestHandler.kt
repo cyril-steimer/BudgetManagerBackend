@@ -6,6 +6,7 @@ import ch.cyril.budget.manager.backend.rest.lib.*
 import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.service.SortDirection
 import ch.cyril.budget.manager.backend.service.expense.*
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import java.util.*
@@ -95,6 +96,12 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         if (expense != null) {
             expenseDao.deleteExpense(expense)
         }
+    }
+
+    @HttpMethod(HttpVerb.GET, "/api/v1/paymentmethod")
+    fun getPaymentMethods(): RestResult {
+        val res = GSON.toJson((expenseDao.getPaymentMethods()))
+        return RestResult.json(res)
     }
 
     private fun filterQuery(filter: String): ExpenseQuery {

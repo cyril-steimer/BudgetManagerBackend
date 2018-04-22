@@ -12,7 +12,8 @@ class ExpenseParser() : LineBasedFileParser<Expense>() {
                 t.name.name,
                 t.amount.amount,
                 t.category.name,
-                t.date.timestamp)
+                t.date.timestamp,
+                t.method.name)
                 .joinToString(",")
     }
 
@@ -23,7 +24,11 @@ class ExpenseParser() : LineBasedFileParser<Expense>() {
         val amount = Amount(split[2].toBigDecimal())
         val category = Category(split[3])
         val date = parseTimestampBackwardsCompatible(split[4])
-        return Expense(id, name, amount, category, date)
+        var method = PaymentMethod("")
+        if (split.size >= 6) {
+            method = PaymentMethod(split[5]);
+        }
+        return Expense(id, name, amount, category, date, method)
     }
 
     private fun parseTimestampBackwardsCompatible(date: String): Timestamp {

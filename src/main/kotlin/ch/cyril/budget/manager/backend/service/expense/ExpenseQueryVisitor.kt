@@ -4,6 +4,8 @@ interface ExpenseQueryVisitor<A, R> {
 
     fun visitNameQuery(query: NameExpenseQuery, arg: A): R
 
+    fun visitMethodQuery(query: MethodExpenseQuery, arg: A): R
+
     fun visitIdQuery(query: IdExpenseQuery, arg: A): R
 
     fun visitCategoryQuery(query: CategoryExpenseQuery, arg: A): R
