@@ -14,7 +14,10 @@ class FilebasedBudgetDao(val file: Path) : BudgetDao {
     }
 
     override fun addBudget(budget: Budget) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val budgets = ArrayList(getAllBudgets())
+        budgets.removeIf { b -> b.category == budget.category }
+        budgets.add(budget)
+        parser.store(file, budgets)
     }
 
     override fun updateBudget(budget: Budget) {
@@ -23,5 +26,9 @@ class FilebasedBudgetDao(val file: Path) : BudgetDao {
 
     override fun deleteBudget(budget: Budget) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    private fun getAllBudgets(): List<Budget> {
+        return parser.load(file)
     }
 }

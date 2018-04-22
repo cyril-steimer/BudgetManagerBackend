@@ -12,7 +12,8 @@ class BudgetParser() : LineBasedFileParser<Budget>() {
     override fun toLine(t: Budget): String {
         return listOf(
                 t.category.name,
-                t.amount.amount)
+                t.amount.amount,
+                t.period.identifier)
                 .joinToString(",")
     }
 

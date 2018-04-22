@@ -1,6 +1,7 @@
 package ch.cyril.budget.manager.backend.rest
 
 import ch.cyril.budget.manager.backend.model.Expense
+import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.rest.lib.*
 import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.service.SortDirection
@@ -89,8 +90,11 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
     }
 
     @HttpMethod(HttpVerb.DELETE, "/api/v1/expenses")
-    fun deleteExpense(@Body expense: Expense) {
-        expenseDao.deleteExpense(expense)
+    fun deleteExpense(@QueryParam("id") id: Int) {
+        val expense = expenseDao.getOneExpense(IdExpenseQuery(Id(id)), null)
+        if (expense != null) {
+            expenseDao.deleteExpense(expense)
+        }
     }
 
     private fun filterQuery(filter: String): ExpenseQuery {

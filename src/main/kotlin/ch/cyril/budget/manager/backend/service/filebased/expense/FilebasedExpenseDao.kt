@@ -33,7 +33,6 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
     }
 
     override fun addExpense(expense: Expense) {
-        //TODO Validate!
         val id = getNewId()
         val newExpense = Expense(id, expense.name, expense.amount, expense.category, expense.date)
         val expenses = getAllExpenses().toMutableList()
@@ -42,7 +41,6 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
     }
 
     override fun updateExpense(expense: Expense) {
-        //TODO Validate!
         val expenses = getAllExpenses().toMutableList()
         val existing = expenses.indexOfFirst { e -> e.id.equals(expense.id) }
         if (existing == -1) {
