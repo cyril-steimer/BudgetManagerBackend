@@ -29,7 +29,7 @@ class ExpenseParser() : LineBasedFileParser<Expense>() {
         val category = Category(split[3])
         val date = parseTimestampBackwardsCompatible(split[4])
         val method = PaymentMethod(split[5])
-        val tags = split.subList(6, split.size).map { t -> Tag(t) }
+        val tags = split.subList(6, split.size).map { t -> Tag(t) }.toSet()
         return Expense(id, name, amount, category, date, method, tags)
     }
 
