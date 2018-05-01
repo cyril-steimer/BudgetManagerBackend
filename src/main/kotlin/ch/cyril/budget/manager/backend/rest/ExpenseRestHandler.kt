@@ -100,7 +100,13 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
 
     @HttpMethod(HttpVerb.GET, "/api/v1/paymentmethod")
     fun getPaymentMethods(): RestResult {
-        val res = GSON.toJson((expenseDao.getPaymentMethods()))
+        val res = GSON.toJson(expenseDao.getPaymentMethods())
+        return RestResult.json(res)
+    }
+
+    @HttpMethod(HttpVerb.GET, "/api/v1/tag")
+    fun getTags(): RestResult {
+        val res = GSON.toJson(expenseDao.getTags())
         return RestResult.json(res)
     }
 
