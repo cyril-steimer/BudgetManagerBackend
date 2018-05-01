@@ -34,7 +34,7 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
 
     override fun addExpense(expense: Expense) {
         val id = getNewId()
-        val newExpense = Expense(id, expense.name, expense.amount, expense.category, expense.date, expense.method)
+        val newExpense = Expense(id, expense.name, expense.amount, expense.category, expense.date, expense.method, expense.tags)
         val expenses = getAllExpenses().toMutableList()
         expenses.add(newExpense)
         ExpenseParser().store(file, expenses)

@@ -3,18 +3,22 @@ package ch.cyril.budget.manager.backend.service.filebased.expense
 import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.filebased.LineBasedFileParser
 import java.time.LocalDate
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ExpenseParser() : LineBasedFileParser<Expense>() {
 
     override fun toLine(t: Expense): String {
-        return listOf(
+        val list = listOf(
                 t.id.id,
                 t.name.name,
                 t.amount.amount,
                 t.category.name,
                 t.date.timestamp,
                 t.method.name)
-                .joinToString(",")
+        val res = ArrayList(list)
+        res.addAll(t.tags.map { t -> t.name })
+        return res.joinToString(",")
     }
 
     override fun fromLine(line: String): Expense {
@@ -24,11 +28,9 @@ class ExpenseParser() : LineBasedFileParser<Expense>() {
         val amount = Amount(split[2].toBigDecimal())
         val category = Category(split[3])
         val date = parseTimestampBackwardsCompatible(split[4])
-        var method = PaymentMethod("")
-        if (split.size >= 6) {
-            method = PaymentMethod(split[5]);
-        }
-        return Expense(id, name, amount, category, date, method)
+        val method = PaymentMethod(split[5])
+        val tags = split.subList(6, split.size).map { t -> Tag(t) }
+        return Expense(id, name, amount, category, date, method, tags)
     }
 
     private fun parseTimestampBackwardsCompatible(date: String): Timestamp {
