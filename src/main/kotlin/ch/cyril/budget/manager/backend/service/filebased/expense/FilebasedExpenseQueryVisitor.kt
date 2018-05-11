@@ -109,6 +109,10 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<List<Expense>, List<Exp
         return arg.filter { e -> query.comparison.switch(switch, e.amount.amount) }
     }
 
+    override fun visitTagQuery(query: TagExpenseQuery, arg: List<Expense>): List<Expense> {
+        return arg.filter { e -> e.tags.contains(query.tag) }
+    }
+
     override fun visitAndQuery(query: AndExpenseQuery, arg: List<Expense>): List<Expense> {
         val res = arg.toMutableList()
         for (q in query.queries) {

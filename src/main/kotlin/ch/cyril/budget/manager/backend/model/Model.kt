@@ -23,12 +23,15 @@ data class Expense(
         val amount: Amount,
         val category: Category,
         val date: Timestamp,
-        val method: PaymentMethod) : Validatable {
+        val method: PaymentMethod,
+        val tags: Set<Tag>) : Validatable {
 
     override fun validate() {
         amount.validate()
     }
 }
+
+data class Tag(val name: String)
 
 data class PaymentMethod(val name: String)
 

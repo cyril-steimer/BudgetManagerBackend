@@ -6,11 +6,7 @@ import ch.cyril.budget.manager.backend.util.SubList
 
 interface BudgetDao {
 
-    fun getCategories(): SubList<Category> {
-        val res = getBudgets().values
-                .map { b -> b.category }
-        return SubList.of(res)
-    }
+    fun getCategories(): SubList<Category>
 
     fun getBudgets(): SubList<Budget>
 

@@ -2,6 +2,8 @@ package ch.cyril.budget.manager.backend.service.filebased.expense
 
 import ch.cyril.budget.manager.backend.model.Expense
 import ch.cyril.budget.manager.backend.model.Id
+import ch.cyril.budget.manager.backend.model.PaymentMethod
+import ch.cyril.budget.manager.backend.model.Tag
 import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
 import ch.cyril.budget.manager.backend.service.expense.ExpenseQuery
 import ch.cyril.budget.manager.backend.service.Pagination
@@ -34,7 +36,7 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
 
     override fun addExpense(expense: Expense) {
         val id = getNewId()
-        val newExpense = Expense(id, expense.name, expense.amount, expense.category, expense.date, expense.method)
+        val newExpense = Expense(id, expense.name, expense.amount, expense.category, expense.date, expense.method, expense.tags)
         val expenses = getAllExpenses().toMutableList()
         expenses.add(newExpense)
         ExpenseParser().store(file, expenses)
@@ -60,7 +62,22 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
         if (existing != -1) {
             expenses.removeAt(existing)
         }
-        ExpenseParser().store(file, expenses)}
+        ExpenseParser().store(file, expenses)
+    }
+
+    override fun getPaymentMethods(): Set<PaymentMethod> {
+        return getExpenses(null, null, null)
+                .values
+                .map { e -> e.method }
+                .toSet()
+    }
+
+    override fun getTags(): Set<Tag> {
+        return getExpenses(null, null, null)
+                .values
+                .flatMap { e -> e.tags }
+                .toSet()
+    }
 
     private fun getAllExpenses(): List<Expense> {
         return ExpenseParser().load(file)

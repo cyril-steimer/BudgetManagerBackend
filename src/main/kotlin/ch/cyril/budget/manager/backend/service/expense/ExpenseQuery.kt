@@ -62,6 +62,13 @@ class AmountExpenseQuery(val amount: Amount, val comparison: MathComparison) : E
     }
 }
 
+class TagExpenseQuery(val tag: Tag) : ExpenseQuery {
+
+    override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
+        return visitor.visitTagQuery(this, arg)
+    }
+}
+
 class OrExpenseQuery(val queries: List<ExpenseQuery>) : ExpenseQuery {
 
     override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
