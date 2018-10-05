@@ -5,18 +5,51 @@ import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.model.PaymentMethod
 import ch.cyril.budget.manager.backend.model.Tag
 import ch.cyril.budget.manager.backend.service.Pagination
-import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
-import ch.cyril.budget.manager.backend.service.expense.ExpenseQuery
-import ch.cyril.budget.manager.backend.service.expense.ExpenseSort
-import ch.cyril.budget.manager.backend.service.mongo.KEY_ID
-import ch.cyril.budget.manager.backend.service.mongo.MongoUtil
+import ch.cyril.budget.manager.backend.service.expense.*
+import ch.cyril.budget.manager.backend.service.mongo.*
 import ch.cyril.budget.manager.backend.util.SubList
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters.*
+import com.mongodb.client.model.Sorts.*
 import org.bson.Document
+import org.bson.conversions.Bson
 
 class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
+
+    private class MongoSortDirectionSwitch : SortDirectionSwitch<String, Bson> {
+
+        override fun caseAscending(arg: String): Bson {
+            return ascending(arg)
+        }
+
+        override fun caseDescending(arg: String): Bson {
+            return descending(arg)
+        }
+    }
+
+    private class MongoSortFieldSwitch : ExpenseSortFieldSwitch<Unit, String> {
+
+        override fun caseId(arg: Unit): String {
+            return KEY_ID
+        }
+
+        override fun caseAmount(arg: Unit): String {
+            return KEY_AMOUNT
+        }
+
+        override fun caseName(arg: Unit): String {
+            return KEY_NAME
+        }
+
+        override fun caseCategory(arg: Unit): String {
+            return KEY_CATEGORY
+        }
+
+        override fun caseDate(arg: Unit): String {
+            return KEY_DATE
+        }
+    }
 
     private val visitor = MongoExpenseQueryVisitor()
 
@@ -28,12 +61,18 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
             query: ExpenseQuery?,
             sort: ExpenseSort?,
             pagination: Pagination?): SubList<Expense> {
-        //TODO Sorting and Pagination
         val iterable: FindIterable<Document>
         if (query != null) {
             iterable = collection.find(query.accept(visitor, Unit))
         } else {
             iterable = collection.find()
+        }
+        if (sort != null) {
+            val field = sort.field.switch(MongoSortFieldSwitch(), Unit)
+            iterable.sort(sort.direction.switch(MongoSortDirectionSwitch(), field))
+        }
+        if (pagination != null) {
+            iterable.skip(pagination.from).limit(pagination.count)
         }
         val list = iterable.map { d -> serialization.deserialize(d) }.toList()
         return SubList.of(list)

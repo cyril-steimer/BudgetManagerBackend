@@ -4,14 +4,47 @@ import ch.cyril.budget.manager.backend.model.Expense
 import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.model.PaymentMethod
 import ch.cyril.budget.manager.backend.model.Tag
-import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
-import ch.cyril.budget.manager.backend.service.expense.ExpenseQuery
 import ch.cyril.budget.manager.backend.service.Pagination
+import ch.cyril.budget.manager.backend.service.expense.*
 import ch.cyril.budget.manager.backend.util.SubList
-import ch.cyril.budget.manager.backend.service.expense.ExpenseSort
+import java.math.BigDecimal
 import java.nio.file.Path
 
 class FilebasedExpenseDao(val file: Path): ExpenseDao {
+
+    private class ComparatorSortDirectionSwitch<T> : SortDirectionSwitch<Comparator<T>, Comparator<T>> {
+
+        override fun caseAscending(arg: Comparator<T>): Comparator<T> {
+            return arg
+        }
+
+        override fun caseDescending(arg: Comparator<T>): Comparator<T> {
+            return arg.reversed()
+        }
+    }
+
+    private class ComparatorSortFieldSwitch : ExpenseSortFieldSwitch<Unit, Comparator<Expense>> {
+
+        override fun caseId(arg: Unit): Comparator<Expense> {
+            return Comparator.comparing<Expense, Int> { e -> e.id.id }
+        }
+
+        override fun caseAmount(arg: Unit): Comparator<Expense> {
+            return Comparator.comparing<Expense, BigDecimal> { e -> e.amount.amount }
+        }
+
+        override fun caseName(arg: Unit): Comparator<Expense> {
+            return Comparator.comparing<Expense, String> { e -> e.name.name }
+        }
+
+        override fun caseCategory(arg: Unit): Comparator<Expense> {
+            return Comparator.comparing<Expense, String> { e -> e.category.name }
+        }
+
+        override fun caseDate(arg: Unit): Comparator<Expense> {
+            return Comparator.comparing<Expense, Long> { e -> e.date.timestamp }
+        }
+    }
 
     private val visitor = FilebasedExpenseQueryVisitor()
 
@@ -25,8 +58,9 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
             expenses = query.accept(visitor, expenses)
         }
         if (sort != null) {
-            val comp = sort.direction.sort(sort.field.sorter)
-            expenses = expenses.sortedWith(comp)
+            var comparator = sort.field.switch(ComparatorSortFieldSwitch(), Unit)
+            comparator = sort.direction.switch(ComparatorSortDirectionSwitch(), comparator)
+            expenses = expenses.sortedWith(comparator)
         }
         if (pagination != null) {
             return SubList.of(expenses, pagination.from, pagination.count)
