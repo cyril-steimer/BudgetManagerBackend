@@ -21,7 +21,7 @@ class ExpenseParser() : LineBasedFileParser<Expense>() {
 
     override fun fromLine(line: String): Expense {
         val split = line.split(",")
-        val id = Id(split[0].toInt())
+        val id = Id(split[0])
         val name = Name(split[1])
         val amount = Amount(split[2].toBigDecimal())
         val category = Category(split[3])

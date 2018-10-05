@@ -23,7 +23,7 @@ val GSON = GsonBuilder()
 
 private class IdTypeAdapter : TypeAdapter<Id>() {
     override fun read(`in`: JsonReader): Id {
-        return Id(`in`.nextInt())
+        return Id(`in`.nextString())
     }
 
     override fun write(out: JsonWriter, value: Id) {

@@ -37,8 +37,7 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
 
     ID("id") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
-            val id = getBigDecimal(value)
-            return IdExpenseQuery(Id(id.toInt()))
+            return IdExpenseQuery(Id(value.asString))
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {

@@ -14,6 +14,7 @@ import com.mongodb.client.model.Filters.*
 import com.mongodb.client.model.Sorts.*
 import org.bson.Document
 import org.bson.conversions.Bson
+import org.bson.types.ObjectId
 
 class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
 
@@ -78,18 +79,17 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
         return SubList.of(list)
     }
 
-    override fun addExpense(e: Expense) {
-        val insert = Expense(getNewId(), e.name, e.amount, e.category, e.date, e.method, e.tags)
-        collection.insertOne(serialization.serialize(insert))
+    override fun addExpense(expense: Expense) {
+        collection.insertOne(serialization.serialize(expense))
     }
 
     override fun updateExpense(expense: Expense) {
         val update = util.toUpdate(serialization.serialize(expense))
-        collection.updateOne(eq(KEY_ID, expense.id.id), update)
+        collection.updateOne(eq(KEY_ID, ObjectId(expense.id.id)), update)
     }
 
     override fun deleteExpense(expense: Expense) {
-        collection.deleteOne(eq(KEY_ID, expense.id.id))
+        collection.deleteOne(eq(KEY_ID, ObjectId(expense.id.id)))
     }
 
     override fun getPaymentMethods(): Set<PaymentMethod> {
@@ -102,13 +102,5 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
         return collection.distinct(KEY_TAGS, String::class.java)
                 .map { value -> Tag(value) }
                 .toSet()
-    }
-
-    private fun getNewId(): Id {
-        val max = collection.find().sort(descending(KEY_ID)).first()
-        if (max == null) {
-            return Id(1)
-        }
-        return Id(max.getInteger(KEY_ID) + 1)
     }
 }

@@ -5,6 +5,7 @@ import ch.cyril.budget.manager.backend.service.expense.*
 import com.mongodb.client.model.Filters.*;
 import ch.cyril.budget.manager.backend.service.mongo.*;
 import org.bson.conversions.Bson
+import org.bson.types.ObjectId
 import java.util.regex.Pattern
 
 class MongoExpenseQueryVisitor : ExpenseQueryVisitor<Unit, Bson> {
@@ -77,7 +78,7 @@ class MongoExpenseQueryVisitor : ExpenseQueryVisitor<Unit, Bson> {
     }
 
     override fun visitIdQuery(query: IdExpenseQuery, arg: Unit): Bson {
-        return eq(KEY_ID, query.id.id)
+        return eq(KEY_ID, ObjectId(query.id.id))
     }
 
     override fun visitCategoryQuery(query: CategoryExpenseQuery, arg: Unit): Bson {

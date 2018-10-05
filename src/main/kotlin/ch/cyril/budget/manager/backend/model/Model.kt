@@ -44,7 +44,7 @@ data class Amount(val amount: BigDecimal) : Validatable {
     }
 }
 
-data class Id(val id: Int)
+data class Id(val id: String)
 
 data class Name(val name: String)
 

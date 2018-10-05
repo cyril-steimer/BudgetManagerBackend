@@ -10,7 +10,6 @@ class MongoExpenseSerialization {
     fun serialize(expense: Expense): Document {
         // TODO Can this be automated?
         return Document()
-                .append(KEY_ID, expense.id.id)
                 .append(KEY_TAGS, expense.tags.map { tag -> tag.name })
                 .append(KEY_AMOUNT, expense.amount.amount)
                 .append(KEY_CATEGORY, expense.category.name)
@@ -21,7 +20,7 @@ class MongoExpenseSerialization {
 
     fun deserialize(doc: Document): Expense {
         // TODO Can this be automated?
-        val id = Id(doc.getInteger(KEY_ID))
+        val id = Id(doc.getObjectId(KEY_ID).toHexString())
         val amount = Amount(doc.get(KEY_AMOUNT, Decimal128::class.java).bigDecimalValue())
         val category = Category(doc.getString(KEY_CATEGORY))
         val method = PaymentMethod(doc.getString(KEY_METHOD))

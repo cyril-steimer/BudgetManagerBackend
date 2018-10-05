@@ -26,7 +26,7 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
     private class ComparatorSortFieldSwitch : ExpenseSortFieldSwitch<Unit, Comparator<Expense>> {
 
         override fun caseId(arg: Unit): Comparator<Expense> {
-            return Comparator.comparing<Expense, Int> { e -> e.id.id }
+            return Comparator.comparing<Expense, Int> { e -> e.id.id.toInt() }
         }
 
         override fun caseAmount(arg: Unit): Comparator<Expense> {
@@ -120,8 +120,9 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
     private fun getNewId(): Id {
         val max = getAllExpenses()
                 .map { e -> e.id.id }
+                .map { id -> id.toInt() }
                 .max()
         val newId = (max ?: 0) + 1
-        return Id(newId)
+        return Id(newId.toString())
     }
 }
