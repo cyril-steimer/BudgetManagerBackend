@@ -23,13 +23,15 @@ class MongoExpenseSerialization {
 
     fun deserialize(doc: Document): Expense {
         // TODO Can this be automated?
-        // TODO Tags.
         val id = Id(doc.getInteger(KEY_ID))
         val amount = Amount(doc.get(KEY_AMOUNT, Decimal128::class.java).bigDecimalValue())
         val category = Category(doc.getString(KEY_CATEGORY))
         val method = PaymentMethod(doc.getString(KEY_METHOD))
         val name = Name(doc.getString(KEY_NAME))
         val date = Timestamp(doc.getLong(KEY_DATE))
-        return Expense(id, name, amount, category, date, method, emptySet())
+        val tags = doc.get(KEY_TAGS, List::class.java)
+                .map { tag -> Tag(tag as String) }
+                .toSet()
+        return Expense(id, name, amount, category, date, method, tags)
     }
 }

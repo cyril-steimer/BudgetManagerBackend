@@ -89,7 +89,7 @@ class MongoExpenseQueryVisitor : ExpenseQueryVisitor<Unit, Bson> {
     }
 
     override fun visitTagQuery(query: TagExpenseQuery, arg: Unit): Bson {
-        return elemMatch(KEY_TAGS, eq(query.tag.name))
+        return eq(KEY_TAGS, query.tag.name)
     }
 
     override fun visitOrQuery(query: OrExpenseQuery, arg: Unit): Bson {
