@@ -65,11 +65,15 @@ class MongoExpenseQueryVisitor : ExpenseQueryVisitor<Unit, Bson> {
     }
 
     override fun visitNameQuery(query: NameExpenseQuery, arg: Unit): Bson {
-        return regex(KEY_NAME, createPatternWithCaseAndComparison(query.name.name, query.comparison, query.case))
+        return regex(
+                KEY_NAME,
+                createPatternWithCaseAndComparison(query.name.name, query.comparison, query.case))
     }
 
     override fun visitMethodQuery(query: MethodExpenseQuery, arg: Unit): Bson {
-        return regex(KEY_METHOD, createPatternWithCaseAndComparison(query.method.name, query.comparison, query.case))
+        return regex(
+                KEY_METHOD,
+                createPatternWithCaseAndComparison(query.method.name, query.comparison, query.case))
     }
 
     override fun visitIdQuery(query: IdExpenseQuery, arg: Unit): Bson {
@@ -77,7 +81,9 @@ class MongoExpenseQueryVisitor : ExpenseQueryVisitor<Unit, Bson> {
     }
 
     override fun visitCategoryQuery(query: CategoryExpenseQuery, arg: Unit): Bson {
-        return regex(KEY_CATEGORY, createPatternWithCaseAndComparison(query.category.name, query.comparison, query.case))
+        return regex(
+                KEY_CATEGORY,
+                createPatternWithCaseAndComparison(query.category.name, query.comparison, query.case))
     }
 
     override fun visitDateQuery(query: DateExpenseQuery, arg: Unit): Bson {

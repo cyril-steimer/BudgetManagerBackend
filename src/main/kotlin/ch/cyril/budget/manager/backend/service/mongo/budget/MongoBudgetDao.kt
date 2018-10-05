@@ -3,7 +3,7 @@ package ch.cyril.budget.manager.backend.service.mongo.budget
 import ch.cyril.budget.manager.backend.model.Budget
 import ch.cyril.budget.manager.backend.model.Category
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
-import ch.cyril.budget.manager.backend.service.mongo.KEY_CATEGORY
+import ch.cyril.budget.manager.backend.service.mongo.KEY_ID
 import ch.cyril.budget.manager.backend.service.mongo.MongoUtil
 import ch.cyril.budget.manager.backend.util.SubList
 import com.mongodb.client.MongoCollection
@@ -40,12 +40,12 @@ class MongoBudgetDao(val collection: MongoCollection<Document>) : BudgetDao {
     }
 
     override fun deleteBudget(budget: Budget) {
-        collection.deleteOne(eq(KEY_CATEGORY, budget.category.name))
+        collection.deleteOne(eq(KEY_ID, budget.category.name))
     }
 
     private fun updateBudget(budget: Budget, upsert: Boolean) {
         collection.updateOne(
-                eq(KEY_CATEGORY, budget.category.name),
+                eq(KEY_ID, budget.category.name),
                 util.toUpdate(serialization.serialize(budget)),
                 UpdateOptions().upsert(upsert))
     }

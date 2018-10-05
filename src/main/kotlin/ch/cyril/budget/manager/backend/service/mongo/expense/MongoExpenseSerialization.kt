@@ -4,8 +4,6 @@ import ch.cyril.budget.manager.backend.model.*
 import org.bson.Document
 import ch.cyril.budget.manager.backend.service.mongo.*
 import org.bson.types.Decimal128
-import java.math.BigDecimal
-import kotlin.math.exp
 
 class MongoExpenseSerialization {
 

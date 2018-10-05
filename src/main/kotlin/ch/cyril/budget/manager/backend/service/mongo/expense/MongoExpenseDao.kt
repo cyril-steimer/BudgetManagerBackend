@@ -105,11 +105,10 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
     }
 
     private fun getNewId(): Id {
-        //TODO Better calculatiuon....
-        val max = getExpenses(null, null, null).values
-                .map { e -> e.id.id }
-                .max()
-        val newId = (max ?: 0) + 1
-        return Id(newId)
+        val max = collection.find().sort(descending(KEY_ID)).first()
+        if (max == null) {
+            return Id(1)
+        }
+        return Id(max.getInteger(KEY_ID) + 1)
     }
 }
