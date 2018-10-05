@@ -9,6 +9,7 @@ import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
 import ch.cyril.budget.manager.backend.service.expense.ExpenseQuery
 import ch.cyril.budget.manager.backend.service.expense.ExpenseSort
 import ch.cyril.budget.manager.backend.service.mongo.KEY_ID
+import ch.cyril.budget.manager.backend.service.mongo.MongoUtil
 import ch.cyril.budget.manager.backend.util.SubList
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
@@ -20,6 +21,8 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
     private val visitor = MongoExpenseQueryVisitor()
 
     private val serialization = MongoExpenseSerialization()
+
+    private val util = MongoUtil()
 
     override fun getExpenses(
             query: ExpenseQuery?,
@@ -42,7 +45,8 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
     }
 
     override fun updateExpense(expense: Expense) {
-        TODO("Not Implemented")
+        val update = util.toUpdate(serialization.serialize(expense))
+        collection.updateOne(eq(KEY_ID, expense.id.id), update)
     }
 
     override fun deleteExpense(expense: Expense) {
