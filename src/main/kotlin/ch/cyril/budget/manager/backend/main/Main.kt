@@ -7,14 +7,15 @@ import ch.cyril.budget.manager.backend.rest.lib.RestMethodRegisterer
 import ch.cyril.budget.manager.backend.rest.lib.gson.GsonRestParamParser
 import ch.cyril.budget.manager.backend.rest.lib.javalin.JavalinRestServer
 import ch.cyril.budget.manager.backend.service.filebased.FilebasedServiceFactory
+import ch.cyril.budget.manager.backend.service.mongo.MongoServiceFactory
+import com.mongodb.client.MongoClients
 import io.javalin.Javalin
 import java.nio.file.Paths
 
 
 fun main(args: Array<String>) {
-    val expensesFile = Paths.get("C:\\Users\\Cyril\\Projects\\BudgetManager\\real-expenses.txt")
-    val budgetFile = Paths.get("C:\\Users\\Cyril\\Projects\\BudgetManager\\budget.txt")
-    val factory = FilebasedServiceFactory(expensesFile, budgetFile)
+    val client = MongoClients.create()
+    val factory = MongoServiceFactory(client)
     val expenseDao = factory.createExpenseDao()
     val budgetDao = factory.createBudgetDao()
 

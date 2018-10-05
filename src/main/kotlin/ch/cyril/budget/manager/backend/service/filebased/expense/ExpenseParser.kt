@@ -3,8 +3,6 @@ package ch.cyril.budget.manager.backend.service.filebased.expense
 import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.filebased.LineBasedFileParser
 import java.time.LocalDate
-import java.util.*
-import kotlin.collections.ArrayList
 
 class ExpenseParser() : LineBasedFileParser<Expense>() {
 
