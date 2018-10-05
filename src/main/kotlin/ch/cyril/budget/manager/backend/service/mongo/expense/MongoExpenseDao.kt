@@ -93,16 +93,14 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
     }
 
     override fun getPaymentMethods(): Set<PaymentMethod> {
-        //TODO Optimize
-        return getExpenses(null, null, null).values
-                .map { e -> e.method }
+        return collection.distinct(KEY_METHOD, String::class.java)
+                .map { value -> PaymentMethod(value) }
                 .toSet()
     }
 
     override fun getTags(): Set<Tag> {
-        //TODO Optimize
-        return getExpenses(null, null, null).values
-                .flatMap { e -> e.tags }
+        return collection.distinct(KEY_TAGS, String::class.java)
+                .map { value -> Tag(value) }
                 .toSet()
     }
 
