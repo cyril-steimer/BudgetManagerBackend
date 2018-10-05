@@ -78,7 +78,11 @@ class MongoExpenseQueryVisitor : ExpenseQueryVisitor<Unit, Bson> {
     }
 
     override fun visitIdQuery(query: IdExpenseQuery, arg: Unit): Bson {
-        return eq(KEY_ID, ObjectId(query.id.id))
+        if (ObjectId.isValid(query.id.id)) {
+            return eq(KEY_ID, ObjectId(query.id.id))
+        }
+        // This search will never find anything - but avoids having to handle nulls.
+        return eq(KEY_ID, query.id.id)
     }
 
     override fun visitCategoryQuery(query: CategoryExpenseQuery, arg: Unit): Bson {
