@@ -25,12 +25,26 @@ data class MonthYear(val month: Int, val year: Int) : Validatable {
     override fun validate() {
         //TODO Validate month
     }
+
+    fun toEpochMonth(): Int {
+        return (year * 12) + (month - 1)
+    }
+
+    companion object {
+        fun fromEpochMonth(epochMonth: Int): MonthYear {
+            val month = epochMonth % 12
+            val year = epochMonth / 12
+            return MonthYear(month + 1, year)
+        }
+    }
 }
 
 enum class BudgetPeriod(override val identifier: String) : Identifiable {
     YEARLY("yearly"),
     MONTHLY("monthly")
 }
+
+data class MonthYearPeriod(val from: MonthYear, val to: MonthYear)
 
 data class BudgetInPeriod(val category: Category, val amount: Amount)
 

@@ -27,15 +27,15 @@ class MongoBudgetSerialization {
         return Document()
                 .append(KEY_AMOUNT, amount.amount.amount)
                 .append(KEY_PERIOD, amount.period.identifier)
-                .append(KEY_FROM, LocalDate.of(amount.from.year, amount.from.month, 1).toEpochDay())
-                .append(KEY_TO, LocalDate.of(amount.to.year, amount.to.month, 1).toEpochDay())
+                .append(KEY_FROM, amount.from.toEpochMonth())
+                .append(KEY_TO, amount.to.toEpochMonth())
     }
 
     private fun deserializeBudgetAmount(doc: Document): BudgetAmount {
         val amount = Amount(doc.get(KEY_AMOUNT, Decimal128::class.java).bigDecimalValue())
         val period = Identifiable.byIdentifier<BudgetPeriod>(doc.getString(KEY_PERIOD))
-        val from = LocalDate.ofEpochDay(doc.getLong(KEY_FROM))
-        val to = LocalDate.ofEpochDay(doc.getLong(KEY_TO))
-        return BudgetAmount(amount, period, MonthYear(from.monthValue, from.year), MonthYear(to.monthValue, to.year))
+        val from = MonthYear.fromEpochMonth(doc.getInteger(KEY_FROM))
+        val to = MonthYear.fromEpochMonth(doc.getInteger(KEY_TO))
+        return BudgetAmount(amount, period, from, to)
     }
 }

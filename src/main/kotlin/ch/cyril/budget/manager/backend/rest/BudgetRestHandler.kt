@@ -1,6 +1,7 @@
 package ch.cyril.budget.manager.backend.rest
 
 import ch.cyril.budget.manager.backend.model.Budget
+import ch.cyril.budget.manager.backend.model.MonthYearPeriod
 import ch.cyril.budget.manager.backend.rest.lib.Body
 import ch.cyril.budget.manager.backend.rest.lib.HttpMethod
 import ch.cyril.budget.manager.backend.rest.lib.HttpVerb
@@ -12,6 +13,12 @@ class BudgetRestHandler(private val budgetDao: BudgetDao) {
     @HttpMethod(HttpVerb.GET, "/api/v1/budget")
     fun getBudgets(): RestResult {
         val res = budgetDao.getBudgets()
+        return RestResult.json(GSON.toJson(res))
+    }
+
+    @HttpMethod(HttpVerb.POST, "/api/v1/budget/period")
+    fun getBudgets(@Body period: MonthYearPeriod): RestResult {
+        val res = budgetDao.getBudgets(period)
         return RestResult.json(GSON.toJson(res))
     }
 
