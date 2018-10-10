@@ -38,7 +38,7 @@ class JavalinRestServer(private val javalin: Javalin) : RestServer {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            ctx.response().sendError(HttpServletResponse.SC_BAD_REQUEST, e.message)
+            ctx.res.sendError(HttpServletResponse.SC_BAD_REQUEST, e.message)
         }
     }
 }

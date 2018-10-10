@@ -10,7 +10,7 @@ interface RestContext {
 
     fun getPathParam(name: String): String?
 
-    fun getQueryParams(name: String): Array<String>
+    fun getQueryParams(name: String): List<String>
 
     fun getQueryParam(name: String): String? {
         val params = getQueryParams(name)

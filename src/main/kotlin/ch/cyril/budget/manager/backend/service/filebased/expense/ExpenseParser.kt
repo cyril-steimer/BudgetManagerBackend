@@ -15,7 +15,7 @@ class ExpenseParser() : LineBasedFileParser<Expense>() {
                 t.date.timestamp,
                 t.method.name)
         val res = ArrayList(list)
-        res.addAll(t.tags.map { t -> t.name })
+        res.addAll(t.tags.map { tag -> tag.name })
         return res.joinToString(",")
     }
 

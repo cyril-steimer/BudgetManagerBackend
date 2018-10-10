@@ -19,11 +19,10 @@ class JavalinRestContext(val ctx: Context) : RestContext {
     }
 
     override fun getPathParam(name: String): String? {
-        return ctx.param(name)
+        return ctx.pathParam(name)
     }
 
-    override fun getQueryParams(name: String): Array<String> {
-        val params = ctx.queryParams(name)
-        return params ?: emptyArray()
+    override fun getQueryParams(name: String): List<String> {
+        return ctx.queryParams(name)
     }
 }
