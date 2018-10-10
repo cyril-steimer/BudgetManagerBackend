@@ -3,8 +3,6 @@ package ch.cyril.budget.manager.backend.service.filebased.expense
 import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.filebased.LineBasedFileParser
 import java.time.LocalDate
-import java.util.*
-import kotlin.collections.ArrayList
 
 class ExpenseParser() : LineBasedFileParser<Expense>() {
 
@@ -23,7 +21,7 @@ class ExpenseParser() : LineBasedFileParser<Expense>() {
 
     override fun fromLine(line: String): Expense {
         val split = line.split(",")
-        val id = Id(split[0].toInt())
+        val id = Id(split[0])
         val name = Name(split[1])
         val amount = Amount(split[2].toBigDecimal())
         val category = Category(split[3])

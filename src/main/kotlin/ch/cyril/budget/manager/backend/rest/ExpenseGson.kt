@@ -3,7 +3,7 @@ package ch.cyril.budget.manager.backend.rest
 import ch.cyril.budget.manager.backend.model.BudgetPeriod
 import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.service.expense.SimpleExpenseQueryDescriptor
-import ch.cyril.budget.manager.backend.service.SortDirection
+import ch.cyril.budget.manager.backend.service.expense.SortDirection
 import ch.cyril.budget.manager.backend.service.expense.ExpenseSortField
 import ch.cyril.budget.manager.backend.util.Identifiable
 import com.google.gson.GsonBuilder
@@ -23,7 +23,7 @@ val GSON = GsonBuilder()
 
 private class IdTypeAdapter : TypeAdapter<Id>() {
     override fun read(`in`: JsonReader): Id {
-        return Id(`in`.nextInt())
+        return Id(`in`.nextString())
     }
 
     override fun write(out: JsonWriter, value: Id) {

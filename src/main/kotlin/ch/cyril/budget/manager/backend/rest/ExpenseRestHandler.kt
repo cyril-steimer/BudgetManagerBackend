@@ -4,7 +4,6 @@ import ch.cyril.budget.manager.backend.model.Expense
 import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.rest.lib.*
 import ch.cyril.budget.manager.backend.service.Pagination
-import ch.cyril.budget.manager.backend.service.SortDirection
 import ch.cyril.budget.manager.backend.service.expense.*
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -91,7 +90,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
     }
 
     @HttpMethod(HttpVerb.DELETE, "/api/v1/expenses")
-    fun deleteExpense(@QueryParam("id") id: Int) {
+    fun deleteExpense(@QueryParam("id") id: String) {
         val expense = expenseDao.getOneExpense(IdExpenseQuery(Id(id)), null)
         if (expense != null) {
             expenseDao.deleteExpense(expense)

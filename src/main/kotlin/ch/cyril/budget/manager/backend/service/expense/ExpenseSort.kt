@@ -1,21 +1,59 @@
 package ch.cyril.budget.manager.backend.service.expense
 
 import ch.cyril.budget.manager.backend.model.Expense
-import ch.cyril.budget.manager.backend.model.Timestamp
-import ch.cyril.budget.manager.backend.service.SortDirection
 import ch.cyril.budget.manager.backend.util.Identifiable
+import java.lang.IllegalStateException
 import java.math.BigDecimal
-import java.time.LocalDate
 
 class ExpenseSort(val field: ExpenseSortField, val direction: SortDirection)
 
-enum class ExpenseSortField(override val identifier: String, val sorter: Comparator<Expense>) : Identifiable {
+enum class SortDirection(override val identifier: String) : Identifiable {
+    ASCENDING("asc"),
+    DESCENDING("desc");
 
-    ID("id", Comparator.comparing<Expense, Int> { e -> e.id.id }),
-    AMOUNT("amount", Comparator.comparing<Expense, BigDecimal> { e -> e.amount.amount }),
-    NAME("name", Comparator.comparing<Expense, String> { e -> e.name.name }),
-    CATEGORY("category", Comparator.comparing<Expense, String> { e -> e.category.name }),
-    DATE("date", Comparator.comparing<Expense, Long> { e -> e.date.timestamp });
+    fun <A, R> switch(switch: SortDirectionSwitch<A, R>, arg: A): R {
+        if (this == ASCENDING) {
+            return switch.caseAscending(arg)
+        }
+        if (this == DESCENDING) {
+            return switch.caseDescending(arg)
+        }
+        throw IllegalStateException()
+    }
+}
+
+interface SortDirectionSwitch<A, R> {
+
+    fun caseAscending(arg: A): R
+
+    fun caseDescending(arg: A): R
+}
+
+enum class ExpenseSortField(override val identifier: String) : Identifiable {
+    ID("id"),
+    AMOUNT("amount"),
+    NAME("name"),
+    CATEGORY("category"),
+    DATE("date");
+
+    fun <A, R> switch(switch: ExpenseSortFieldSwitch<A, R>, arg: A): R {
+        if (this == ID) {
+            return switch.caseId(arg)
+        }
+        if (this == AMOUNT) {
+            return switch.caseAmount(arg)
+        }
+        if (this == NAME) {
+            return switch.caseName(arg)
+        }
+        if (this == CATEGORY) {
+            return switch.caseCategory(arg)
+        }
+        if (this == DATE) {
+            return switch.caseDate(arg)
+        }
+        throw IllegalStateException()
+    }
 
     companion object {
 
@@ -27,4 +65,17 @@ enum class ExpenseSortField(override val identifier: String, val sorter: Compara
             return null
         }
     }
+}
+
+interface ExpenseSortFieldSwitch<A, R> {
+
+    fun caseId(arg: A): R
+
+    fun caseAmount(arg: A): R
+
+    fun caseName(arg: A): R
+
+    fun caseCategory(arg: A): R
+
+    fun caseDate(arg: A): R
 }
