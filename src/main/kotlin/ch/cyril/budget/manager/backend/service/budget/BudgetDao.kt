@@ -33,8 +33,10 @@ interface BudgetDao {
     private fun getBudget(budget: Budget, from: MonthYear, to: MonthYear): BudgetInPeriod? {
         val amount = budget.amounts
                 .map { a -> calculateOverlap(a, from, to) }
-                .find { a  -> a != null }
-        return if (amount == null) null else BudgetInPeriod(budget.category, amount)
+                .filterNotNull()
+                .fold(BigDecimal.ZERO) { acc, amount -> acc.add(amount.amount) }
+
+        return if (amount == BigDecimal.ZERO) null else BudgetInPeriod(budget.category, Amount(amount))
     }
 
     private fun calculateOverlap(amount: BudgetAmount, from: MonthYear, to: MonthYear): Amount? {
