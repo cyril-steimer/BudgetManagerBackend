@@ -10,12 +10,20 @@ buildscript {
 }
 
 group 'ch.cyril.budget.manager.backend'
-version '1.0'
+version '0.2.0'
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
 sourceCompatibility = 1.8
+
+// https://medium.com/@preslavrachev/kotlin-basics-create-executable-kotlin-jars-using-gradle-d17e9a8384b9
+jar {
+    manifest {
+        attributes 'Main-Class': 'ch.cyril.budget.manager.backend.main.MainKt'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
 
 repositories {
     mavenCentral()
