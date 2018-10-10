@@ -3,6 +3,7 @@ package ch.cyril.budget.manager.backend.service.budget
 import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.util.SubList
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 
 interface BudgetDao {
@@ -42,9 +43,11 @@ interface BudgetDao {
         if (start > end) {
             return null
         }
-        val divisor = if (amount.period == BudgetPeriod.MONTHLY) 1.0 else 12.0
-        val multiplier = ((end - start) + 1) / divisor
-        val res = amount.amount.amount.multiply(BigDecimal.valueOf(multiplier))
+        val months = (end - start) + 1
+        val divisor = if (amount.period == BudgetPeriod.MONTHLY) BigDecimal.ONE else BigDecimal("12")
+        val res = amount.amount.amount
+                .multiply(BigDecimal.valueOf(months.toLong()))
+                .divide(divisor, 2, RoundingMode.HALF_UP)
         return Amount(res)
     }
 }
