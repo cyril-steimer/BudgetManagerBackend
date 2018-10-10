@@ -11,6 +11,7 @@ import ch.cyril.budget.manager.backend.service.mongo.MongoServiceFactory
 import com.google.gson.Gson
 import com.mongodb.client.MongoClients
 import io.javalin.Javalin
+import io.javalin.staticfiles.Location
 import java.io.FileReader
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -22,19 +23,25 @@ fun main(args: Array<String>) {
     val expenseDao = factory.createExpenseDao()
     val budgetDao = factory.createBudgetDao()
 
-    val server = JavalinRestServer(Javalin.create()
-            .port(8100)
-            .start())
+    val server = getServer(config.serverConfig)
     val parser = GsonRestParamParser(GSON)
 
     RestMethodRegisterer(server, parser, ExpenseRestHandler(expenseDao)).register()
     RestMethodRegisterer(server, parser, BudgetRestHandler(budgetDao)).register()
 }
 
-private fun parseConfig (args: Array<String>): Config {
+private fun parseConfig(args: Array<String>): Config {
     if (args.isEmpty()) {
         return Config()
     }
     val configPath = Paths.get(args[0])
     return Gson().fromJson(Files.newBufferedReader(configPath), Config::class.java)
+}
+
+private fun getServer(config: ServerConfig): JavalinRestServer {
+    val javalin = Javalin.create().port(config.port)
+    if (config.staticFilesPath != null) {
+        javalin.enableStaticFiles(config.staticFilesPath, Location.EXTERNAL)
+    }
+    return JavalinRestServer(javalin.start())
 }
