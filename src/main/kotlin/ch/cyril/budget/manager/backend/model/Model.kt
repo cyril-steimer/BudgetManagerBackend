@@ -5,10 +5,25 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 
-data class Budget(val category: Category, val amount: Amount, val period: BudgetPeriod) : Validatable {
+data class Budget(val category: Category, val amounts: List<BudgetAmount>)
+
+// TODO Don't allow overlapping budget amounts in all DAOs (or maybe the validate method?)
+
+data class BudgetAmount(
+        val amount: Amount,
+        val period: BudgetPeriod,
+        val from: MonthYear,
+        val to: MonthYear) : Validatable {
 
     override fun validate() {
-        amount.validate()
+        //TODO Validate amount, from < to
+    }
+}
+
+data class MonthYear(val month: Int, val year: Int) : Validatable {
+
+    override fun validate() {
+        //TODO Validate month
     }
 }
 
@@ -16,6 +31,8 @@ enum class BudgetPeriod(override val identifier: String) : Identifiable {
     YEARLY("yearly"),
     MONTHLY("monthly")
 }
+
+data class BudgetInPeriod(val category: Category, val amount: Amount)
 
 data class Expense(
         val id: Id,
