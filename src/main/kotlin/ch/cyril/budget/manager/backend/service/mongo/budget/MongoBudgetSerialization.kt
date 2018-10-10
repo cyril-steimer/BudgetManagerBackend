@@ -5,6 +5,8 @@ import ch.cyril.budget.manager.backend.service.mongo.*
 import ch.cyril.budget.manager.backend.util.Identifiable
 import org.bson.Document
 import org.bson.types.Decimal128
+import java.time.Instant
+import java.time.LocalDate
 
 class MongoBudgetSerialization {
 
@@ -25,17 +27,15 @@ class MongoBudgetSerialization {
         return Document()
                 .append(KEY_AMOUNT, amount.amount.amount)
                 .append(KEY_PERIOD, amount.period.identifier)
-                .append(KEY_FROM_MONTH, amount.from.month)
-                .append(KEY_FROM_YEAR, amount.from.year)
-                .append(KEY_TO_MONTH, amount.to.month)
-                .append(KEY_TO_YEAR, amount.to.year)
+                .append(KEY_FROM, LocalDate.of(amount.from.year, amount.from.month, 1).toEpochDay())
+                .append(KEY_TO, LocalDate.of(amount.to.year, amount.to.month, 1).toEpochDay())
     }
 
     private fun deserializeBudgetAmount(doc: Document): BudgetAmount {
         val amount = Amount(doc.get(KEY_AMOUNT, Decimal128::class.java).bigDecimalValue())
         val period = Identifiable.byIdentifier<BudgetPeriod>(doc.getString(KEY_PERIOD))
-        val from = MonthYear(doc.getInteger(KEY_FROM_MONTH), doc.getInteger(KEY_FROM_YEAR))
-        val to = MonthYear(doc.getInteger(KEY_TO_MONTH), doc.getInteger(KEY_TO_YEAR))
-        return BudgetAmount(amount, period, from, to)
+        val from = LocalDate.ofEpochDay(doc.getLong(KEY_FROM))
+        val to = LocalDate.ofEpochDay(doc.getLong(KEY_TO))
+        return BudgetAmount(amount, period, MonthYear(from.monthValue, from.year), MonthYear(to.monthValue, to.year))
     }
 }

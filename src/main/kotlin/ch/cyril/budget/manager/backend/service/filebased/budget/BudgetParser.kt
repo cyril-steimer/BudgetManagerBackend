@@ -27,7 +27,7 @@ class BudgetParser() : LineBasedFileParser<Budget>() {
         if (split.size == 3) {
             val amount = Amount(split[1].toBigDecimal())
             val period = Identifiable.byIdentifier<BudgetPeriod>(split[2])
-            return Budget(category, listOf(BudgetAmount(amount, period, MonthYear(0, 0), MonthYear(0, 9999))))
+            return Budget(category, listOf(BudgetAmount(amount, period, MonthYear(1, 0), MonthYear(1, 9999))))
         }
         val amounts = ArrayList<BudgetAmount>()
         for (i in 1..split.size step 6) {
