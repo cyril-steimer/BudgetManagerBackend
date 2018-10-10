@@ -9,4 +9,8 @@ data class Config(
 
 data class ServerConfig(
         val port: Int = 80,
-        val staticFilesPath: String? = null)
+        val staticFiles: StaticFiles? = null)
+
+data class StaticFiles(
+        val staticFilesPath: String,
+        val indexPage: String)
