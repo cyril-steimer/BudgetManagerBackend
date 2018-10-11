@@ -30,21 +30,16 @@ class MongoBudgetDao(val collection: MongoCollection<Document>) : BudgetDao {
     }
 
     override fun addBudget(budget: Budget) {
-        updateBudget(budget, true)
+        collection.insertOne(serialization.serialize(budget))
     }
 
     override fun updateBudget(budget: Budget) {
-        updateBudget(budget, false)
+        collection.updateOne(
+                eq(KEY_ID, budget.category.name),
+                util.toUpdate(serialization.serialize(budget)))
     }
 
     override fun deleteBudget(budget: Budget) {
         collection.deleteOne(eq(KEY_ID, budget.category.name))
-    }
-
-    private fun updateBudget(budget: Budget, upsert: Boolean) {
-        collection.updateOne(
-                eq(KEY_ID, budget.category.name),
-                util.toUpdate(serialization.serialize(budget)),
-                UpdateOptions().upsert(upsert))
     }
 }
