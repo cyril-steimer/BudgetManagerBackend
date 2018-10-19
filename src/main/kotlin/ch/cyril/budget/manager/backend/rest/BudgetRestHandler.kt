@@ -2,10 +2,7 @@ package ch.cyril.budget.manager.backend.rest
 
 import ch.cyril.budget.manager.backend.model.Budget
 import ch.cyril.budget.manager.backend.model.MonthYearPeriod
-import ch.cyril.budget.manager.backend.rest.lib.Body
-import ch.cyril.budget.manager.backend.rest.lib.HttpMethod
-import ch.cyril.budget.manager.backend.rest.lib.HttpVerb
-import ch.cyril.budget.manager.backend.rest.lib.RestResult
+import ch.cyril.budget.manager.backend.rest.lib.*
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
 
 class BudgetRestHandler(private val budgetDao: BudgetDao) {
@@ -23,8 +20,13 @@ class BudgetRestHandler(private val budgetDao: BudgetDao) {
     }
 
     @HttpMethod(HttpVerb.POST, "/api/v1/budget")
-    fun addBudget(@Body budget: Budget){
+    fun addBudget(@Body budget: Budget) {
         budgetDao.addBudget(budget)
+    }
+
+    @HttpMethod(HttpVerb.PUT, "/api/v1/budget")
+    fun updateBudget(@Body budget: Budget) {
+        budgetDao.updateBudget(budget)
     }
 
     @HttpMethod(HttpVerb.GET, "/api/v1/category")
