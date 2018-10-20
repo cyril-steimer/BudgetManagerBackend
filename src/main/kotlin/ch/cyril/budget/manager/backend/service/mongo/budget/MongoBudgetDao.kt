@@ -6,7 +6,6 @@ import ch.cyril.budget.manager.backend.service.mongo.*
 import ch.cyril.budget.manager.backend.util.SubList
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters.*
-import com.mongodb.client.model.UpdateOptions
 import org.bson.Document
 
 class MongoBudgetDao(val collection: MongoCollection<Document>) : BudgetDao {
@@ -27,6 +26,14 @@ class MongoBudgetDao(val collection: MongoCollection<Document>) : BudgetDao {
                 .map { doc -> serialization.deserialize(doc) }
                 .toList()
         return SubList.of(budgets)
+    }
+
+    override fun getOneBudget(category: Category): Budget? {
+        val doc = collection.find(eq(KEY_ID, category.name)).first()
+        if (doc != null) {
+            return serialization.deserialize(doc)
+        }
+        return null
     }
 
     override fun addBudget(budget: Budget) {

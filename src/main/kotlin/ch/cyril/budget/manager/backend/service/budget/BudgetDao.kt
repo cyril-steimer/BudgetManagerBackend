@@ -17,6 +17,8 @@ interface BudgetDao {
         return SubList.of(res)
     }
 
+    fun getOneBudget(category: Category): Budget?
+
     fun getBudgets(): SubList<Budget>
 
     fun addBudget(budget: Budget)
