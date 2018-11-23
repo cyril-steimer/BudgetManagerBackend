@@ -45,7 +45,10 @@ class RestMethod private constructor(
     }
 
     private fun parseParamValue(cls: KClass<*>, value: Any?): Any? {
-        if (!String::class.isInstance(value)) {
+        //TODO The entire parsing mechanism should be improved.
+        if (!(value is String)) {
+            return value
+        } else if (cls == String::class) {
             return value
         }
         return parser.parse(value as String, cls.java)

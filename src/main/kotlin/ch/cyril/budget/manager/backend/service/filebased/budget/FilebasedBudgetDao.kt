@@ -1,7 +1,6 @@
 package ch.cyril.budget.manager.backend.service.filebased.budget
 
-import ch.cyril.budget.manager.backend.model.Budget
-import ch.cyril.budget.manager.backend.model.Category
+import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
 import ch.cyril.budget.manager.backend.util.SubList
 import java.nio.file.Path
@@ -11,7 +10,12 @@ class FilebasedBudgetDao(val file: Path) : BudgetDao {
     private val parser = BudgetParser()
 
     override fun getBudgets(): SubList<Budget> {
-        return SubList.Companion.of(parser.load(file))
+        return SubList.of(parser.load(file))
+    }
+
+    override fun getOneBudget(category: Category): Budget? {
+        return getAllBudgets()
+                .find { b -> b.category == category }
     }
 
     override fun addBudget(budget: Budget) {

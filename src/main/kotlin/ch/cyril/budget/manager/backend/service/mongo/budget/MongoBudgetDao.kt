@@ -1,14 +1,11 @@
 package ch.cyril.budget.manager.backend.service.mongo.budget
 
-import ch.cyril.budget.manager.backend.model.Budget
-import ch.cyril.budget.manager.backend.model.Category
+import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
-import ch.cyril.budget.manager.backend.service.mongo.KEY_ID
-import ch.cyril.budget.manager.backend.service.mongo.MongoUtil
+import ch.cyril.budget.manager.backend.service.mongo.*
 import ch.cyril.budget.manager.backend.util.SubList
 import com.mongodb.client.MongoCollection
-import com.mongodb.client.model.Filters.eq
-import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.Filters.*
 import org.bson.Document
 
 class MongoBudgetDao(val collection: MongoCollection<Document>) : BudgetDao {
@@ -31,22 +28,25 @@ class MongoBudgetDao(val collection: MongoCollection<Document>) : BudgetDao {
         return SubList.of(budgets)
     }
 
+    override fun getOneBudget(category: Category): Budget? {
+        val doc = collection.find(eq(KEY_ID, category.name)).first()
+        if (doc != null) {
+            return serialization.deserialize(doc)
+        }
+        return null
+    }
+
     override fun addBudget(budget: Budget) {
-        updateBudget(budget, true)
+        collection.insertOne(serialization.serialize(budget))
     }
 
     override fun updateBudget(budget: Budget) {
-        updateBudget(budget, false)
+        collection.updateOne(
+                eq(KEY_ID, budget.category.name),
+                util.toUpdate(serialization.serialize(budget)))
     }
 
     override fun deleteBudget(budget: Budget) {
         collection.deleteOne(eq(KEY_ID, budget.category.name))
-    }
-
-    private fun updateBudget(budget: Budget, upsert: Boolean) {
-        collection.updateOne(
-                eq(KEY_ID, budget.category.name),
-                util.toUpdate(serialization.serialize(budget)),
-                UpdateOptions().upsert(upsert))
     }
 }
