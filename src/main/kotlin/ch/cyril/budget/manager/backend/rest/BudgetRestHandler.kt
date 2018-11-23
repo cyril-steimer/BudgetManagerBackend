@@ -21,7 +21,7 @@ class BudgetRestHandler(private val budgetDao: BudgetDao) {
         return RestResult.json(GSON.toJson(res))
     }
 
-    @HttpMethod(HttpVerb.GET, "/api/v1/budget/category/:category")
+    @HttpMethod(HttpVerb.GET, "/api/v1/budget/category/{category}")
     fun getBudget(@PathParam("category") category: String): RestResult {
         val res = budgetDao.getOneBudget(Category(category))
         val nonNull = res ?: throw IllegalArgumentException("No budget with category $category")
