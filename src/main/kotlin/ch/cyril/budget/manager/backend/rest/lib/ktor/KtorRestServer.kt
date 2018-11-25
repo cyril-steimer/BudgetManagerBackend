@@ -5,15 +5,12 @@ import ch.cyril.budget.manager.backend.rest.lib.RestMethod
 import ch.cyril.budget.manager.backend.rest.lib.RestServer
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
-import io.ktor.application.install
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
-import io.ktor.response.respondBytes
 import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.server.engine.ApplicationEngine
-import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.runBlocking
 import java.lang.Exception
 import java.lang.IllegalStateException
