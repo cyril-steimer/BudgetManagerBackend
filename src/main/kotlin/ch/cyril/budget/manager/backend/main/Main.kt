@@ -11,9 +11,8 @@ import java.nio.file.Paths
 fun main(args: Array<String>) {
     val config = parseConfig(args)
     val factory = config.type.createServiceFactory(config.params)
-
-    val initializer = KtorRestServerInitializer(factory, config.serverConfig, GsonRestParamParser(GSON))
-    initializer.startServer()
+    val server = config.server
+    server.serverInitializer.startServer(factory, config.serverConfig, GsonRestParamParser(GSON))
 }
 
 private fun parseConfig(args: Array<String>): Config {

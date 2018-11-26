@@ -18,23 +18,23 @@ class KtorRestServer(private val engine: ApplicationEngine) : RestServer  {
 
     override fun register(method: RestMethod) {
         val application = engine.environment.application
-        when {
-            method.verb() == HttpVerb.GET -> application.routing {
+        when (method.verb()) {
+            HttpVerb.GET -> application.routing {
                 get(method.path()) {
                     handle(method, call)
                 }
             }
-            method.verb() == HttpVerb.POST -> application.routing {
+            HttpVerb.POST -> application.routing {
                 post(method.path()) {
                     handle(method, call)
                 }
             }
-            method.verb() == HttpVerb.PUT -> application.routing {
+            HttpVerb.PUT -> application.routing {
                 put(method.path()) {
                     handle(method, call)
                 }
             }
-            method.verb() == HttpVerb.DELETE -> application.routing {
+            HttpVerb.DELETE -> application.routing {
                 delete(method.path()) {
                     handle(method, call)
                 }
