@@ -1,45 +1,39 @@
 package ch.cyril.budget.manager.backend.rest.lib.javalin
 
-import ch.cyril.budget.manager.backend.rest.lib.HttpVerb
-import ch.cyril.budget.manager.backend.rest.lib.RestMethod
-import ch.cyril.budget.manager.backend.rest.lib.RestServer
+import ch.cyril.budget.manager.backend.rest.lib.*
 import io.javalin.Context
 import io.javalin.Javalin
 import kotlinx.coroutines.runBlocking
-import javax.servlet.http.HttpServletResponse
 
-class JavalinRestServer(private val javalin: Javalin) : RestServer {
+class JavalinRestServer(private val javalin: Javalin) : RestServer<Context>() {
 
-    override fun register(method: RestMethod) {
-        val path = method.path().toPath(":", "")
-        when (method.verb()) {
-            HttpVerb.GET -> {
-                javalin.get(path) { ctx -> handle(method, ctx) }
-            }
-            HttpVerb.POST -> {
-                javalin.post(path) { ctx -> handle(method, ctx) }
-            }
-            HttpVerb.PUT -> {
-                javalin.put(path) { ctx -> handle(method, ctx) }
-            }
-            HttpVerb.DELETE -> {
-                javalin.delete(path) { ctx -> handle(method, ctx) }
-            }
-        }
+    override fun registerGet(path: String, handler: Handler<Context>) {
+        javalin.get(path) { ctx -> invokeHandler(ctx, handler) }
     }
 
-    private fun handle(method: RestMethod, ctx: Context) {
-        try {
-            runBlocking {
-                val res = method.invoke(JavalinRestContext(ctx))
-                if (res != null) {
-                    ctx.result(res.content)
-                    ctx.contentType(res.contentType)
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            ctx.res.sendError(HttpServletResponse.SC_BAD_REQUEST, e.message)
+    override fun registerPost(path: String, handler: Handler<Context>) {
+        javalin.post(path) { ctx -> invokeHandler(ctx, handler) }
+    }
+
+    override fun registerPut(path: String, handler: Handler<Context>) {
+        javalin.put(path) { ctx -> invokeHandler(ctx, handler) }
+    }
+
+    override fun registerDelete(path: String, handler: Handler<Context>) {
+        javalin.delete(path) { ctx -> invokeHandler(ctx, handler) }
+    }
+
+    override fun toPath(path: RestMethodPath): String {
+        return path.toPath(":", "")
+    }
+
+    override fun getRestContext(ctx: Context): RestContext {
+        return JavalinRestContext(ctx)
+    }
+
+    private fun invokeHandler(ctx: Context, handler: Handler<Context>) {
+        runBlocking {
+            handler.invoke(ctx)
         }
     }
 }

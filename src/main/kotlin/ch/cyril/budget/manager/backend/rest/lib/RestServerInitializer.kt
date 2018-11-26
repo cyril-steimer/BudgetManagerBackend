@@ -19,5 +19,5 @@ abstract class RestServerInitializer {
         println("Started server on port ${config.port}")
     }
 
-    protected abstract fun doStartServer(config: ServerConfig): RestServer
+    protected abstract fun doStartServer(config: ServerConfig): RestServer<*>
 }

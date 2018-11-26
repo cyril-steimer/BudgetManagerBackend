@@ -8,7 +8,7 @@ import io.ktor.server.netty.Netty
 
 class KtorRestServerInitializer : RestServerInitializer() {
 
-    override fun doStartServer(config: ServerConfig): RestServer {
+    override fun doStartServer(config: ServerConfig): RestServer<*> {
         val server = embeddedServer(Netty, config.port) { }
         server.start(wait = false)
         return KtorRestServer(server)

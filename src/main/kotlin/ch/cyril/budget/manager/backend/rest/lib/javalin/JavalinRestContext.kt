@@ -5,6 +5,19 @@ import io.javalin.Context
 
 class JavalinRestContext(val ctx: Context) : RestContext {
 
+    override suspend fun sendResponse(contentType: String, content: String) {
+        ctx.result(content)
+        ctx.contentType(contentType)
+    }
+
+    override suspend fun sendOk(code: Int) {
+        ctx.status(code)
+    }
+
+    override suspend fun sendError(code: Int, message: String?) {
+        ctx.res.sendError(code, message ?: "")
+    }
+
     override suspend fun getBody(): String {
         return ctx.body()
     }

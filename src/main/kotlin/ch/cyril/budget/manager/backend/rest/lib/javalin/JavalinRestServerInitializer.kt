@@ -7,7 +7,7 @@ import io.javalin.Javalin
 
 class JavalinRestServerInitializer : RestServerInitializer() {
 
-    override fun doStartServer(config: ServerConfig): RestServer {
+    override fun doStartServer(config: ServerConfig): RestServer<*> {
         val javalin = Javalin.create().start(config.port)
         return JavalinRestServer(javalin)
     }

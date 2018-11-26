@@ -1,50 +1,50 @@
 package ch.cyril.budget.manager.backend.rest.lib.ktor
 
-import ch.cyril.budget.manager.backend.rest.lib.HttpVerb
-import ch.cyril.budget.manager.backend.rest.lib.RestMethod
-import ch.cyril.budget.manager.backend.rest.lib.RestServer
+import ch.cyril.budget.manager.backend.rest.lib.*
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
-import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.server.engine.ApplicationEngine
 
-class KtorRestServer(private val engine: ApplicationEngine) : RestServer  {
+class KtorRestServer(private val engine: ApplicationEngine) : RestServer<ApplicationCall>() {
 
-    override fun register(method: RestMethod) {
-        val path = method.path().toPath("{", "}")
+    override fun registerGet(path: String, handler: Handler<ApplicationCall>) {
         engine.environment.application.routing {
-            when (method.verb()) {
-                HttpVerb.GET -> get(path) {
-                    handle(method, call)
-                }
-                HttpVerb.POST -> post(path) {
-                    handle(method, call)
-                }
-                HttpVerb.PUT -> put(path) {
-                    handle(method, call)
-                }
-                HttpVerb.DELETE -> delete(path) {
-                    handle(method, call)
-                }
+            get(path) {
+                handler.invoke(call)
             }
         }
     }
 
-    private suspend fun handle(method: RestMethod, call: ApplicationCall) {
-        try {
-            val res = method.invoke(KtorRestContext(call))
-            if (res != null) {
-                call.respondText(res.content, ContentType.parse(res.contentType))
-            } else {
-                call.respond(HttpStatusCode.OK, "")
+    override fun registerPost(path: String, handler: Handler<ApplicationCall>) {
+        engine.environment.application.routing {
+            post(path) {
+                handler.invoke(call)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            call.respond(HttpStatusCode.BadRequest, e.message ?: "")
         }
+    }
+
+    override fun registerPut(path: String, handler: Handler<ApplicationCall>) {
+        engine.environment.application.routing {
+            put(path) {
+                handler.invoke(call)
+            }
+        }
+    }
+
+    override fun registerDelete(path: String, handler: Handler<ApplicationCall>) {
+        engine.environment.application.routing {
+            delete(path) {
+                handler.invoke(call)
+            }
+        }
+    }
+
+    override fun toPath(path: RestMethodPath): String {
+        return path.toPath("{", "}")
+    }
+
+    override fun getRestContext(ctx: ApplicationCall): RestContext {
+        return KtorRestContext(ctx)
     }
 }
