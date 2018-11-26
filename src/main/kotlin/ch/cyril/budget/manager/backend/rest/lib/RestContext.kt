@@ -2,9 +2,9 @@ package ch.cyril.budget.manager.backend.rest.lib
 
 interface RestContext {
 
-    fun getBody(): String
+    suspend fun getBody(): String
 
-    fun getRawBody(): ByteArray
+    suspend fun getRawBody(): ByteArray
 
     fun getHeader(name: String): String?
 

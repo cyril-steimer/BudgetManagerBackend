@@ -11,7 +11,6 @@ import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.server.engine.ApplicationEngine
-import kotlinx.coroutines.runBlocking
 import java.lang.Exception
 import java.lang.IllegalStateException
 
@@ -44,21 +43,19 @@ class KtorRestServer(private val engine: ApplicationEngine) : RestServer  {
         }
     }
 
-    private fun handle(method: RestMethod, call: ApplicationCall) {
+    private suspend fun handle(method: RestMethod, call: ApplicationCall) {
         try {
             val res = method.invoke(KtorRestContext(call))
             if (res != null) {
                 val resString = res.data.bufferedReader().use { it.readText() }
-                runBlocking {
                     //TODO Can be different content types
-                    call.respondText(resString, ContentType.Application.Json)
-                }
+                call.respondText(resString, ContentType.Application.Json)
+            } else {
+                call.respond(HttpStatusCode.OK, "")
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            runBlocking {
-                call.respond(HttpStatusCode.BadRequest, e.message!!)
-            }
+            call.respond(HttpStatusCode.BadRequest, e.message ?: "")
         }
     }
 }

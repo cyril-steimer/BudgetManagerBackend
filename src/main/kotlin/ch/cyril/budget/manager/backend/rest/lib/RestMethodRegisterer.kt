@@ -12,6 +12,11 @@ class RestMethodRegisterer(
         handler::class.memberFunctions
                 .map { f -> RestMethod.of(handler, f, parser) }
                 .filter { m -> m != null }
-                .forEach { m -> server.register(m!!) }
+                .forEach { m -> registerMethod(m!!) }
+    }
+
+    private fun registerMethod(method: RestMethod) {
+        println("${method.verb()} at path '${method.path()}'")
+        server.register(method)
     }
 }

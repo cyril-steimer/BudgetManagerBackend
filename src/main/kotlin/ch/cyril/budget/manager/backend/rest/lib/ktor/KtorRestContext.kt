@@ -4,20 +4,16 @@ import ch.cyril.budget.manager.backend.rest.lib.RestContext
 import io.ktor.application.ApplicationCall
 import io.ktor.request.header
 import io.ktor.request.receiveText
-import kotlinx.coroutines.runBlocking
 import java.nio.charset.StandardCharsets
 
 class KtorRestContext(private val call: ApplicationCall) : RestContext {
 
-    override fun getBody(): String {
-        return runBlocking {
-            call.receiveText()
-        }
+    override suspend fun getBody(): String {
+        return call.receiveText()
     }
 
-    override fun getRawBody(): ByteArray {
-        val body = getBody()
-        return body.toByteArray(StandardCharsets.UTF_8)
+    override suspend fun getRawBody(): ByteArray {
+        return getBody().toByteArray(StandardCharsets.UTF_8)
     }
 
     override fun getHeader(name: String): String? {
@@ -30,9 +26,6 @@ class KtorRestContext(private val call: ApplicationCall) : RestContext {
 
     override fun getQueryParams(name: String): List<String> {
         val res = call.request.queryParameters.getAll(name)
-        if (res == null) {
-            return emptyList()
-        }
-        return res
+        return res ?: emptyList()
     }
 }
