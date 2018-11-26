@@ -11,26 +11,20 @@ import javax.servlet.http.HttpServletResponse
 class JavalinRestServer(private val javalin: Javalin) : RestServer {
 
     override fun register(method: RestMethod) {
-        val verb = method.verb()
-        val path = method.path()
-        when (verb) {
+        val path = method.path().toPath(":", "")
+        when (method.verb()) {
             HttpVerb.GET -> {
                 javalin.get(path) { ctx -> handle(method, ctx) }
-                return
             }
             HttpVerb.POST -> {
                 javalin.post(path) { ctx -> handle(method, ctx) }
-                return
             }
             HttpVerb.PUT -> {
                 javalin.put(path) { ctx -> handle(method, ctx) }
-                return
             }
             HttpVerb.DELETE -> {
                 javalin.delete(path) { ctx -> handle(method, ctx) }
-                return
             }
-            else -> throw IllegalArgumentException("Unknown verb ${method.verb()}")
         }
     }
 

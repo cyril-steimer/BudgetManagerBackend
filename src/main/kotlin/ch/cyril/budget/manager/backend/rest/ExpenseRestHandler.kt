@@ -25,7 +25,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
 
-    @HttpMethod(HttpVerb.POST, "/api/v1/expenses/search/{filter}")
+    @HttpMethod(HttpVerb.POST, "/api/v1/expenses/search/:filter")
     fun search(
             @PathParam("filter") filter: String,
             @Body body: JsonObject,
@@ -41,7 +41,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
 
-    @HttpMethod(HttpVerb.GET, "/api/v1/expenses/search/{filter}")
+    @HttpMethod(HttpVerb.GET, "/api/v1/expenses/search/:filter")
     fun search(
             @PathParam("filter") filter: String,
             @QueryParam("sort") field: ExpenseSortField?,
@@ -54,7 +54,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
 
-    @HttpMethod(HttpVerb.GET, "/api/v1/expenses/field/{query}/{arg}")
+    @HttpMethod(HttpVerb.GET, "/api/v1/expenses/field/:query/:arg")
     fun simpleQuery(
             @PathParam("query") desc: SimpleExpenseQueryDescriptor,
             @PathParam("arg") arg: String,

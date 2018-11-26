@@ -11,35 +11,26 @@ import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.server.engine.ApplicationEngine
-import java.lang.Exception
-import java.lang.IllegalStateException
 
 class KtorRestServer(private val engine: ApplicationEngine) : RestServer  {
 
     override fun register(method: RestMethod) {
-        val application = engine.environment.application
-        when (method.verb()) {
-            HttpVerb.GET -> application.routing {
-                get(method.path()) {
+        val path = method.path().toPath("{", "}")
+        engine.environment.application.routing {
+            when (method.verb()) {
+                HttpVerb.GET -> get(path) {
+                    handle(method, call)
+                }
+                HttpVerb.POST -> post(path) {
+                    handle(method, call)
+                }
+                HttpVerb.PUT -> put(path) {
+                    handle(method, call)
+                }
+                HttpVerb.DELETE -> delete(path) {
                     handle(method, call)
                 }
             }
-            HttpVerb.POST -> application.routing {
-                post(method.path()) {
-                    handle(method, call)
-                }
-            }
-            HttpVerb.PUT -> application.routing {
-                put(method.path()) {
-                    handle(method, call)
-                }
-            }
-            HttpVerb.DELETE -> application.routing {
-                delete(method.path()) {
-                    handle(method, call)
-                }
-            }
-            else -> throw IllegalStateException("Unknown verb ${method.verb()}")
         }
     }
 

@@ -25,8 +25,8 @@ class RestMethod private constructor(
         return method.verb
     }
 
-    fun path(): String {
-        return method.path
+    fun path(): RestMethodPath {
+        return RestMethodPath.parse(method.path)
     }
 
     private suspend fun gatherParams(ctx: RestContext): Array<Any?> {
