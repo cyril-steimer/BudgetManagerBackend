@@ -47,9 +47,7 @@ class KtorRestServer(private val engine: ApplicationEngine) : RestServer  {
         try {
             val res = method.invoke(KtorRestContext(call))
             if (res != null) {
-                val resString = res.data.bufferedReader().use { it.readText() }
-                    //TODO Can be different content types
-                call.respondText(resString, ContentType.Application.Json)
+                call.respondText(res.content, ContentType.parse(res.contentType))
             } else {
                 call.respond(HttpStatusCode.OK, "")
             }
