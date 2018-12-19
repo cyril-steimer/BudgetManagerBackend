@@ -6,6 +6,10 @@ class RestMethodPath private constructor(private val segments: List<Segment>) {
         return segments.joinToString("/") { s -> s.toPathParam(prefix, postfix) }
     }
 
+    override fun toString(): String {
+        return toPath(":", "")
+    }
+
     companion object {
         fun parse(path: String): RestMethodPath {
             val segments = path.split('/')

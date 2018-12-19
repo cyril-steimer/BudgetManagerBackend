@@ -40,7 +40,7 @@ class BudgetParser() : LineBasedFileParser<Budget>() {
         val period = Identifiable.byIdentifier<BudgetPeriod>(split[index])
         val amount = Amount(split[index + 1].toBigDecimal())
         val from = MonthYear(split[index + 2].toInt(), split[index + 3].toInt())
-        val to = MonthYear(split[index + 4].toInt(), split[index + 4].toInt())
+        val to = MonthYear(split[index + 4].toInt(), split[index + 5].toInt())
         return BudgetAmount(amount, period, from, to)
     }
 }

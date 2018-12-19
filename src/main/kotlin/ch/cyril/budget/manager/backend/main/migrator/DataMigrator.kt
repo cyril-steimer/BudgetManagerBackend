@@ -1,4 +1,4 @@
-package ch.cyril.budget.manager.backend.main
+package ch.cyril.budget.manager.backend.main.migrator
 
 import ch.cyril.budget.manager.backend.service.ServiceFactory
 import ch.cyril.budget.manager.backend.service.filebased.FilebasedServiceFactory
