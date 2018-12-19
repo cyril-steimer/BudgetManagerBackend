@@ -1,6 +1,7 @@
 package ch.cyril.budget.manager.backend.service.filebased.budget
 
-import ch.cyril.budget.manager.backend.model.*
+import ch.cyril.budget.manager.backend.model.Budget
+import ch.cyril.budget.manager.backend.model.Category
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
 import ch.cyril.budget.manager.backend.util.SubList
 import java.nio.file.Path
@@ -26,11 +27,13 @@ class FilebasedBudgetDao(val file: Path) : BudgetDao {
     }
 
     override fun updateBudget(budget: Budget) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        addBudget(budget)
     }
 
     override fun deleteBudget(budget: Budget) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val budgets = ArrayList(getAllBudgets())
+        budgets.removeIf { b -> b.category == budget.category }
+        parser.store(file, budgets)
     }
 
     override fun getCategories(): SubList<Category> {
