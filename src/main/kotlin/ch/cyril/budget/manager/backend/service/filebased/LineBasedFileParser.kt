@@ -3,9 +3,9 @@ package ch.cyril.budget.manager.backend.service.filebased
 import java.nio.file.Files
 import java.nio.file.Path
 
-abstract class LineBasedFileParser<T> {
+abstract class LineBasedFileParser<T> : FileParser<T> {
 
-    fun load(file: Path): List<T> {
+    override fun read(file: Path): List<T> {
         if (!Files.exists(file)) {
             return emptyList()
         }
@@ -14,7 +14,7 @@ abstract class LineBasedFileParser<T> {
                 .map { l -> fromLine(l) }
     }
 
-    fun store(file: Path, values: List<T>) {
+    override fun write(file: Path, values: List<T>) {
         val lines = values
                 .map { t -> toLine(t) }
         Files.write(file, lines)

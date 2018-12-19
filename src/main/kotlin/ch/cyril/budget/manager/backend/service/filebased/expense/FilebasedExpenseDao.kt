@@ -6,11 +6,12 @@ import ch.cyril.budget.manager.backend.model.PaymentMethod
 import ch.cyril.budget.manager.backend.model.Tag
 import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.service.expense.*
+import ch.cyril.budget.manager.backend.service.filebased.FileContentCache
 import ch.cyril.budget.manager.backend.util.SubList
 import java.math.BigDecimal
 import java.nio.file.Path
 
-class FilebasedExpenseDao(val file: Path): ExpenseDao {
+class FilebasedExpenseDao(file: Path): ExpenseDao {
 
     private class ComparatorSortDirectionSwitch<T> : SortDirectionSwitch<Comparator<T>, Comparator<T>> {
 
@@ -48,6 +49,12 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
 
     private val visitor = FilebasedExpenseQueryVisitor()
 
+    private val contentCache: FileContentCache<Expense, Id>
+
+    init {
+        contentCache = FileContentCache(file, ExpenseParser()) { e -> e.id }
+    }
+
     override fun getExpenses(
             query: ExpenseQuery?,
             sort: ExpenseSort?,
@@ -71,32 +78,15 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
     override fun addExpense(expense: Expense) {
         val id = getNewId()
         val newExpense = Expense(id, expense.name, expense.amount, expense.category, expense.date, expense.method, expense.tags)
-        val expenses = getAllExpenses().toMutableList()
-        expenses.add(newExpense)
-        ExpenseParser().store(file, expenses)
+        contentCache.add(newExpense)
     }
 
     override fun updateExpense(expense: Expense) {
-        val expenses = getAllExpenses().toMutableList()
-        val existing = expenses.indexOfFirst { e -> e.id.equals(expense.id) }
-        if (existing == -1) {
-            throw IllegalArgumentException("The expense with Id '${expense.id.id}' does not exist")
-        }
-        expenses.removeAt(existing)
-        expenses.add(expense)
-        ExpenseParser().store(file, expenses)
+        contentCache.update(expense)
     }
 
     override fun deleteExpense(expense: Expense) {
-        val expenses = getAllExpenses().toMutableList()
-        val existing = expenses.indexOfFirst { e -> e.id.equals(expense.id) }
-        if (existing == -1) {
-            throw IllegalArgumentException("The expense with Id '${expense.id.id}' does not exist")
-        }
-        if (existing != -1) {
-            expenses.removeAt(existing)
-        }
-        ExpenseParser().store(file, expenses)
+        contentCache.delete(expense)
     }
 
     override fun getPaymentMethods(): Set<PaymentMethod> {
@@ -114,7 +104,7 @@ class FilebasedExpenseDao(val file: Path): ExpenseDao {
     }
 
     private fun getAllExpenses(): List<Expense> {
-        return ExpenseParser().load(file)
+        return contentCache.getAll()
     }
 
     private fun getNewId(): Id {
