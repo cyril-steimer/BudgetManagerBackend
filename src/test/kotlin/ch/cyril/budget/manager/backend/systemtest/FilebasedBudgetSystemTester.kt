@@ -12,157 +12,146 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions
 import java.math.BigDecimal
 import java.nio.file.Files
+import java.nio.file.Path
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class KtorFilebasedSystemTest {
+class FilebasedBudgetSystemTester(
+        private val tempDir: Path,
+        private val server: ServerType,
+        private val port: Int) : AutoCloseable {
 
     private val budgetContent = """
         Budget1,900,monthly
         Budget2,yearly,1200,1,2018,1,2019,monthly,1400,1,2019,12,2019
     """.trimIndent()
 
-    private val tempDir = Files.createTempDirectory("systemtest")
-
-    private val budgetFile = Files.write(tempDir.resolve("budgets"), budgetContent.toByteArray())
+    private val budgetFile: Path
 
     private val budget1 = Budget(
             Category("Budget1"),
             listOf(
-                BudgetAmount(
-                    Amount(BigDecimal(900)),
-                    BudgetPeriod.MONTHLY,
-                    MonthYear(1, 0),
-                    MonthYear(1, 9999))))
+                    BudgetAmount(
+                            Amount(BigDecimal(900)),
+                            BudgetPeriod.MONTHLY,
+                            MonthYear(1, 0),
+                            MonthYear(1, 9999))))
 
     private val newBudget1 = Budget(
             Category("Budget1"),
             listOf(
-                BudgetAmount(
-                    Amount(BigDecimal(500)),
-                    BudgetPeriod.MONTHLY,
-                    MonthYear(1, 2018),
-                    MonthYear(12, 2018))))
+                    BudgetAmount(
+                            Amount(BigDecimal(500)),
+                            BudgetPeriod.MONTHLY,
+                            MonthYear(1, 2018),
+                            MonthYear(12, 2018))))
 
     private val budget2 = Budget(
             Category("Budget2"),
             listOf(
-                BudgetAmount(
-                    Amount(BigDecimal(1200)),
-                    BudgetPeriod.YEARLY,
-                    MonthYear(1, 2018),
-                    MonthYear(1, 2019)),
-                BudgetAmount(
-                    Amount(BigDecimal(1400)),
-                    BudgetPeriod.MONTHLY,
-                    MonthYear(1, 2019),
-                    MonthYear(12, 2019))));
+                    BudgetAmount(
+                            Amount(BigDecimal(1200)),
+                            BudgetPeriod.YEARLY,
+                            MonthYear(1, 2018),
+                            MonthYear(1, 2019)),
+                    BudgetAmount(
+                            Amount(BigDecimal(1400)),
+                            BudgetPeriod.MONTHLY,
+                            MonthYear(1, 2019),
+                            MonthYear(12, 2019))));
 
     private val newBudget3 = Budget(
             Category("Budget3"),
             listOf(
-                BudgetAmount(
-                    Amount(BigDecimal(800)),
-                    BudgetPeriod.YEARLY,
-                    MonthYear(1, 2016),
-                    MonthYear(12, 2020))))
+                    BudgetAmount(
+                            Amount(BigDecimal(800)),
+                            BudgetPeriod.YEARLY,
+                            MonthYear(1, 2016),
+                            MonthYear(12, 2020))))
 
+    init {
+        budgetFile = Files.write(tempDir.resolve("budgets"), budgetContent.toByteArray())
 
-    private val port = 9000;
-
-    @BeforeAll
-    fun setup () {
         val expensesFile = Files.createFile(tempDir.resolve("expenses"))
         val config = ParamBuilder.fileBased(expensesFile, budgetFile, ServerType.KTOR, port)
         val configFile = Files.write(tempDir.resolve("config.json"), config.toByteArray())
         val params = arrayOf(configFile.toString())
-        main(params)
+        main(params);
     }
 
-    @AfterAll
-    fun destroy () {
-        //TODO Destroy the server..
+    fun runBudgetSystemTests() {
+        getAllBudgets()
+        getBudgetByCategory()
+        getCategories()
+        updateBudget()
+        addBudget()
+        deleteBudget()
+        addExistingBudget()
+        updateNotExistingBudget()
+        deleteNotExistingBudget()
     }
 
-    @Test
-    @Order(100)
-    fun getAllBudgets () {
+    override fun close() {
+        //TODO Destroy the server
+    }
+
+    private fun getAllBudgets () {
         val budgets = getJson<SubList<Budget>>("/api/v1/budget")
-        assertEquals(2, budgets.count)
-        assertEquals(budget1, budgets.values[0])
-        assertEquals(budget2, budgets.values[1])
+        Assertions.assertEquals(2, budgets.count)
+        Assertions.assertEquals(budget1, budgets.values[0])
+        Assertions.assertEquals(budget2, budgets.values[1])
     }
 
-    @Test
-    @Order(200)
-    fun getBudgetByCategory () {
+    private fun getBudgetByCategory () {
         var budget: Budget = getJson("/api/v1/budget/category/Budget1")
-        assertEquals(budget1, budget)
+        Assertions.assertEquals(budget1, budget)
         budget = getJson("/api/v1/budget/category/Budget2")
-        assertEquals(budget2, budget)
+        Assertions.assertEquals(budget2, budget)
     }
 
-    @Test
-    @Order(250)
-    fun getCategories () {
+    private fun getCategories () {
         val categories = getJson<SubList<Category>>("/api/v1/category")
-        assertEquals(2, categories.count)
-        assertEquals(budget1.category, categories.values[0])
-        assertEquals(budget2.category, categories.values[1])
+        Assertions.assertEquals(2, categories.count)
+        Assertions.assertEquals(budget1.category, categories.values[0])
+        Assertions.assertEquals(budget2.category, categories.values[1])
     }
 
-    @Test
-    @Order(300)
-    fun updateBudget () {
+    private fun updateBudget () {
         put("/api/v1/budget", newBudget1)
         val budget = getJson<Budget>("/api/v1/budget/category/Budget1")
-        assertEquals(newBudget1, budget)
+        Assertions.assertEquals(newBudget1, budget)
         //TODO Check that the fîle was written
     }
 
-    @Test
-    @Order(400)
-    fun addBudget () {
+    private fun addBudget () {
         post("/api/v1/budget", newBudget3)
         val budget = getJson<Budget>("/api/v1/budget/category/Budget3")
-        assertEquals(newBudget3, budget)
+        Assertions.assertEquals(newBudget3, budget)
         //TODO Check that the file was written
     }
 
-    @Test
-    @Order(500)
-    fun deleteBudget () {
+    private fun deleteBudget () {
         delete("/api/v1/budget?category=Budget3")
         //TODO Can we determine the exception more exactly? Or even get the status code?
-        assertThrows(Exception::class.java) { getJson<Budget>("/api/v1/budget/category/Budget3") }
+        Assertions.assertThrows(Exception::class.java) { getJson<Budget>("/api/v1/budget/category/Budget3") }
         //TODO Check that the file was written
     }
 
-    @Test
-    @Order(600)
-    fun addExistingBudget () {
-        assertThrows(Exception::class.java) { post("/api/v1/budget", budget1) }
+    private fun addExistingBudget () {
+        Assertions.assertThrows(Exception::class.java) { post("/api/v1/budget", budget1) }
         val budget = getJson<Budget>("/api/v1/budget/category/Budget1")
-        assertEquals(newBudget1, budget)
+        Assertions.assertEquals(newBudget1, budget)
     }
 
-    @Test
-    @Order(700)
-    fun updateNotExistingBudget () {
+    private fun updateNotExistingBudget () {
         val budget4 = Budget(Category("Budget4"), budget1.amounts)
-        assertThrows(Exception::class.java) { put("/api/v1/budget", budget4) }
-        assertThrows(Exception::class.java) { getJson<Budget>("/api/v1/budget/category/Budget4") }
+        Assertions.assertThrows(Exception::class.java) { put("/api/v1/budget", budget4) }
+        Assertions.assertThrows(Exception::class.java) { getJson<Budget>("/api/v1/budget/category/Budget4") }
     }
 
-    @Test
-    @Order(800)
-    fun deleteNotExistingBudget () {
-        assertThrows(Exception::class.java) {delete("/api/v1/budget?category=Budget4")}
+    private fun deleteNotExistingBudget () {
+        Assertions.assertThrows(Exception::class.java) { delete("/api/v1/budget?category=Budget4") }
     }
 
     private fun put (path: String, body: Any) {
