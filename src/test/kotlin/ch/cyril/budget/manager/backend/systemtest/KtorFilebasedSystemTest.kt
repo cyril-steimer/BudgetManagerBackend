@@ -143,6 +143,28 @@ class KtorFilebasedSystemTest {
         //TODO Check that the file was written
     }
 
+    @Test
+    @Order(600)
+    fun addExistingBudget () {
+        assertThrows(Exception::class.java) { post("/api/v1/budget", budget1) }
+        val budget = getJson<Budget>("/api/v1/budget/category/Budget1")
+        assertEquals(newBudget1, budget)
+    }
+
+    @Test
+    @Order(700)
+    fun updateNotExistingBudget () {
+        val budget4 = Budget(Category("Budget4"), budget1.amounts)
+        assertThrows(Exception::class.java) { put("/api/v1/budget", budget4) }
+        assertThrows(Exception::class.java) { getJson<Budget>("/api/v1/budget/category/Budget4") }
+    }
+
+    @Test
+    @Order(800)
+    fun deleteNotExistingBudget () {
+        assertThrows(Exception::class.java) {delete("/api/v1/budget?category=Budget4")}
+    }
+
     private fun put (path: String, body: Any) {
         val client = HttpClient()
         runBlocking {

@@ -1,6 +1,7 @@
 package ch.cyril.budget.manager.backend.service.expense
 
 import ch.cyril.budget.manager.backend.model.Expense
+import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.model.PaymentMethod
 import ch.cyril.budget.manager.backend.model.Tag
 import ch.cyril.budget.manager.backend.service.Pagination
@@ -24,7 +25,7 @@ interface ExpenseDao {
 
     fun updateExpense(expense: Expense)
 
-    fun deleteExpense(expense: Expense)
+    fun deleteExpense(id: Id)
 
     fun getPaymentMethods(): Set<PaymentMethod>
 

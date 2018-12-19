@@ -1,6 +1,7 @@
 package ch.cyril.budget.manager.backend.service.mongo.expense
 
 import ch.cyril.budget.manager.backend.model.Expense
+import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.model.PaymentMethod
 import ch.cyril.budget.manager.backend.model.Tag
 import ch.cyril.budget.manager.backend.service.Pagination
@@ -88,8 +89,8 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
         collection.updateOne(eq(KEY_ID, ObjectId(expense.id.id)), update)
     }
 
-    override fun deleteExpense(expense: Expense) {
-        collection.deleteOne(eq(KEY_ID, ObjectId(expense.id.id)))
+    override fun deleteExpense(id: Id) {
+        collection.deleteOne(eq(KEY_ID, ObjectId(id.id)))
     }
 
     override fun getPaymentMethods(): Set<PaymentMethod> {

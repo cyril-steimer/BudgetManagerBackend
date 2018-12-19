@@ -85,8 +85,8 @@ class FilebasedExpenseDao(file: Path): ExpenseDao {
         contentCache.update(expense)
     }
 
-    override fun deleteExpense(expense: Expense) {
-        contentCache.delete(expense)
+    override fun deleteExpense(id: Id) {
+        contentCache.delete(id)
     }
 
     override fun getPaymentMethods(): Set<PaymentMethod> {

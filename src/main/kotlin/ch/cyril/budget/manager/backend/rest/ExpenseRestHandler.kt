@@ -90,10 +90,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
 
     @HttpMethod(HttpVerb.DELETE, "/api/v1/expenses")
     fun deleteExpense(@QueryParam("id") id: String) {
-        val expense = expenseDao.getOneExpense(IdExpenseQuery(Id(id)), null)
-        if (expense != null) {
-            expenseDao.deleteExpense(expense)
-        }
+        expenseDao.deleteExpense(Id(id))
     }
 
     @HttpMethod(HttpVerb.GET, "/api/v1/paymentmethod")

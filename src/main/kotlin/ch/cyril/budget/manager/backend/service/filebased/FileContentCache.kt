@@ -19,19 +19,33 @@ class FileContentCache<T, Id>(
 
     fun add (value: T) {
         val cache = doGetAll()
-        cache.removeIf { v -> idGetter(v) == idGetter(value) }
+        if (cache.find { v -> idGetter(v) == idGetter(value) } != null) {
+            throw IllegalStateException("There is already an object with id ${idGetter(value)}.")
+        }
         cache.add(value)
         persistCache()
     }
 
     fun update (value: T) {
-        add(value)
+        val cache = doGetAll()
+        val index = indexOf(idGetter(value), cache)
+        cache[index] = value
+        persistCache()
     }
 
-    fun delete (value: T) {
+    fun delete (id: Id) {
         val cache = doGetAll()
-        cache.removeIf { v -> idGetter(v) == idGetter(value) }
+        val index = indexOf(id, cache)
+        cache.removeAt(index)
         persistCache()
+    }
+
+    private fun indexOf (id: Id, values: List<T>): Int {
+        val index = values.indexOfFirst { v -> idGetter(v) == id }
+        if (index < 0) {
+            throw IllegalStateException("There is no object with id ${id}")
+        }
+        return index
     }
 
     private fun persistCache () {

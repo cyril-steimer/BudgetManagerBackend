@@ -31,8 +31,8 @@ class FilebasedBudgetDao(file: Path) : BudgetDao {
         contentCache.update(budget)
     }
 
-    override fun deleteBudget(budget: Budget) {
-        contentCache.delete(budget)
+    override fun deleteBudget(category: Category) {
+        contentCache.delete(category)
     }
 
     override fun getCategories(): SubList<Category> {

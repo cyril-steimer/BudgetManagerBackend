@@ -24,7 +24,7 @@ interface BudgetDao {
 
     fun updateBudget(budget: Budget)
 
-    fun deleteBudget(budget: Budget)
+    fun deleteBudget(category: Category)
 
     fun getBudgetsInPeriod(budgets: List<Budget>, period: MonthYearPeriod): List<BudgetInPeriod> {
         return budgets.map { b -> getBudget(b, period.from, period.to) }

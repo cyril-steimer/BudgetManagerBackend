@@ -5,7 +5,6 @@ import ch.cyril.budget.manager.backend.model.Category
 import ch.cyril.budget.manager.backend.model.MonthYearPeriod
 import ch.cyril.budget.manager.backend.rest.lib.*
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
-import java.lang.IllegalArgumentException
 
 class BudgetRestHandler(private val budgetDao: BudgetDao) {
 
@@ -40,10 +39,7 @@ class BudgetRestHandler(private val budgetDao: BudgetDao) {
 
     @HttpMethod(HttpVerb.DELETE, "/api/v1/budget")
     fun deleteBudget(@QueryParam("category") category: String) {
-        val budget = budgetDao.getOneBudget(Category(category))
-        if (budget != null) {
-            budgetDao.deleteBudget(budget)
-        }
+        budgetDao.deleteBudget(Category(category))
     }
 
     @HttpMethod(HttpVerb.GET, "/api/v1/category")
