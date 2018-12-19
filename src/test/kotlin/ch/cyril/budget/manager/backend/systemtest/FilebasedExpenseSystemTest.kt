@@ -5,20 +5,14 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.nio.file.Files
 
-
-class FilebasedBudgetSystemTest {
-
-    companion object {
-        //TODO Remove this, once the tester properly cleans up after itself
-        var port = 9000;
-    }
+class FilebasedExpenseSystemTest {
 
     @ParameterizedTest
     @EnumSource(ServerType::class)
     fun test(type: ServerType) {
-        val tempDir = Files.createTempDirectory(type.name + "-budgets")
-        FilebasedBudgetSystemTester(tempDir, type, port++).use {
-            it.runBudgetSystemTests()
+        val tempDir = Files.createTempDirectory(type.name + "-expenses")
+        FilebasedExpenseSystemTester(tempDir, type, FilebasedBudgetSystemTest.port++).use {
+            it.runExpenseSystemTests()
         }
     }
 }
