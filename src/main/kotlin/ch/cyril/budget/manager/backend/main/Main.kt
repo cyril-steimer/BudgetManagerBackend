@@ -2,7 +2,6 @@ package ch.cyril.budget.manager.backend.main
 
 import ch.cyril.budget.manager.backend.rest.GSON
 import ch.cyril.budget.manager.backend.rest.lib.gson.GsonRestParamParser
-import ch.cyril.budget.manager.backend.rest.lib.ktor.KtorRestServerInitializer
 import com.google.gson.Gson
 import java.nio.file.Files
 import java.nio.file.Paths

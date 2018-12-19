@@ -1,8 +1,5 @@
 package ch.cyril.budget.manager.backend.rest.lib
 
-import java.io.ByteArrayInputStream
-import java.io.InputStream
-
 
 class RestResult(val contentType: String, val content: String) {
 

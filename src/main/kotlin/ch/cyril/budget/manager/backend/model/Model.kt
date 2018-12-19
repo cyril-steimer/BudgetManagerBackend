@@ -2,8 +2,6 @@ package ch.cyril.budget.manager.backend.model
 
 import ch.cyril.budget.manager.backend.util.Identifiable
 import java.math.BigDecimal
-import java.time.Instant
-import java.time.LocalDate
 
 data class Budget(val category: Category, val amounts: List<BudgetAmount>)
 

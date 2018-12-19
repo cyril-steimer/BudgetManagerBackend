@@ -1,7 +1,6 @@
 package ch.cyril.budget.manager.backend.service.mongo.expense
 
 import ch.cyril.budget.manager.backend.model.Expense
-import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.model.PaymentMethod
 import ch.cyril.budget.manager.backend.model.Tag
 import ch.cyril.budget.manager.backend.service.Pagination
@@ -10,8 +9,9 @@ import ch.cyril.budget.manager.backend.service.mongo.*
 import ch.cyril.budget.manager.backend.util.SubList
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
-import com.mongodb.client.model.Filters.*
-import com.mongodb.client.model.Sorts.*
+import com.mongodb.client.model.Filters.eq
+import com.mongodb.client.model.Sorts.ascending
+import com.mongodb.client.model.Sorts.descending
 import org.bson.Document
 import org.bson.conversions.Bson
 import org.bson.types.ObjectId

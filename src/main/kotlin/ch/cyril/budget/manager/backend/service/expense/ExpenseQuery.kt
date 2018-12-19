@@ -4,7 +4,6 @@ import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.MathComparison
 import ch.cyril.budget.manager.backend.service.StringCase
 import ch.cyril.budget.manager.backend.service.StringComparison
-import java.time.LocalDate
 
 interface ExpenseQuery {
 

@@ -4,7 +4,6 @@ import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.util.SubList
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.time.LocalDate
 
 interface BudgetDao {
 
