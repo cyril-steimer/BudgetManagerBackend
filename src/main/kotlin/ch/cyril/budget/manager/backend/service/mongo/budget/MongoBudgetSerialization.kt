@@ -5,8 +5,6 @@ import ch.cyril.budget.manager.backend.service.mongo.*
 import ch.cyril.budget.manager.backend.util.Identifiable
 import org.bson.Document
 import org.bson.types.Decimal128
-import java.time.Instant
-import java.time.LocalDate
 
 class MongoBudgetSerialization {
 

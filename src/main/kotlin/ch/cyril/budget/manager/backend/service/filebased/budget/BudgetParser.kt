@@ -30,7 +30,7 @@ class BudgetParser() : LineBasedFileParser<Budget>() {
             return Budget(category, listOf(BudgetAmount(amount, period, MonthYear(1, 0), MonthYear(1, 9999))))
         }
         val amounts = ArrayList<BudgetAmount>()
-        for (i in 1..split.size step 6) {
+        for (i in 1 until split.size step 6) {
             amounts.add(parseBudgetAmount(split, i))
         }
         return Budget(category, amounts)

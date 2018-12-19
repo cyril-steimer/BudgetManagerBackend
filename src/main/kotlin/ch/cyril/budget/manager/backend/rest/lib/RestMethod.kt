@@ -12,7 +12,7 @@ class RestMethod private constructor(
         private val function: KFunction<*>,
         private val parser: RestParamParser) {
 
-    fun invoke(ctx: RestContext): RestResult? {
+    suspend fun invoke(ctx: RestContext): RestResult? {
         val params = gatherParams(ctx)
         val res = function.call(owner, *params)
         if (res is RestResult) {
@@ -25,11 +25,11 @@ class RestMethod private constructor(
         return method.verb
     }
 
-    fun path(): String {
-        return method.path
+    fun path(): RestMethodPath {
+        return RestMethodPath.parse(method.path)
     }
 
-    private fun gatherParams(ctx: RestContext): Array<Any?> {
+    private suspend fun gatherParams(ctx: RestContext): Array<Any?> {
         return function.parameters
                 .filter { p -> p.name != null }
                 .map { p -> getParamValue(p, ctx) }
@@ -37,7 +37,7 @@ class RestMethod private constructor(
     }
 
 
-    private fun getParamValue(param: KParameter, ctx: RestContext): Any? {
+    private suspend fun getParamValue(param: KParameter, ctx: RestContext): Any? {
         var value = getRawParamValue(param, ctx)
         value = parseParamValue(param.type.classifier as KClass<*>, value)
         validateParamValue(param, value)
@@ -46,12 +46,12 @@ class RestMethod private constructor(
 
     private fun parseParamValue(cls: KClass<*>, value: Any?): Any? {
         //TODO The entire parsing mechanism should be improved.
-        if (!(value is String)) {
+        if (value !is String) {
             return value
         } else if (cls == String::class) {
             return value
         }
-        return parser.parse(value as String, cls.java)
+        return parser.parse(value, cls.java)
     }
 
     private fun validateParamValue(param: KParameter, value: Any?) {
@@ -68,7 +68,7 @@ class RestMethod private constructor(
         }
     }
 
-    private fun getRawParamValue(param: KParameter, ctx: RestContext): Any? {
+    private suspend fun getRawParamValue(param: KParameter, ctx: RestContext): Any? {
         if (param.findAnnotation<Body>() != null) {
             if (param.type.classifier == ByteArray::class) {
                 return ctx.getRawBody()

@@ -2,9 +2,15 @@ package ch.cyril.budget.manager.backend.rest.lib
 
 interface RestContext {
 
-    fun getBody(): String
+    suspend fun sendResponse(contentType: String, content: String)
 
-    fun getRawBody(): ByteArray
+    suspend fun sendOk(code: Int)
+
+    suspend fun sendError(code: Int, message: String?)
+
+    suspend fun getBody(): String
+
+    suspend fun getRawBody(): ByteArray
 
     fun getHeader(name: String): String?
 

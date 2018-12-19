@@ -1,15 +1,14 @@
 package ch.cyril.budget.manager.backend.service.expense
 
 import ch.cyril.budget.manager.backend.model.*
-import ch.cyril.budget.manager.backend.util.Identifiable
-import ch.cyril.budget.manager.backend.service.StringComparison
 import ch.cyril.budget.manager.backend.service.MathComparison
 import ch.cyril.budget.manager.backend.service.StringCase
+import ch.cyril.budget.manager.backend.service.StringComparison
+import ch.cyril.budget.manager.backend.util.Identifiable
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import java.math.BigDecimal
-import java.time.LocalDate
 
 interface ExpenseQueryDescriptor : Identifiable {
 
