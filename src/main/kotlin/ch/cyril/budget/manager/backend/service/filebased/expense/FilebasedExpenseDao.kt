@@ -1,9 +1,6 @@
 package ch.cyril.budget.manager.backend.service.filebased.expense
 
-import ch.cyril.budget.manager.backend.model.Expense
-import ch.cyril.budget.manager.backend.model.Id
-import ch.cyril.budget.manager.backend.model.PaymentMethod
-import ch.cyril.budget.manager.backend.model.Tag
+import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.service.expense.*
 import ch.cyril.budget.manager.backend.service.filebased.FileContentCache
@@ -75,7 +72,7 @@ class FilebasedExpenseDao(file: Path): ExpenseDao {
         return SubList.of(expenses)
     }
 
-    override fun addExpense(expense: Expense) {
+    override fun addExpense(expense: ExpenseWithoutId) {
         val id = getNewId()
         val newExpense = Expense(id, expense.name, expense.amount, expense.category, expense.date, expense.method, expense.tags)
         contentCache.add(newExpense)

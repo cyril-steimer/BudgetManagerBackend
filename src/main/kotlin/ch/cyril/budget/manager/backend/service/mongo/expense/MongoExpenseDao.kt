@@ -1,9 +1,6 @@
 package ch.cyril.budget.manager.backend.service.mongo.expense
 
-import ch.cyril.budget.manager.backend.model.Expense
-import ch.cyril.budget.manager.backend.model.Id
-import ch.cyril.budget.manager.backend.model.PaymentMethod
-import ch.cyril.budget.manager.backend.model.Tag
+import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.service.expense.*
 import ch.cyril.budget.manager.backend.service.mongo.*
@@ -80,12 +77,12 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
         return SubList.of(list)
     }
 
-    override fun addExpense(expense: Expense) {
+    override fun addExpense(expense: ExpenseWithoutId) {
         collection.insertOne(serialization.serialize(expense))
     }
 
     override fun updateExpense(expense: Expense) {
-        val update = util.toUpdate(serialization.serialize(expense))
+        val update = util.toUpdate(serialization.serialize(expense.withoutId()))
         collection.updateOne(eq(KEY_ID, ObjectId(expense.id.id)), update)
     }
 

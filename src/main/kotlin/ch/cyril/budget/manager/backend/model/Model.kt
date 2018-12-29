@@ -46,6 +46,19 @@ data class MonthYearPeriod(val from: MonthYear, val to: MonthYear)
 
 data class BudgetInPeriod(val category: Category, val amount: Amount)
 
+data class ExpenseWithoutId(
+        val name: Name,
+        val amount: Amount,
+        val category: Category,
+        val date: Timestamp,
+        val method: PaymentMethod,
+        val tags: Set<Tag>): Validatable {
+
+    override fun validate() {
+        amount.validate()
+    }
+}
+
 data class Expense(
         val id: Id,
         val name: Name,
@@ -58,6 +71,8 @@ data class Expense(
     override fun validate() {
         amount.validate()
     }
+
+    fun withoutId() = ExpenseWithoutId(name, amount, category, date, method, tags)
 }
 
 data class Tag(val name: String)

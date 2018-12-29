@@ -1,13 +1,13 @@
 package ch.cyril.budget.manager.backend.service.mongo.expense
 
 import ch.cyril.budget.manager.backend.model.*
-import org.bson.Document
 import ch.cyril.budget.manager.backend.service.mongo.*
+import org.bson.Document
 import org.bson.types.Decimal128
 
 class MongoExpenseSerialization {
 
-    fun serialize(expense: Expense): Document {
+    fun serialize(expense: ExpenseWithoutId): Document {
         // TODO Can this be automated?
         return Document()
                 .append(KEY_TAGS, expense.tags.map { tag -> tag.name })

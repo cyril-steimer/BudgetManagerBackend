@@ -37,7 +37,7 @@ class ImportExportRestHandler(
             if (expenseDao.getOneExpense(IdExpenseQuery(expense.id), null) != null) {
                 expenseDao.updateExpense(expense)
             } else {
-                expenseDao.addExpense(expense)
+                expenseDao.addExpense(expense.withoutId())
             }
         }
     }

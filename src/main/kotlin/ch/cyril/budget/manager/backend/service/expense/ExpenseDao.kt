@@ -1,9 +1,6 @@
 package ch.cyril.budget.manager.backend.service.expense
 
-import ch.cyril.budget.manager.backend.model.Expense
-import ch.cyril.budget.manager.backend.model.Id
-import ch.cyril.budget.manager.backend.model.PaymentMethod
-import ch.cyril.budget.manager.backend.model.Tag
+import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.util.SubList
 
@@ -21,7 +18,7 @@ interface ExpenseDao {
         return expenses.values.firstOrNull()
     }
 
-    fun addExpense(expense: Expense)
+    fun addExpense(expense: ExpenseWithoutId)
 
     fun updateExpense(expense: Expense)
 

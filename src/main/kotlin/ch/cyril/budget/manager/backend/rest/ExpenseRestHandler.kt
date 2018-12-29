@@ -1,6 +1,7 @@
 package ch.cyril.budget.manager.backend.rest
 
 import ch.cyril.budget.manager.backend.model.Expense
+import ch.cyril.budget.manager.backend.model.ExpenseWithoutId
 import ch.cyril.budget.manager.backend.model.Id
 import ch.cyril.budget.manager.backend.rest.lib.*
 import ch.cyril.budget.manager.backend.service.Pagination
@@ -83,7 +84,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
     }
 
     @HttpMethod(HttpVerb.POST, "/api/v1/expenses")
-    fun addExpense(@Body expense: Expense) {
+    fun addExpense(@Body expense: ExpenseWithoutId) {
         expenseDao.addExpense(expense)
     }
 
