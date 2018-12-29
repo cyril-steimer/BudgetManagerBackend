@@ -2,7 +2,7 @@ package ch.cyril.budget.manager.backend.rest.lib
 
 import javax.servlet.http.HttpServletResponse
 
-abstract class RestServer<T> {
+abstract class RestServer<T> : AutoCloseable {
 
     fun register(method: RestMethod) {
         val path = toPath(method.path())

@@ -1,10 +1,14 @@
 package ch.cyril.budget.manager.backend.rest.lib.ktor
 
-import ch.cyril.budget.manager.backend.rest.lib.*
+import ch.cyril.budget.manager.backend.rest.lib.Handler
+import ch.cyril.budget.manager.backend.rest.lib.RestContext
+import ch.cyril.budget.manager.backend.rest.lib.RestMethodPath
+import ch.cyril.budget.manager.backend.rest.lib.RestServer
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.routing.*
 import io.ktor.server.engine.ApplicationEngine
+import java.util.concurrent.TimeUnit
 
 class KtorRestServer(private val engine: ApplicationEngine) : RestServer<ApplicationCall>() {
 
@@ -46,5 +50,9 @@ class KtorRestServer(private val engine: ApplicationEngine) : RestServer<Applica
 
     override fun getRestContext(ctx: ApplicationCall): RestContext {
         return KtorRestContext(ctx)
+    }
+
+    override fun close() {
+        engine.stop(0, 0, TimeUnit.MILLISECONDS)
     }
 }

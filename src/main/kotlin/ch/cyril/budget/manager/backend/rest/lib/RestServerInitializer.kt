@@ -8,7 +8,7 @@ import ch.cyril.budget.manager.backend.service.ServiceFactory
 
 abstract class RestServerInitializer {
 
-    fun startServer(serviceFactory: ServiceFactory, config: ServerConfig, paramParser: RestParamParser) {
+    fun startServer(serviceFactory: ServiceFactory, config: ServerConfig, paramParser: RestParamParser): RestServer<*> {
         val server = doStartServer(config)
 
         val expenseDao = serviceFactory.createExpenseDao()
@@ -19,6 +19,8 @@ abstract class RestServerInitializer {
         RestMethodRegisterer(server, paramParser, ImportExportRestHandler(budgetDao, expenseDao)).register()
 
         println("Started server on port ${config.port}")
+
+        return server
     }
 
     protected abstract fun doStartServer(config: ServerConfig): RestServer<*>

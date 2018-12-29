@@ -1,8 +1,9 @@
 package ch.cyril.budget.manager.backend.systemtest
 
 import ch.cyril.budget.manager.backend.main.ServerType
-import ch.cyril.budget.manager.backend.main.main
+import ch.cyril.budget.manager.backend.main.startServer
 import ch.cyril.budget.manager.backend.model.*
+import ch.cyril.budget.manager.backend.rest.lib.RestServer
 import ch.cyril.budget.manager.backend.util.SubList
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -65,12 +66,14 @@ class FilebasedBudgetSystemTester(
                             MonthYear(1, 2016),
                             MonthYear(12, 2020))))
 
+    private val restServer: RestServer<*>
+
     init {
         val expensesFile = Files.createFile(tempDir.resolve("expenses"))
         val config = ParamBuilder.fileBased(expensesFile, budgetFile, server, port)
         val configFile = Files.write(tempDir.resolve("config.json"), config.toByteArray())
         val params = arrayOf(configFile.toString())
-        main(params);
+        restServer = startServer(params)
     }
 
     fun runBudgetSystemTests() {
@@ -86,7 +89,7 @@ class FilebasedBudgetSystemTester(
     }
 
     override fun close() {
-        //TODO Destroy the server
+        restServer.close()
     }
 
     private fun getAllBudgets () {

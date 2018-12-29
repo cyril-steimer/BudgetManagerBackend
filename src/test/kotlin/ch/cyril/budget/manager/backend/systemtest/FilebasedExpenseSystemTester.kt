@@ -1,8 +1,9 @@
 package ch.cyril.budget.manager.backend.systemtest
 
 import ch.cyril.budget.manager.backend.main.ServerType
-import ch.cyril.budget.manager.backend.main.main
+import ch.cyril.budget.manager.backend.main.startServer
 import ch.cyril.budget.manager.backend.model.*
+import ch.cyril.budget.manager.backend.rest.lib.RestServer
 import ch.cyril.budget.manager.backend.util.SubList
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -14,10 +15,7 @@ import java.math.BigDecimal
 import java.nio.file.Files
 import java.nio.file.Path
 
-class FilebasedExpenseSystemTester(
-        private val tempDir: Path,
-        server: ServerType,
-        port: Int) : AutoCloseable {
+class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int) : AutoCloseable {
 
     private val client = HttpClient(port)
 
@@ -74,12 +72,14 @@ class FilebasedExpenseSystemTester(
             PaymentMethod("MasterCard"),
             setOf(Tag("Tag1"), Tag("Tag4")))
 
+    private val restServer: RestServer<*>
+
     init {
         val budgetFile = Files.createFile(tempDir.resolve("budget"))
         val config = ParamBuilder.fileBased(expensesFile, budgetFile, server, port)
         val configFile = Files.write(tempDir.resolve("config.json"), config.toByteArray())
         val params = arrayOf(configFile.toString())
-        main(params);
+        restServer = startServer(params)
     }
 
     fun runExpenseSystemTests() {
@@ -104,6 +104,7 @@ class FilebasedExpenseSystemTester(
     }
 
     override fun close() {
+        restServer.close()
     }
 
     private fun getAllExpenses () {

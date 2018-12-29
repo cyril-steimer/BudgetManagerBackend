@@ -11,7 +11,7 @@ class FilebasedExpenseSystemTest {
     @EnumSource(ServerType::class)
     fun test(type: ServerType) {
         val tempDir = Files.createTempDirectory(type.name + "-expenses")
-        FilebasedExpenseSystemTester(tempDir, type, FilebasedBudgetSystemTest.port++).use {
+        FilebasedExpenseSystemTester(tempDir, type, 9000).use {
             it.runExpenseSystemTests()
         }
     }

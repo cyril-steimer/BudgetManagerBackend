@@ -8,16 +8,11 @@ import java.nio.file.Files
 
 class FilebasedBudgetSystemTest {
 
-    companion object {
-        //TODO Remove this, once the tester properly cleans up after itself
-        var port = 9000;
-    }
-
     @ParameterizedTest
     @EnumSource(ServerType::class)
     fun test(type: ServerType) {
         val tempDir = Files.createTempDirectory(type.name + "-budgets")
-        FilebasedBudgetSystemTester(tempDir, type, port++).use {
+        FilebasedBudgetSystemTester(tempDir, type, 9000).use {
             it.runBudgetSystemTests()
         }
     }

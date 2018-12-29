@@ -1,6 +1,9 @@
 package ch.cyril.budget.manager.backend.rest.lib.javalin
 
-import ch.cyril.budget.manager.backend.rest.lib.*
+import ch.cyril.budget.manager.backend.rest.lib.Handler
+import ch.cyril.budget.manager.backend.rest.lib.RestContext
+import ch.cyril.budget.manager.backend.rest.lib.RestMethodPath
+import ch.cyril.budget.manager.backend.rest.lib.RestServer
 import io.javalin.Context
 import io.javalin.Javalin
 import kotlinx.coroutines.runBlocking
@@ -29,6 +32,10 @@ class JavalinRestServer(private val javalin: Javalin) : RestServer<Context>() {
 
     override fun getRestContext(ctx: Context): RestContext {
         return JavalinRestContext(ctx)
+    }
+
+    override fun close() {
+        javalin.stop()
     }
 
     private fun invokeHandler(ctx: Context, handler: Handler<Context>) {
