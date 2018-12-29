@@ -6,7 +6,7 @@ import ch.cyril.budget.manager.backend.rest.lib.RestServer
 import ch.cyril.budget.manager.backend.rest.lib.RestServerInitializer
 import io.ktor.application.call
 import io.ktor.http.ContentType
-import io.ktor.request.uri
+import io.ktor.http.fromFilePath
 import io.ktor.response.respondBytes
 import io.ktor.routing.get
 import io.ktor.routing.routing
@@ -30,17 +30,22 @@ class KtorRestServerInitializer : RestServerInitializer() {
     private fun registerStaticFiles (server: ApplicationEngine, staticFiles: StaticFiles) {
         val indexHtml = Files.readAllBytes(Paths.get(staticFiles.indexPage))
         server.environment.application.routing {
-            get("/*") {
-                val filename = call.request.uri
-                val path = Paths.get(staticFiles.staticFilesPath, filename)
+            get("/{path...}") {
                 //TODO Check that it's actually a subpath and we don't just serve any files?
+                val filename = call.parameters.getAll("path")!!.joinToString("/")
+                val path = Paths.get(staticFiles.staticFilesPath, filename)
                 if (Files.exists(path)) {
                     val bytes = Files.readAllBytes(path)
-                    // TODO Decipher from file ending? I.e. CSS / JS
-                    call.respondBytes(bytes, ContentType.Any)
+                    val types = ContentType.fromFilePath(path.toString())
+                    val type = if (types.isNotEmpty()) types[0] else ContentType.Any
+                    call.respondBytes(bytes, type)
                 } else {
                     call.respondBytes(indexHtml, ContentType.Text.Html)
                 }
+            }
+
+            get("") {
+                call.respondBytes(indexHtml, ContentType.Text.Html)
             }
         }
     }
