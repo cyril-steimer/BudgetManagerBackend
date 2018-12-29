@@ -48,11 +48,15 @@ class HttpClient(private val port: Int) {
     }
 
     inline fun <reified T> getJson (path: String): T {
-        val client = HttpClient()
+        val res = getString(path)
         val type = object: TypeToken<T>() {}.type
+        return GSON.fromJson(res, type)
+    }
+
+    fun getString (path: String): String {
+        val client = HttpClient()
         return runBlocking {
-            val json = client.get<String>(getUrl(path))
-            GSON.fromJson<T>(json, type)
+            client.get<String>(getUrl(path))
         }
     }
 

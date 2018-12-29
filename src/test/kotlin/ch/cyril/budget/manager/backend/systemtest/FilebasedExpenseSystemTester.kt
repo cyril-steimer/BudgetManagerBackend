@@ -54,14 +54,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             PaymentMethod("Amex"),
             emptySet())
 
-    private val newE1 = Expense(
-            e1.id,
-            e1.name,
-            Amount(BigDecimal(500)),
-            e1.category,
-            e1.date,
-            e1.method,
-            setOf(Tag("Tag1"), Tag("Tag3")))
+    private val newE1 = e1.copy(amount = Amount(BigDecimal(500)), tags = setOf(Tag("Tag1"), Tag("Tag3")))
 
     private val e4 = Expense(
             Id("1"),
