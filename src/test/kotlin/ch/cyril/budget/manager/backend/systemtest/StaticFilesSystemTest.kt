@@ -23,7 +23,7 @@ class StaticFilesSystemTest {
         val tempDir = Files.createTempDirectory("test")
         val indexHtml = Files.write(tempDir.resolve("index.html"), HTML.toByteArray())
         val javascriptDir = Files.createDirectory(tempDir.resolve("dist"))
-        val javascriptDist = Files.write(javascriptDir.resolve("bundle.js"), JAVASCRIPT.toByteArray())
+        Files.write(javascriptDir.resolve("bundle.js"), JAVASCRIPT.toByteArray())
         val staticFiles = StaticFiles(javascriptDir.toString(), indexHtml.toString())
 
         val config = ParamBuilder.withStaticFiles(type, staticFiles, 9000)
