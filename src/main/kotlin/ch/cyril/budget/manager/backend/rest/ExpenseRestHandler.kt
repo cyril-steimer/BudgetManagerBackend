@@ -72,10 +72,9 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
             @QueryParam("sort") field: ExpenseSortField?,
             @QueryParam("dir") dir: SortDirection?,
             @QueryParam("from") from: Int?,
-            @QueryParam("count") count: Int?,
-            @QueryParam("single") single: Boolean?): RestResult {
+            @QueryParam("count") count: Int?): RestResult {
 
-        return handleQuery(null, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
+        return handleQuery(null, ExpenseSortField.sort(field, dir), Pagination.of(from, count), false)
     }
 
     @HttpMethod(HttpVerb.PUT, "/api/v1/expenses")

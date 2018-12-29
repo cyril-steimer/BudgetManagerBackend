@@ -36,6 +36,17 @@ class HttpClient(private val port: Int) {
         }
     }
 
+    inline fun <reified T> postJson (path: String, body: Any): T {
+        val client = HttpClient()
+        val type = object: TypeToken<T>() {}.type
+        return runBlocking {
+            val json = client.post<String>(getUrl(path)) {
+                this.body = GSON.toJson(body)
+            }
+            GSON.fromJson<T>(json, type)
+        }
+    }
+
     inline fun <reified T> getJson (path: String): T {
         val client = HttpClient()
         val type = object: TypeToken<T>() {}.type
