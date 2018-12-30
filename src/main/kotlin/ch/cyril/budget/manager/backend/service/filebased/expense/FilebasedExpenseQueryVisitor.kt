@@ -65,12 +65,13 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<List<Expense>, List<Exp
         }
     }
 
+    private val caseSwitch = CaseSensitivityConverter()
+
     override fun visitIdQuery(query: IdExpenseQuery, arg: List<Expense>): List<Expense> {
         return arg.filter { e -> e.id == query.id }
     }
 
     override fun visitNameQuery(query: NameExpenseQuery, arg: List<Expense>): List<Expense> {
-        val caseSwitch = CaseSensitivityConverter()
         val queryCased = query.case.switch(caseSwitch, query.name.name)
         val comparator = StringComparatorSwitch(queryCased)
         return arg.filter { e ->
@@ -80,7 +81,6 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<List<Expense>, List<Exp
     }
 
     override fun visitMethodQuery(query: MethodExpenseQuery, arg: List<Expense>): List<Expense> {
-        val caseSwitch = CaseSensitivityConverter()
         val queryCased = query.case.switch(caseSwitch, query.method.name)
         val comparator = StringComparatorSwitch(queryCased)
         return arg.filter { e ->
@@ -90,12 +90,20 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<List<Expense>, List<Exp
     }
 
     override fun visitCategoryQuery(query: CategoryExpenseQuery, arg: List<Expense>): List<Expense> {
-        val caseSwitch = CaseSensitivityConverter()
         val queryCased = query.case.switch(caseSwitch, query.category.name)
         val comparator = StringComparatorSwitch(queryCased)
         return arg.filter { e ->
             val nameCased = query.case.switch(caseSwitch, e.category.name)
             query.comparison.switch(comparator, nameCased)
+        }
+    }
+
+    override fun visitAuthorQuery(query: AuthorExpenseQuery, arg: List<Expense>): List<Expense> {
+        val queryCased = query.case.switch(caseSwitch, query.author.name)
+        val comparator = StringComparatorSwitch(queryCased)
+        return arg.filter { e ->
+            val authorCased = query.case.switch(caseSwitch, e.author.name)
+            query.comparison.switch(comparator, authorCased)
         }
     }
 

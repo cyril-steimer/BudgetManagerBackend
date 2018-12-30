@@ -15,6 +15,7 @@ class MongoExpenseSerialization {
                 .append(KEY_CATEGORY, expense.category.name)
                 .append(KEY_METHOD, expense.method.name)
                 .append(KEY_NAME, expense.name.name)
+                .append(KEY_AUTHOR, expense.author.name)
                 .append(KEY_DATE, expense.date.timestamp)
     }
 
@@ -26,9 +27,10 @@ class MongoExpenseSerialization {
         val method = PaymentMethod(doc.getString(KEY_METHOD))
         val name = Name(doc.getString(KEY_NAME))
         val date = Timestamp(doc.getLong(KEY_DATE))
+        val author = Author(doc.getString(KEY_AUTHOR))
         val tags = doc.get(KEY_TAGS, List::class.java)
                 .map { tag -> Tag(tag as String) }
                 .toSet()
-        return Expense(id, name, amount, category, date, method, tags)
+        return Expense(id, name, amount, category, date, method, author, tags)
     }
 }

@@ -73,9 +73,7 @@ class FilebasedExpenseDao(file: Path): ExpenseDao {
     }
 
     override fun addExpense(expense: ExpenseWithoutId) {
-        val id = getNewId()
-        val newExpense = Expense(id, expense.name, expense.amount, expense.category, expense.date, expense.method, expense.tags)
-        contentCache.add(newExpense)
+        contentCache.add(expense.withId(getNewId()))
     }
 
     override fun updateExpense(expense: Expense) {

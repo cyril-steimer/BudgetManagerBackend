@@ -102,6 +102,18 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
             return MethodExpenseQuery(PaymentMethod(name), comparison, case)
         }
     },
+    AUTHOR("author") {
+        override fun createQuery(value: JsonPrimitive): ExpenseQuery {
+            return AuthorExpenseQuery(Author(value.asString), StringComparison.CONTAINS, StringCase.CASE_INSENSITIVE)
+        }
+
+        override fun createQuery(value: JsonObject): ExpenseQuery {
+            return AuthorExpenseQuery(
+                    Author(value.get("author").asString),
+                    Identifiable.byIdentifier(value.get("comparison").asString),
+                    Identifiable.byIdentifier(value.get("case").asString))
+        }
+    },
     TAGS("tag") {
 
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {

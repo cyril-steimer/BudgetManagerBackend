@@ -68,6 +68,16 @@ class TagExpenseQuery(val tag: Tag) : ExpenseQuery {
     }
 }
 
+class AuthorExpenseQuery(
+        val author: Author,
+        val comparison: StringComparison,
+        val case: StringCase) : ExpenseQuery {
+
+    override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
+        return visitor.visitAuthorQuery(this, arg)
+    }
+}
+
 class OrExpenseQuery(val queries: List<ExpenseQuery>) : ExpenseQuery {
 
     override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {

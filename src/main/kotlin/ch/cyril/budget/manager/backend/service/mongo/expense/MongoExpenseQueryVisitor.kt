@@ -2,8 +2,8 @@ package ch.cyril.budget.manager.backend.service.mongo.expense
 
 import ch.cyril.budget.manager.backend.service.*
 import ch.cyril.budget.manager.backend.service.expense.*
-import com.mongodb.client.model.Filters.*;
-import ch.cyril.budget.manager.backend.service.mongo.*;
+import ch.cyril.budget.manager.backend.service.mongo.*
+import com.mongodb.client.model.Filters.*
 import org.bson.conversions.Bson
 import org.bson.types.ObjectId
 import java.util.regex.Pattern
@@ -89,6 +89,12 @@ class MongoExpenseQueryVisitor : ExpenseQueryVisitor<Unit, Bson> {
         return regex(
                 KEY_CATEGORY,
                 createPatternWithCaseAndComparison(query.category.name, query.comparison, query.case))
+    }
+
+    override fun visitAuthorQuery(query: AuthorExpenseQuery, arg: Unit): Bson {
+        return regex(
+                KEY_AUTHOR,
+                createPatternWithCaseAndComparison(query.author.name, query.comparison, query.case))
     }
 
     override fun visitDateQuery(query: DateExpenseQuery, arg: Unit): Bson {
