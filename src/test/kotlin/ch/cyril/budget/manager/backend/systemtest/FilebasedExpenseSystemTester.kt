@@ -22,7 +22,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
     private val expensesContent = """
         Id1,Expense1,200,Budget1,600,Amex,Tag1,Tag2
         Id2,Expense2,300,Budget2,200,,Tag1
-        Id3,Expense3,300,Budget1,400,Amex
+        ___VERSION=1.0___,Id3,Expense3,300,Budget1,400,Amex,Cyril
     """.trimIndent()
 
     private val expensesFile = Files.write(tempDir.resolve("expenses"), expensesContent.toByteArray())
@@ -34,6 +34,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             Category("Budget1"),
             Timestamp(600),
             PaymentMethod("Amex"),
+            Author(""),
             setOf(Tag("Tag1"), Tag("Tag2")))
 
     private val e2 = Expense(
@@ -43,6 +44,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             Category("Budget2"),
             Timestamp(200),
             PaymentMethod(""),
+            Author(""),
             setOf(Tag("Tag1")));
 
     private val e3 = Expense(
@@ -52,6 +54,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             Category("Budget1"),
             Timestamp(400),
             PaymentMethod("Amex"),
+            Author("Cyril"),
             emptySet())
 
     private val newE1 = e1.copy(amount = Amount(BigDecimal(500)), tags = setOf(Tag("Tag1"), Tag("Tag3")))
@@ -63,7 +66,10 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             Category("Budget2"),
             Timestamp(600),
             PaymentMethod("MasterCard"),
+            Author("Diana"),
             setOf(Tag("Tag1"), Tag("Tag4")))
+
+    private val newAuthor = "New Author"
 
     private val restServer: RestServer<*>
 
@@ -84,16 +90,22 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         getExpensesByTagSortedByDateAscending()
         getExpensesByPaymentMethod()
         getExpensesByDate()
+        getExpensesByAuthor()
         getExpensesBySearchTag()
         getExpensesBySearchName()
         getExpensesBySearchAmountAndDateSortedByDate()
         getExpensesBySearchAndPost()
         getExpensesBySearchOrPostSortedByIdDescending()
+        getTags()
+        getPaymentMethods()
+        getAuthors()
         updateExpense()
         addExpense()
         deleteExpense()
         updateNotExistingExpense()
         deleteNotExistingExpense()
+        bulkUpdateAuthorNoQuery()
+        bulkUpdateAuthorWithQuery()
     }
 
     override fun close() {
@@ -140,6 +152,11 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         assertEqualList(listOf(e2), client.getJson(url))
     }
 
+    private fun getExpensesByAuthor () {
+        val url = "/api/v1/expenses/field/author/Cyril"
+        assertEqualList(listOf(e3), client.getJson(url))
+    }
+
     private fun getExpensesBySearchTag () {
         val url = "/api/v1/expenses/search/Tag1"
         assertEqualList(listOf(e1, e2), client.getJson(url))
@@ -175,6 +192,21 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         assertEqualList(listOf(e3, e2), client.postJson(url, body))
     }
 
+    private fun getTags () {
+        val url = "/api/v1/tag"
+        assertEquals(e1.tags, client.getJson<Set<Tag>>(url))
+    }
+
+    private fun getPaymentMethods () {
+        val url = "/api/v1/paymentmethod"
+        assertEquals(setOf(e1.method), client.getJson<Set<PaymentMethod>>(url))
+    }
+
+    private fun getAuthors () {
+        val url = "/api/v1/author"
+        assertEquals(setOf(e3.author), client.getJson<Set<Author>>(url))
+    }
+
     private fun updateExpense () {
         val url = "/api/v1/expenses"
         client.put(url, newE1)
@@ -205,6 +237,30 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         assertThrows(Exception::class.java) { client.delete("/api/v1/expenses?id=Id1") }
         assertEqualList(listOf(e2, e3, e4), client.getJson("/api/v1/expenses"))
     }
+
+    private fun bulkUpdateAuthorNoQuery () {
+        val update = jsonObject("author", JsonPrimitive(newAuthor))
+        val bulk = jsonObject("update", update)
+        client.put("/api/v1/expenses/bulk", bulk)
+        assertEqualList(
+                listOf(withAuthor(e2, newAuthor),withAuthor(e3, newAuthor), withAuthor(e4, newAuthor)),
+                client.getJson("/api/v1/expenses"))
+        //TODO Check that the file was written
+    }
+
+    private fun bulkUpdateAuthorWithQuery () {
+        val query = jsonObject("name", JsonPrimitive("Expense2"))
+        val update = jsonObject("author", JsonPrimitive("XYZ"))
+        val bulk = jsonObject("query", query)
+        bulk.add("update", update)
+        client.put("/api/v1/expenses/bulk", bulk)
+        assertEqualList(
+                listOf(withAuthor(e2, "XYZ"), withAuthor(e3, newAuthor), withAuthor(e4, newAuthor)),
+                client.getJson("/api/v1/expenses"))
+        //TODO Check that the file was written
+    }
+
+    private fun withAuthor (expense: Expense, author: String) = expense.copy(author = Author(author))
 
     private fun assertEqualList (expected: List<Expense>, actual: SubList<Expense>) {
         assertEquals(expected.size, actual.count)

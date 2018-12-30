@@ -10,6 +10,8 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import java.util.*
 
+class BulkUpdateGson(val query: JsonObject?, val update: JsonObject)
+
 class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
 
     @HttpMethod(HttpVerb.POST, "/api/v1/expenses/search")
@@ -93,6 +95,13 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         expenseDao.deleteExpense(Id(id))
     }
 
+    @HttpMethod(HttpVerb.PUT, "/api/v1/expenses/bulk")
+    fun bulkUpdate(@Body update: BulkUpdateGson) {
+        val query = if (update.query != null) ExpenseQueryDescriptor.createQuery(update.query) else null
+        val update = ExpenseUpdateDescriptor.createUpdate(update.update)
+        expenseDao.applyBulkUpdate(query, update)
+    }
+
     @HttpMethod(HttpVerb.GET, "/api/v1/paymentmethod")
     fun getPaymentMethods(): RestResult {
         val res = GSON.toJson(expenseDao.getPaymentMethods())
@@ -102,6 +111,12 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
     @HttpMethod(HttpVerb.GET, "/api/v1/tag")
     fun getTags(): RestResult {
         val res = GSON.toJson(expenseDao.getTags())
+        return RestResult.json(res)
+    }
+
+    @HttpMethod(HttpVerb.GET, "/api/v1/author")
+    fun getAuthors(): RestResult {
+        val res = GSON.toJson(expenseDao.getAuthors())
         return RestResult.json(res)
     }
 

@@ -52,11 +52,14 @@ data class ExpenseWithoutId(
         val category: Category,
         val date: Timestamp,
         val method: PaymentMethod,
+        val author: Author,
         val tags: Set<Tag>): Validatable {
 
     override fun validate() {
         amount.validate()
     }
+
+    fun withId(id: Id) = Expense(id, name, amount, category, date, method, author, tags)
 }
 
 data class Expense(
@@ -66,13 +69,14 @@ data class Expense(
         val category: Category,
         val date: Timestamp,
         val method: PaymentMethod,
+        val author: Author,
         val tags: Set<Tag>) : Validatable {
 
     override fun validate() {
         amount.validate()
     }
 
-    fun withoutId() = ExpenseWithoutId(name, amount, category, date, method, tags)
+    fun withoutId() = ExpenseWithoutId(name, amount, category, date, method, author, tags)
 }
 
 data class Tag(val name: String)
@@ -87,6 +91,8 @@ data class Amount(val amount: BigDecimal) : Validatable {
         }
     }
 }
+
+data class Author(val name: String)
 
 data class Id(val id: String)
 

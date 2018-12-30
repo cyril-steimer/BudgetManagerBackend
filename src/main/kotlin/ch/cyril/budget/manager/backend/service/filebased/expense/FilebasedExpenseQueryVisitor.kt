@@ -1,12 +1,10 @@
 package ch.cyril.budget.manager.backend.service.filebased.expense
 
 import ch.cyril.budget.manager.backend.model.Expense
-import ch.cyril.budget.manager.backend.service.MathComparisonSwitch
-import ch.cyril.budget.manager.backend.service.StringCaseSwitch
-import ch.cyril.budget.manager.backend.service.StringComparisonSwitch
+import ch.cyril.budget.manager.backend.service.*
 import ch.cyril.budget.manager.backend.service.expense.*
 
-class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<List<Expense>, List<Expense>> {
+class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<Expense, Boolean> {
 
     private class MathComparatorSwitch<T : Comparable<T>>(val query: T) : MathComparisonSwitch<T, Boolean> {
 
@@ -65,67 +63,59 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<List<Expense>, List<Exp
         }
     }
 
-    override fun visitIdQuery(query: IdExpenseQuery, arg: List<Expense>): List<Expense> {
-        return arg.filter { e -> e.id == query.id }
+    private val caseSwitch = CaseSensitivityConverter()
+
+    override fun visitIdQuery(query: IdExpenseQuery, arg: Expense): Boolean {
+        return arg.id == query.id
     }
 
-    override fun visitNameQuery(query: NameExpenseQuery, arg: List<Expense>): List<Expense> {
-        val caseSwitch = CaseSensitivityConverter()
-        val queryCased = query.case.switch(caseSwitch, query.name.name)
-        val comparator = StringComparatorSwitch(queryCased)
-        return arg.filter { e ->
-            val nameCased = query.case.switch(caseSwitch, e.name.name)
-            query.comparison.switch(comparator, nameCased)
-        }
+    override fun visitNameQuery(query: NameExpenseQuery, arg: Expense): Boolean {
+        return doesStringMatch(query.name.name, query.case, query.comparison, arg.name.name)
     }
 
-    override fun visitMethodQuery(query: MethodExpenseQuery, arg: List<Expense>): List<Expense> {
-        val caseSwitch = CaseSensitivityConverter()
-        val queryCased = query.case.switch(caseSwitch, query.method.name)
-        val comparator = StringComparatorSwitch(queryCased)
-        return arg.filter { e ->
-            val methodCased = query.case.switch(caseSwitch, e.method.name)
-            query.comparison.switch(comparator, methodCased)
-        }
+    override fun visitMethodQuery(query: MethodExpenseQuery, arg: Expense): Boolean {
+        return doesStringMatch(query.method.name, query.case, query.comparison, arg.method.name)
     }
 
-    override fun visitCategoryQuery(query: CategoryExpenseQuery, arg: List<Expense>): List<Expense> {
-        val caseSwitch = CaseSensitivityConverter()
-        val queryCased = query.case.switch(caseSwitch, query.category.name)
-        val comparator = StringComparatorSwitch(queryCased)
-        return arg.filter { e ->
-            val nameCased = query.case.switch(caseSwitch, e.category.name)
-            query.comparison.switch(comparator, nameCased)
-        }
+    override fun visitCategoryQuery(query: CategoryExpenseQuery, arg: Expense): Boolean {
+        return doesStringMatch(query.category.name, query.case, query.comparison, arg.category.name)
     }
 
-    override fun visitDateQuery(query: DateExpenseQuery, arg: List<Expense>): List<Expense> {
+    override fun visitAuthorQuery(query: AuthorExpenseQuery, arg: Expense): Boolean {
+        return doesStringMatch(query.author.name, query.case, query.comparison, arg.author.name)
+    }
+
+    override fun visitDateQuery(query: DateExpenseQuery, arg: Expense): Boolean {
         val switch = MathComparatorSwitch(query.date.timestamp)
-        return arg.filter { e -> query.comparison.switch(switch, e.date.timestamp) }
+        return query.comparison.switch(switch, arg.date.timestamp)
     }
 
-    override fun visitAmountQuery(query: AmountExpenseQuery, arg: List<Expense>): List<Expense> {
+    override fun visitAmountQuery(query: AmountExpenseQuery, arg: Expense): Boolean {
         val switch = MathComparatorSwitch(query.amount.amount)
-        return arg.filter { e -> query.comparison.switch(switch, e.amount.amount) }
+        return query.comparison.switch(switch, arg.amount.amount)
     }
 
-    override fun visitTagQuery(query: TagExpenseQuery, arg: List<Expense>): List<Expense> {
-        return arg.filter { e -> e.tags.contains(query.tag) }
+    override fun visitTagQuery(query: TagExpenseQuery, arg: Expense): Boolean {
+        return arg.tags.contains(query.tag)
     }
 
-    override fun visitAndQuery(query: AndExpenseQuery, arg: List<Expense>): List<Expense> {
-        val res = arg.toMutableList()
-        for (q in query.queries) {
-            res.retainAll(q.accept(this, arg))
-        }
-        return res
+    override fun visitAndQuery(query: AndExpenseQuery, arg: Expense): Boolean {
+        return query.queries.all { it.accept(this, arg) }
     }
 
-    override fun visitOrQuery(query: OrExpenseQuery, arg: List<Expense>): List<Expense> {
-        val res = mutableSetOf<Expense>()
-        for (q in query.queries) {
-            res.addAll(q.accept(this, arg))
-        }
-        return res.toList()
+    override fun visitOrQuery(query: OrExpenseQuery, arg: Expense): Boolean {
+        return query.queries.any { it.accept(this, arg) }
+    }
+
+    private fun doesStringMatch(
+            expected: String,
+            case: StringCase,
+            comparison: StringComparison,
+            actual: String): Boolean {
+
+        val expectedCased = case.switch(caseSwitch, expected)
+        val comparator = StringComparatorSwitch(expectedCased)
+        val actualCased = case.switch(caseSwitch, actual)
+        return comparison.switch(comparator, actualCased)
     }
 }
