@@ -45,7 +45,7 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     },
     NAME("name") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
-            return NameExpenseQuery(Name(value.asString), StringComparison.CONTAINS, StringCase.CASE_INSENSITIVE)
+            return NameExpenseQuery(Name(value.asString))
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {
@@ -57,7 +57,7 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     },
     CATEGORY("category") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
-            return CategoryExpenseQuery(Category(value.asString), StringComparison.CONTAINS, StringCase.CASE_INSENSITIVE)
+            return CategoryExpenseQuery(Category(value.asString))
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {
@@ -70,7 +70,7 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     AMOUNT("amount") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
             val amount = getBigDecimal(value)
-            return AmountExpenseQuery(Amount(amount), MathComparison.EQ)
+            return AmountExpenseQuery(Amount(amount))
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {
@@ -81,7 +81,7 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     },
     DATE("date") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
-            return DateExpenseQuery(Timestamp(getBigDecimal(value).toLong()), MathComparison.EQ)
+            return DateExpenseQuery(Timestamp(getBigDecimal(value).toLong()))
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {
@@ -92,7 +92,7 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     },
     METHOD("method") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
-            return MethodExpenseQuery(PaymentMethod(value.asString), StringComparison.CONTAINS, StringCase.CASE_INSENSITIVE)
+            return MethodExpenseQuery(PaymentMethod(value.asString))
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {
@@ -104,7 +104,7 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     },
     AUTHOR("author") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
-            return AuthorExpenseQuery(Author(value.asString), StringComparison.CONTAINS, StringCase.CASE_INSENSITIVE)
+            return AuthorExpenseQuery(Author(value.asString))
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {

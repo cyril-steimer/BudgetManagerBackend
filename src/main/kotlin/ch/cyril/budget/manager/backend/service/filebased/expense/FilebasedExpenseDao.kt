@@ -59,7 +59,7 @@ class FilebasedExpenseDao(file: Path): ExpenseDao {
 
         var expenses = getAllExpenses()
         if (query != null) {
-            expenses = query.accept(visitor, expenses)
+            expenses = expenses.filter { query.accept(visitor, it) }
         }
         if (sort != null) {
             var comparator = sort.field.switch(ComparatorSortFieldSwitch(), Unit)
