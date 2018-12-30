@@ -6,6 +6,13 @@ import ch.cyril.budget.manager.backend.util.SubList
 
 interface ExpenseDao {
 
+    class GenericUpdateVisitor : ExpenseUpdateVisitor<Expense, Expense> {
+
+        override fun visitAuthorExpenseUpdate(update: AuthorExpenseUpdate, arg: Expense): Expense {
+            return arg.copy(author = update.author)
+        }
+    }
+
     fun getExpenses(
             query: ExpenseQuery?,
             sort: ExpenseSort?,
@@ -23,6 +30,16 @@ interface ExpenseDao {
     fun updateExpense(expense: Expense)
 
     fun deleteExpense(id: Id)
+
+    fun applyBulkUpdate(query: ExpenseQuery?, update: ExpenseUpdate) {
+        //TODO Implement more efficiently in subclasses
+        val expenses = getExpenses(query, null, null).values
+        val visitor = GenericUpdateVisitor()
+        for (expense in expenses) {
+            val updated = update.accept(visitor, expense)
+            updateExpense(updated)
+        }
+    }
 
     fun getPaymentMethods(): Set<PaymentMethod>
 

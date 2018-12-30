@@ -10,6 +10,8 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import java.util.*
 
+class BulkUpdateGson(val query: JsonObject?, val update: JsonObject)
+
 class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
 
     @HttpMethod(HttpVerb.POST, "/api/v1/expenses/search")
@@ -91,6 +93,13 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
     @HttpMethod(HttpVerb.DELETE, "/api/v1/expenses")
     fun deleteExpense(@QueryParam("id") id: String) {
         expenseDao.deleteExpense(Id(id))
+    }
+
+    @HttpMethod(HttpVerb.PUT, "/api/v1/expenses/bulk")
+    fun bulkUpdate(@Body update: BulkUpdateGson) {
+        val query = if (update.query != null) ExpenseQueryDescriptor.createQuery(update.query) else null
+        val update = ExpenseUpdateDescriptor.createUpdate(update.update)
+        expenseDao.applyBulkUpdate(query, update)
     }
 
     @HttpMethod(HttpVerb.GET, "/api/v1/paymentmethod")

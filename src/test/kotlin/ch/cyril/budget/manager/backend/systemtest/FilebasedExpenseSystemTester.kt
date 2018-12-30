@@ -69,6 +69,8 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             Author("Diana"),
             setOf(Tag("Tag1"), Tag("Tag4")))
 
+    private val newAuthor = "New Author"
+
     private val restServer: RestServer<*>
 
     init {
@@ -102,6 +104,8 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         deleteExpense()
         updateNotExistingExpense()
         deleteNotExistingExpense()
+        bulkUpdateAuthorNoQuery()
+        bulkUpdateAuthorWithQuery()
     }
 
     override fun close() {
@@ -233,6 +237,30 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         assertThrows(Exception::class.java) { client.delete("/api/v1/expenses?id=Id1") }
         assertEqualList(listOf(e2, e3, e4), client.getJson("/api/v1/expenses"))
     }
+
+    private fun bulkUpdateAuthorNoQuery () {
+        val update = jsonObject("author", JsonPrimitive(newAuthor))
+        val bulk = jsonObject("update", update)
+        client.put("/api/v1/expenses/bulk", bulk)
+        assertEqualList(
+                listOf(withAuthor(e2, newAuthor),withAuthor(e3, newAuthor), withAuthor(e4, newAuthor)),
+                client.getJson("/api/v1/expenses"))
+        //TODO Check that the file was written
+    }
+
+    private fun bulkUpdateAuthorWithQuery () {
+        val query = jsonObject("name", JsonPrimitive("Expense2"))
+        val update = jsonObject("author", JsonPrimitive("XYZ"))
+        val bulk = jsonObject("query", query)
+        bulk.add("update", update)
+        client.put("/api/v1/expenses/bulk", bulk)
+        assertEqualList(
+                listOf(withAuthor(e2, "XYZ"), withAuthor(e3, newAuthor), withAuthor(e4, newAuthor)),
+                client.getJson("/api/v1/expenses"))
+        //TODO Check that the file was written
+    }
+
+    private fun withAuthor (expense: Expense, author: String) = expense.copy(author = Author(author))
 
     private fun assertEqualList (expected: List<Expense>, actual: SubList<Expense>) {
         assertEquals(expected.size, actual.count)
