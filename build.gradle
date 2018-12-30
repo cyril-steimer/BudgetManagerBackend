@@ -10,7 +10,7 @@ buildscript {
 }
 
 group 'ch.cyril.budget.manager.backend'
-version '0.4.0'
+version '0.5.0'
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
