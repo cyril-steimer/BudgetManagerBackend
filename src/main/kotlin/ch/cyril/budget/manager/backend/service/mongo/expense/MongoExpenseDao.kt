@@ -101,4 +101,10 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
                 .map { value -> Tag(value) }
                 .toSet()
     }
+
+    override fun getAuthors(): Set<Author> {
+        return collection.distinct(KEY_AUTHOR, String::class.java)
+                .map { value -> Author(value) }
+                .toSet()
+    }
 }

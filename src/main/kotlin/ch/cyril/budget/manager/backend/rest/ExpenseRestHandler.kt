@@ -105,6 +105,12 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         return RestResult.json(res)
     }
 
+    @HttpMethod(HttpVerb.GET, "/api/v1/author")
+    fun getAuthors(): RestResult {
+        val res = GSON.toJson(expenseDao.getAuthors())
+        return RestResult.json(res)
+    }
+
     private fun filterQuery(filter: String): ExpenseQuery {
         val queries = LinkedList<ExpenseQuery>()
         for (desc in SimpleExpenseQueryDescriptor.values()) {

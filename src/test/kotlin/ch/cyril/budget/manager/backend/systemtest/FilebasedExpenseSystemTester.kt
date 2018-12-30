@@ -94,6 +94,9 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         getExpensesBySearchAmountAndDateSortedByDate()
         getExpensesBySearchAndPost()
         getExpensesBySearchOrPostSortedByIdDescending()
+        getTags()
+        getPaymentMethods()
+        getAuthors()
         updateExpense()
         addExpense()
         deleteExpense()
@@ -183,6 +186,21 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         val body = jsonObject("or", queries)
         val url = "/api/v1/expenses/search?sort=id&dir=desc"
         assertEqualList(listOf(e3, e2), client.postJson(url, body))
+    }
+
+    private fun getTags () {
+        val url = "/api/v1/tag"
+        assertEquals(e1.tags, client.getJson<Set<Tag>>(url))
+    }
+
+    private fun getPaymentMethods () {
+        val url = "/api/v1/paymentmethod"
+        assertEquals(setOf(e1.method), client.getJson<Set<PaymentMethod>>(url))
+    }
+
+    private fun getAuthors () {
+        val url = "/api/v1/author"
+        assertEquals(setOf(e3.author), client.getJson<Set<Author>>(url))
     }
 
     private fun updateExpense () {

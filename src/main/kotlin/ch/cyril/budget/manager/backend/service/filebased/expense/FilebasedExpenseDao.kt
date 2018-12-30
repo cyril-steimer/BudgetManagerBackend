@@ -85,16 +85,22 @@ class FilebasedExpenseDao(file: Path): ExpenseDao {
     }
 
     override fun getPaymentMethods(): Set<PaymentMethod> {
-        return getExpenses(null, null, null)
-                .values
+        return getAllExpenses()
                 .map { e -> e.method }
+                .filter { m -> m.name.isNotEmpty() }
                 .toSet()
     }
 
     override fun getTags(): Set<Tag> {
-        return getExpenses(null, null, null)
-                .values
+        return getAllExpenses()
                 .flatMap { e -> e.tags }
+                .toSet()
+    }
+
+    override fun getAuthors(): Set<Author> {
+        return getAllExpenses()
+                .map { e -> e.author }
+                .filter { a -> a.name.isNotEmpty() }
                 .toSet()
     }
 

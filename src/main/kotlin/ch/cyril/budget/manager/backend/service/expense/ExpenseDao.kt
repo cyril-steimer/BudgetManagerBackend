@@ -27,4 +27,6 @@ interface ExpenseDao {
     fun getPaymentMethods(): Set<PaymentMethod>
 
     fun getTags(): Set<Tag>
+
+    fun getAuthors(): Set<Author>
 }
