@@ -8,7 +8,6 @@ import ch.cyril.budget.manager.backend.rest.lib.HttpVerb
 import ch.cyril.budget.manager.backend.rest.lib.RestResult
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
 import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
-import ch.cyril.budget.manager.backend.service.expense.IdExpenseQuery
 
 class ImportExport(val budgets: List<Budget>, val expenses: List<Expense>)
 
@@ -34,11 +33,8 @@ class ImportExportRestHandler(
             }
         }
         for (expense in values.expenses) {
-            if (expenseDao.getOneExpense(IdExpenseQuery(expense.id), null) != null) {
-                expenseDao.updateExpense(expense)
-            } else {
-                expenseDao.addExpense(expense.withoutId())
-            }
+            //TODO How can we do an import while updating expenses?
+            expenseDao.addExpense(expense.withoutId())
         }
     }
 }
