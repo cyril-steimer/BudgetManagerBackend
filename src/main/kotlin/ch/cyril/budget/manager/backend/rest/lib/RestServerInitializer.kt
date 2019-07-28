@@ -4,6 +4,7 @@ import ch.cyril.budget.manager.backend.main.ServerConfig
 import ch.cyril.budget.manager.backend.rest.BudgetRestHandler
 import ch.cyril.budget.manager.backend.rest.ExpenseRestHandler
 import ch.cyril.budget.manager.backend.rest.ImportExportRestHandler
+import ch.cyril.budget.manager.backend.rest.UtilsRestHandler
 import ch.cyril.budget.manager.backend.service.ServiceFactory
 
 abstract class RestServerInitializer {
@@ -12,9 +13,12 @@ abstract class RestServerInitializer {
         val server = doStartServer(config)
 
         val expenseDao = serviceFactory.createExpenseDao()
+        val templateDao = serviceFactory.createTemplateDao()
         val budgetDao = serviceFactory.createBudgetDao()
 
-        RestMethodRegisterer(server, paramParser, ExpenseRestHandler(expenseDao)).register()
+        RestMethodRegisterer(server, paramParser, ExpenseRestHandler(expenseDao, "expenses")).register()
+        RestMethodRegisterer(server, paramParser, ExpenseRestHandler(templateDao, "templates")).register()
+        RestMethodRegisterer(server, paramParser, UtilsRestHandler(expenseDao)).register()
         RestMethodRegisterer(server, paramParser, BudgetRestHandler(budgetDao)).register()
         RestMethodRegisterer(server, paramParser, ImportExportRestHandler(budgetDao, expenseDao)).register()
 

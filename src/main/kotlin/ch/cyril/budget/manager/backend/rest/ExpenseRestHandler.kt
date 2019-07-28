@@ -12,9 +12,21 @@ import java.util.*
 
 class BulkUpdateGson(val query: JsonObject?, val update: JsonObject)
 
-class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
+class ExpenseRestHandler(private val dao: ExpenseDao, private val path: String) : RestHandler {
 
-    @HttpMethod(HttpVerb.POST, "/api/v1/expenses/search")
+    override fun getHandlerMethods(): List<RestHandlerMethod> {
+        return listOf(
+                RestHandlerMethod(ExpenseRestHandler::search, HttpVerb.POST, "/api/v1/${path}/search"),
+                RestHandlerMethod(ExpenseRestHandler::searchAndFilter, HttpVerb.POST, "/api/v1/${path}/search/:filter"),
+                RestHandlerMethod(ExpenseRestHandler::filter, HttpVerb.GET, "/api/v1/${path}/search/:filter"),
+                RestHandlerMethod(ExpenseRestHandler::simpleQuery, HttpVerb.GET, "/api/v1/${path}/field/:query/:arg"),
+                RestHandlerMethod(ExpenseRestHandler::getAllExpenses, HttpVerb.GET, "/api/v1/${path}"),
+                RestHandlerMethod(ExpenseRestHandler::updateExpense, HttpVerb.PUT, "/api/v1/${path}"),
+                RestHandlerMethod(ExpenseRestHandler::addExpense, HttpVerb.POST, "/api/v1/${path}"),
+                RestHandlerMethod(ExpenseRestHandler::deleteExpense, HttpVerb.DELETE, "/api/v1/${path}"),
+                RestHandlerMethod(ExpenseRestHandler::bulkUpdate, HttpVerb.PUT, "/api/v1/${path}/bulk"))
+    }
+
     fun search(
             @Body body: JsonObject,
             @QueryParam("sort") field: ExpenseSortField?,
@@ -27,8 +39,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
 
-    @HttpMethod(HttpVerb.POST, "/api/v1/expenses/search/:filter")
-    fun search(
+    fun searchAndFilter(
             @PathParam("filter") filter: String,
             @Body body: JsonObject,
             @QueryParam("sort") field: ExpenseSortField?,
@@ -43,8 +54,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
 
-    @HttpMethod(HttpVerb.GET, "/api/v1/expenses/search/:filter")
-    fun search(
+    fun filter(
             @PathParam("filter") filter: String,
             @QueryParam("sort") field: ExpenseSortField?,
             @QueryParam("dir") dir: SortDirection?,
@@ -56,7 +66,6 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
 
-    @HttpMethod(HttpVerb.GET, "/api/v1/expenses/field/:query/:arg")
     fun simpleQuery(
             @PathParam("query") desc: SimpleExpenseQueryDescriptor,
             @PathParam("arg") arg: String,
@@ -69,8 +78,6 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         val query = desc.createQuery(JsonPrimitive(arg))
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
-
-    @HttpMethod(HttpVerb.GET, "/api/v1/expenses")
     fun getAllExpenses(
             @QueryParam("sort") field: ExpenseSortField?,
             @QueryParam("dir") dir: SortDirection?,
@@ -80,44 +87,22 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
         return handleQuery(null, ExpenseSortField.sort(field, dir), Pagination.of(from, count), false)
     }
 
-    @HttpMethod(HttpVerb.PUT, "/api/v1/expenses")
     fun updateExpense(@Body expense: Expense) {
-        expenseDao.updateExpense(expense)
+        dao.updateExpense(expense)
     }
 
-    @HttpMethod(HttpVerb.POST, "/api/v1/expenses")
     fun addExpense(@Body expense: ExpenseWithoutId) {
-        expenseDao.addExpense(expense)
+        dao.addExpense(expense)
     }
 
-    @HttpMethod(HttpVerb.DELETE, "/api/v1/expenses")
     fun deleteExpense(@QueryParam("id") id: String) {
-        expenseDao.deleteExpense(Id(id))
+        dao.deleteExpense(Id(id))
     }
 
-    @HttpMethod(HttpVerb.PUT, "/api/v1/expenses/bulk")
     fun bulkUpdate(@Body update: BulkUpdateGson) {
         val query = if (update.query != null) ExpenseQueryDescriptor.createQuery(update.query) else null
         val update = ExpenseUpdateDescriptor.createUpdate(update.update)
-        expenseDao.applyBulkUpdate(query, update)
-    }
-
-    @HttpMethod(HttpVerb.GET, "/api/v1/paymentmethod")
-    fun getPaymentMethods(): RestResult {
-        val res = GSON.toJson(expenseDao.getPaymentMethods())
-        return RestResult.json(res)
-    }
-
-    @HttpMethod(HttpVerb.GET, "/api/v1/tag")
-    fun getTags(): RestResult {
-        val res = GSON.toJson(expenseDao.getTags())
-        return RestResult.json(res)
-    }
-
-    @HttpMethod(HttpVerb.GET, "/api/v1/author")
-    fun getAuthors(): RestResult {
-        val res = GSON.toJson(expenseDao.getAuthors())
-        return RestResult.json(res)
+        dao.applyBulkUpdate(query, update)
     }
 
     private fun filterQuery(filter: String): ExpenseQuery {
@@ -148,7 +133,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
             query: ExpenseQuery?,
             sort: ExpenseSort?): RestResult {
 
-        val res = expenseDao.getOneExpense(query, sort) ?: throw IllegalArgumentException("No result found")
+        val res = dao.getOneExpense(query, sort) ?: throw IllegalArgumentException("No result found")
         val json = GSON.toJson(res)
         return RestResult.json(json)
     }
@@ -158,7 +143,7 @@ class ExpenseRestHandler(private val expenseDao: ExpenseDao) {
             sort: ExpenseSort?,
             pagination: Pagination?): RestResult {
 
-        val res = expenseDao.getExpenses(query, sort, pagination)
+        val res = dao.getExpenses(query, sort, pagination)
         val json = GSON.toJson(res)
         return RestResult.json(json)
     }

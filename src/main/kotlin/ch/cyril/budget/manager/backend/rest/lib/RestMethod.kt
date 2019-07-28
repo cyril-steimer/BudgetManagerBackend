@@ -8,13 +8,12 @@ import kotlin.reflect.full.findAnnotation
 
 class RestMethod private constructor(
         private val owner: Any,
-        private val method: HttpMethod,
-        private val function: KFunction<*>,
+        private val method: RestHandlerMethod,
         private val parser: RestParamParser) {
 
     suspend fun invoke(ctx: RestContext): RestResult? {
         val params = gatherParams(ctx)
-        val res = function.call(owner, *params)
+        val res = method.function.call(owner, *params)
         if (res is RestResult) {
             return res
         }
@@ -30,7 +29,7 @@ class RestMethod private constructor(
     }
 
     private suspend fun gatherParams(ctx: RestContext): Array<Any?> {
-        return function.parameters
+        return method.function.parameters
                 .filter { p -> p.name != null }
                 .map { p -> getParamValue(p, ctx) }
                 .toTypedArray()
@@ -97,13 +96,19 @@ class RestMethod private constructor(
     companion object {
         fun of(owner: Any, function: KFunction<*>, parser: RestParamParser): RestMethod? {
             val method = function.findAnnotation<HttpMethod>()
-            val returnType = function.returnType.classifier
-            if (returnType != RestResult::class && returnType != Unit::class) {
-                return null
-            } else if (method == null) {
+            if (method == null) {
                 return null
             }
-            return RestMethod(owner, method, function, parser)
+            val handlerMethod = RestHandlerMethod(function, method.verb, method.path)
+            return of(owner, handlerMethod, parser)
+        }
+
+        fun of (owner: Any, method: RestHandlerMethod, parser: RestParamParser): RestMethod? {
+            val returnType = method.function.returnType.classifier
+            if (returnType != RestResult::class && returnType != Unit::class) {
+                return null
+            }
+            return RestMethod(owner, method, parser)
         }
     }
 }

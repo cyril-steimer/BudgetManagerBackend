@@ -8,10 +8,18 @@ class RestMethodRegisterer(
         val handler: Any) {
 
     fun register() {
-        handler::class.memberFunctions
-                .map { f -> RestMethod.of(handler, f, parser) }
+        getRestMethods()
                 .filter { m -> m != null }
                 .forEach { m -> registerMethod(m!!) }
+    }
+
+    private fun getRestMethods (): List<RestMethod?> {
+        if (handler is RestHandler) {
+            return handler.getHandlerMethods()
+                    .map { m -> RestMethod.of(handler, m, parser) }
+        }
+        return handler::class.memberFunctions
+                .map { f -> RestMethod.of(handler, f, parser) }
     }
 
     private fun registerMethod(method: RestMethod) {
