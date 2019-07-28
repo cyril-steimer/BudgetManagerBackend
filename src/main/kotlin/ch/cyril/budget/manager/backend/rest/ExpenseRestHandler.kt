@@ -16,15 +16,15 @@ class ExpenseRestHandler(private val dao: ExpenseDao, private val path: String) 
 
     override fun getHandlerMethods(): List<RestHandlerMethod> {
         return listOf(
-                RestHandlerMethod(ExpenseRestHandler::search, HttpVerb.POST, "/api/v1/${path}/search"),
-                RestHandlerMethod(ExpenseRestHandler::searchAndFilter, HttpVerb.POST, "/api/v1/${path}/search/:filter"),
-                RestHandlerMethod(ExpenseRestHandler::filter, HttpVerb.GET, "/api/v1/${path}/search/:filter"),
-                RestHandlerMethod(ExpenseRestHandler::simpleQuery, HttpVerb.GET, "/api/v1/${path}/field/:query/:arg"),
-                RestHandlerMethod(ExpenseRestHandler::getAllExpenses, HttpVerb.GET, "/api/v1/${path}"),
-                RestHandlerMethod(ExpenseRestHandler::updateExpense, HttpVerb.PUT, "/api/v1/${path}"),
-                RestHandlerMethod(ExpenseRestHandler::addExpense, HttpVerb.POST, "/api/v1/${path}"),
-                RestHandlerMethod(ExpenseRestHandler::deleteExpense, HttpVerb.DELETE, "/api/v1/${path}"),
-                RestHandlerMethod(ExpenseRestHandler::bulkUpdate, HttpVerb.PUT, "/api/v1/${path}/bulk"))
+                RestHandlerMethod(::search, HttpVerb.POST, "/api/v1/${path}/search"),
+                RestHandlerMethod(::searchAndFilter, HttpVerb.POST, "/api/v1/${path}/search/:filter"),
+                RestHandlerMethod(::filter, HttpVerb.GET, "/api/v1/${path}/search/:filter"),
+                RestHandlerMethod(::simpleQuery, HttpVerb.GET, "/api/v1/${path}/field/:query/:arg"),
+                RestHandlerMethod(::getAllExpenses, HttpVerb.GET, "/api/v1/${path}"),
+                RestHandlerMethod(::updateExpense, HttpVerb.PUT, "/api/v1/${path}"),
+                RestHandlerMethod(::addExpense, HttpVerb.POST, "/api/v1/${path}"),
+                RestHandlerMethod(::deleteExpense, HttpVerb.DELETE, "/api/v1/${path}"),
+                RestHandlerMethod(::bulkUpdate, HttpVerb.PUT, "/api/v1/${path}/bulk"))
     }
 
     fun search(

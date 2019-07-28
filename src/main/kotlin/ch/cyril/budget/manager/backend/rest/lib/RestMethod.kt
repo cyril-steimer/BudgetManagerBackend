@@ -5,6 +5,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.instanceParameter
 
 class RestMethod private constructor(
         private val owner: Any,
@@ -13,7 +14,7 @@ class RestMethod private constructor(
 
     suspend fun invoke(ctx: RestContext): RestResult? {
         val params = gatherParams(ctx)
-        val res = method.function.call(owner, *params)
+        val res = doInvoke(method.function, params)
         if (res is RestResult) {
             return res
         }
@@ -26,6 +27,13 @@ class RestMethod private constructor(
 
     fun path(): RestMethodPath {
         return RestMethodPath.parse(method.path)
+    }
+
+    private suspend fun doInvoke(func: KFunction<*>, params: Array<Any?>): Any? {
+        if (func.instanceParameter == null) {
+            return func.call(*params)
+        }
+        return func.call(owner, *params)
     }
 
     private suspend fun gatherParams(ctx: RestContext): Array<Any?> {
