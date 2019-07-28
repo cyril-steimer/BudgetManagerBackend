@@ -7,5 +7,7 @@ interface ServiceFactory {
 
     fun createExpenseDao(): ExpenseDao
 
+    fun createTemplateDao(): ExpenseDao
+
     fun createBudgetDao(): BudgetDao
 }

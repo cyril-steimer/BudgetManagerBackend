@@ -6,7 +6,6 @@ import ch.cyril.budget.manager.backend.service.mongo.MongoServiceFactory
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import com.mongodb.client.MongoClients
-import java.lang.IllegalArgumentException
 import java.nio.file.Paths
 
 enum class ServiceFactoryType {
@@ -24,8 +23,9 @@ enum class ServiceFactoryType {
                 throw IllegalArgumentException("Cannot create file-based factory without params")
             }
             val expenses = Paths.get(params.get("expenses").asString)
+            val templates = Paths.get(params.get("templates").asString)
             val budget = Paths.get(params.get("budget").asString)
-            return FilebasedServiceFactory(expenses, budget)
+            return FilebasedServiceFactory(expenses, templates, budget)
         }
     };
 

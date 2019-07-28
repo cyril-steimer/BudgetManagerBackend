@@ -9,19 +9,26 @@ import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoCollection
 import org.bson.Document
 
-class MongoServiceFactory : ServiceFactory {
+class MongoServiceFactory(client: MongoClient) : ServiceFactory {
 
     private val expenses: MongoCollection<Document>
 
+    private val templates: MongoCollection<Document>
+
     private val budgets: MongoCollection<Document>
 
-    constructor(client: MongoClient) {
+    init {
         this.expenses = getCollectionInDatabase(client, "budgetManager", "expenses")
+        this.templates = getCollectionInDatabase(client, "budgetManager", "templates")
         this.budgets = getCollectionInDatabase(client, "budgetManager", "budgets")
     }
 
     override fun createExpenseDao(): ExpenseDao {
         return MongoExpenseDao(expenses)
+    }
+
+    override fun createTemplateDao(): ExpenseDao {
+        return MongoExpenseDao(templates)
     }
 
     override fun createBudgetDao(): BudgetDao {
@@ -34,7 +41,6 @@ class MongoServiceFactory : ServiceFactory {
             collectionName: String) : MongoCollection<Document> {
 
         val database = client.getDatabase(dbName)
-        val collection = database.getCollection(collectionName)
-        return collection
+        return database.getCollection(collectionName)
     }
 }
