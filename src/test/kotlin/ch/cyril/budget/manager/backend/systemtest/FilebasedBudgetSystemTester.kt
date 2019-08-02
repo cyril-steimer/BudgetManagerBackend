@@ -5,6 +5,7 @@ import ch.cyril.budget.manager.backend.main.startServer
 import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.rest.lib.RestServer
 import ch.cyril.budget.manager.backend.util.SubList
+import com.google.gson.Gson
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import java.math.BigDecimal
@@ -17,13 +18,6 @@ class FilebasedBudgetSystemTester(
         port: Int) : AutoCloseable {
 
     private val client = HttpClient(port)
-
-    private val budgetContent = """
-        Budget1,900,monthly
-        Budget2,yearly,1200,1,2018,1,2019,monthly,1400,1,2019,12,2019
-    """.trimIndent()
-
-    private val budgetFile = Files.write(tempDir.resolve("budget"), budgetContent.toByteArray())
 
     private val budget1 = Budget(
             Category("Budget1"),
@@ -65,6 +59,10 @@ class FilebasedBudgetSystemTester(
                             BudgetPeriod.YEARLY,
                             MonthYear(1, 2016),
                             MonthYear(12, 2020))))
+
+    private val budgetContent = Gson().toJson(listOf(budget1, budget2))
+
+    private val budgetFile = Files.write(tempDir.resolve("budget"), budgetContent.toByteArray())
 
     private val restServer: RestServer<*>
 
