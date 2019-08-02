@@ -70,7 +70,8 @@ class FilebasedBudgetSystemTester(
 
     init {
         val expensesFile = Files.createFile(tempDir.resolve("expenses"))
-        val config = ParamBuilder.fileBased(expensesFile, budgetFile, server, port)
+        val templateFile = Files.createFile(tempDir.resolve("templates"))
+        val config = ParamBuilder.fileBased(expensesFile, templateFile, budgetFile, server, port)
         val configFile = Files.write(tempDir.resolve("config.json"), config.toByteArray())
         val params = arrayOf(configFile.toString())
         restServer = startServer(params)

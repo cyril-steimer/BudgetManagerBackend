@@ -6,12 +6,13 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 object ParamBuilder {
-    fun fileBased (expenseFile: Path, budgetFile: Path, server: ServerType, port: Int): String {
+    fun fileBased (expenseFile: Path, templateFile: Path, budgetFile: Path, server: ServerType, port: Int): String {
         return """
             {
                 "type": "file",
                 "params": {
                     "expenses": "${expenseFile.toString().replace("\\", "\\\\")}",
+                    "templates": "${templateFile.toString().replace("\\", "\\\\")}",
                     "budget": "${budgetFile.toString().replace("\\", "\\\\")}"
                 },
                 "server": "$server",
@@ -29,6 +30,7 @@ object ParamBuilder {
                 "type": "file",
                 "params": {
                     "expenses": "${tempDir.resolve("exp").toString().replace("\\", "\\\\")}",
+                    "templates": "${tempDir.resolve("template").toString().replace("\\", "\\\\")}",
                     "budget": "${tempDir.resolve("bud").toString().replace("\\", "\\\\")}"
                 },
                 "server": "$server",
