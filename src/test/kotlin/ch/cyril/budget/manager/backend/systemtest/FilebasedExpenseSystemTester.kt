@@ -4,6 +4,7 @@ import ch.cyril.budget.manager.backend.main.ServerType
 import ch.cyril.budget.manager.backend.main.startServer
 import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.rest.lib.RestServer
+import ch.cyril.budget.manager.backend.service.filebased.expense.ExpenseParser
 import ch.cyril.budget.manager.backend.util.SubList
 import com.google.gson.*
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -48,9 +49,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
 
     private val newE1 = e1.copy(amount = Amount(BigDecimal(500)), tags = setOf(Tag("Tag1"), Tag("Tag3")))
 
-    private val expensesContent = Gson().toJson(listOf(e1, e2, e3))
-
-    private val expensesFile = Files.write(tempDir.resolve("expenses"), expensesContent.toByteArray())
+    private val expensesFile: Path
 
     private val e4 = Expense(
             Id("1"),
@@ -69,6 +68,8 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
     init {
         val budgetFile = Files.createFile(tempDir.resolve("budget"))
         val templatesFile = Files.createFile(tempDir.resolve("templates"))
+        expensesFile = tempDir.resolve("expenses")
+        ExpenseParser().write(expensesFile, listOf(e1, e2, e3))
         val config = ParamBuilder.fileBased(expensesFile, templatesFile, budgetFile, server, port)
         val configFile = Files.write(tempDir.resolve("config.json"), config.toByteArray())
         val params = arrayOf(configFile.toString())
