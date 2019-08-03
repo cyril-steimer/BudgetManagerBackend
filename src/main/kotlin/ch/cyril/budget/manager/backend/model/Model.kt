@@ -88,7 +88,7 @@ data class Amount(val amount: BigDecimal) : Validatable {
 
     override fun validate() {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw JsonParseException("Amount must be greater than zero")
+            throw JsonParseException("Amount must be >= 0, was ${amount}")
         }
     }
 }
