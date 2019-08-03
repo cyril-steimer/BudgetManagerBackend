@@ -17,11 +17,15 @@ abstract class JsonBasedFileParser<T>(
             return emptyList()
         }
         val type = Array.newInstance(cls, 0).javaClass
-        val array = gson.fromJson(Files.newBufferedReader(file, Charsets.UTF_8), type) as kotlin.Array<T>
-        return array.toList()
+        Files.newBufferedReader(file, Charsets.UTF_8).use {
+            val array = gson.fromJson<kotlin.Array<T>>(Files.newBufferedReader(file, Charsets.UTF_8), type)
+            return array.toList()
+        }
     }
 
     override fun write(file: Path, values: List<T>) {
-        gson.toJson(values, Files.newBufferedWriter(file, Charsets.UTF_8))
+        Files.newBufferedWriter(file, Charsets.UTF_8).use {
+            gson.toJson(values, it)
+        }
     }
 }
