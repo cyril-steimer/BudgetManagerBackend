@@ -3,10 +3,10 @@ package ch.cyril.budget.manager.backend.rest
 import ch.cyril.budget.manager.backend.rest.lib.HttpMethod
 import ch.cyril.budget.manager.backend.rest.lib.HttpVerb
 import ch.cyril.budget.manager.backend.rest.lib.RestResult
+import ch.cyril.budget.manager.backend.service.expense.ActualExpenseDao
 import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
 
-class UtilsRestHandler(private val dao: ExpenseDao) {
-
+class UtilsRestHandler(private val dao: ActualExpenseDao) {
 
     @HttpMethod(HttpVerb.GET, "/api/v1/paymentmethod")
     fun getPaymentMethods(): RestResult {

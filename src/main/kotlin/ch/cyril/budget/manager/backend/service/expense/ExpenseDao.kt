@@ -4,41 +4,49 @@ import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.util.SubList
 
-interface ExpenseDao {
-
-    class GenericUpdateVisitor : ExpenseUpdateVisitor<Expense, Expense> {
-
-        override fun visitAuthorExpenseUpdate(update: AuthorExpenseUpdate, arg: Expense): Expense {
-            return arg.copy(author = update.author)
-        }
-    }
+interface ExpenseDao<T : Expense> {
 
     fun getExpenses(
             query: ExpenseQuery?,
             sort: ExpenseSort?,
-            pagination: Pagination?): SubList<Expense>
+            pagination: Pagination?): SubList<T>
 
     fun getOneExpense(
             query: ExpenseQuery?,
-            sort: ExpenseSort?): Expense? {
+            sort: ExpenseSort?): T? {
         val expenses = getExpenses(query, sort, null)
         return expenses.values.firstOrNull()
     }
 
-    fun addExpense(expense: ExpenseWithoutId)
-
-    fun updateExpense(expense: Expense)
+    fun updateExpense(expense: T)
 
     fun deleteExpense(id: Id)
 
-    fun applyBulkUpdate(query: ExpenseQuery?, update: ExpenseUpdate) {
-        //TODO Implement more efficiently in subclasses
-        val expenses = getExpenses(query, null, null).values
-        val visitor = GenericUpdateVisitor()
+    fun applyBulkUpdate(query: ExpenseQuery?, update: ExpenseUpdate)
+}
+
+internal class GenericUpdateVisitor<T : Expense>(private val copyWithAuthor: (T, Author) -> T) : ExpenseUpdateVisitor<T, T> {
+
+    override fun visitAuthorExpenseUpdate(update: AuthorExpenseUpdate, arg: T): T {
+        return copyWithAuthor(arg, update.author)
+    }
+
+    fun applyBulkUpdate(dao: ExpenseDao<T>, query: ExpenseQuery?, update: ExpenseUpdate) {
+        val expenses = dao.getExpenses(query, null, null).values
         for (expense in expenses) {
-            val updated = update.accept(visitor, expense)
-            updateExpense(updated)
+            val updated = update.accept(this, expense)
+            dao.updateExpense(updated)
         }
+    }
+}
+
+interface ActualExpenseDao : ExpenseDao<ActualExpense> {
+
+    fun addExpense(expense: ActualExpenseWithoutId)
+
+    override fun applyBulkUpdate(query: ExpenseQuery?, update: ExpenseUpdate) {
+        GenericUpdateVisitor<ActualExpense> { expense, author -> expense.copy(author = author) }
+                .applyBulkUpdate(this, query, update)
     }
 
     fun getPaymentMethods(): Set<PaymentMethod>
@@ -46,4 +54,14 @@ interface ExpenseDao {
     fun getTags(): Set<Tag>
 
     fun getAuthors(): Set<Author>
+}
+
+interface ExpenseTemplateDao: ExpenseDao<ExpenseTemplate> {
+
+    fun addExpense(expense: ExpenseTemplateWithoutId)
+
+    override fun applyBulkUpdate(query: ExpenseQuery?, update: ExpenseUpdate) {
+        GenericUpdateVisitor<ExpenseTemplate> { expense, author -> expense.copy(author = author) }
+                .applyBulkUpdate(this, query, update)
+    }
 }

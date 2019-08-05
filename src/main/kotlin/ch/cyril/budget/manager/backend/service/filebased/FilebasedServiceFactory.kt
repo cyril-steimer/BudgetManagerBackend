@@ -2,9 +2,13 @@ package ch.cyril.budget.manager.backend.service.filebased
 
 import ch.cyril.budget.manager.backend.service.ServiceFactory
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
+import ch.cyril.budget.manager.backend.service.expense.ActualExpenseDao
 import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
+import ch.cyril.budget.manager.backend.service.expense.ExpenseTemplateDao
 import ch.cyril.budget.manager.backend.service.filebased.budget.FilebasedBudgetDao
+import ch.cyril.budget.manager.backend.service.filebased.expense.FilebasedActualExpenseDao
 import ch.cyril.budget.manager.backend.service.filebased.expense.FilebasedExpenseDao
+import ch.cyril.budget.manager.backend.service.filebased.expense.FilebasedExpenseTemplateDao
 import java.nio.file.Path
 
 class FilebasedServiceFactory(
@@ -12,12 +16,12 @@ class FilebasedServiceFactory(
         private val templateFile: Path,
         private val budgetFile: Path) : ServiceFactory {
 
-    override fun createExpenseDao(): ExpenseDao {
-        return FilebasedExpenseDao(expenseFile)
+    override fun createExpenseDao(): ActualExpenseDao {
+        return FilebasedActualExpenseDao(expenseFile)
     }
 
-    override fun createTemplateDao(): ExpenseDao {
-        return FilebasedExpenseDao(templateFile)
+    override fun createTemplateDao(): ExpenseTemplateDao {
+        return FilebasedExpenseTemplateDao(templateFile)
     }
 
     override fun createBudgetDao(): BudgetDao {

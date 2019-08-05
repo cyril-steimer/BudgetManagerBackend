@@ -4,7 +4,7 @@ import ch.cyril.budget.manager.backend.main.ServerType
 import ch.cyril.budget.manager.backend.main.startServer
 import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.rest.lib.RestServer
-import ch.cyril.budget.manager.backend.service.filebased.expense.ExpenseParser
+import ch.cyril.budget.manager.backend.service.filebased.expense.ActualExpenseParser
 import ch.cyril.budget.manager.backend.util.SubList
 import com.google.gson.*
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -17,7 +17,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
 
     private val client = HttpClient(port)
 
-    private val e1 = Expense(
+    private val e1 = ActualExpense(
             Id("Id1"),
             Name("Expense1"),
             Amount(BigDecimal(200)),
@@ -27,7 +27,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             Author(""),
             setOf(Tag("Tag1"), Tag("Tag2")))
 
-    private val e2 = Expense(
+    private val e2 = ActualExpense(
             Id("Id2"),
             Name("Expense2"),
             Amount(BigDecimal(300)),
@@ -37,7 +37,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             Author(""),
             setOf(Tag("Tag1")));
 
-    private val e3 = Expense(
+    private val e3 = ActualExpense(
             Id("Id3"),
             Name("Expense3"),
             Amount(BigDecimal(300)),
@@ -51,7 +51,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
 
     private val expensesFile: Path
 
-    private val e4 = Expense(
+    private val e4 = ActualExpense(
             Id("1"),
             Name("Expense4"),
             Amount(BigDecimal(700)),
@@ -69,7 +69,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         val budgetFile = Files.createFile(tempDir.resolve("budget"))
         val templatesFile = Files.createFile(tempDir.resolve("templates"))
         expensesFile = tempDir.resolve("expenses")
-        ExpenseParser().write(expensesFile, listOf(e1, e2, e3))
+        ActualExpenseParser().write(expensesFile, listOf(e1, e2, e3))
         val config = ParamBuilder.fileBased(expensesFile, templatesFile, budgetFile, server, port)
         val configFile = Files.write(tempDir.resolve("config.json"), config.toByteArray())
         val params = arrayOf(configFile.toString())
@@ -119,7 +119,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
 
     private fun getExpenseById () {
         val url = "/api/v1/expenses/field/id/Id3?single=true"
-        assertEquals(e3, client.getJson<Expense>(url))
+        assertEquals(e3, client.getJson<ActualExpense>(url))
     }
 
     private fun getExpensesByAmount () {
@@ -255,9 +255,9 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         //TODO Check that the file was written
     }
 
-    private fun withAuthor (expense: Expense, author: String) = expense.copy(author = Author(author))
+    private fun withAuthor (expense: ActualExpense, author: String) = expense.copy(author = Author(author))
 
-    private fun assertEqualList (expected: List<Expense>, actual: SubList<Expense>) {
+    private fun assertEqualList (expected: List<ActualExpense>, actual: SubList<ActualExpense>) {
         assertEquals(expected.size, actual.count)
         assertEquals(expected, actual.values)
     }

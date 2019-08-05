@@ -3,6 +3,7 @@ package ch.cyril.budget.manager.backend.rest.lib
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.instanceParameter
 

@@ -2,9 +2,13 @@ package ch.cyril.budget.manager.backend.service.mongo
 
 import ch.cyril.budget.manager.backend.service.ServiceFactory
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
+import ch.cyril.budget.manager.backend.service.expense.ActualExpenseDao
 import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
+import ch.cyril.budget.manager.backend.service.expense.ExpenseTemplateDao
 import ch.cyril.budget.manager.backend.service.mongo.budget.MongoBudgetDao
+import ch.cyril.budget.manager.backend.service.mongo.expense.MongoActualExpenseDao
 import ch.cyril.budget.manager.backend.service.mongo.expense.MongoExpenseDao
+import ch.cyril.budget.manager.backend.service.mongo.expense.MongoExpenseTemplateDao
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoCollection
 import org.bson.Document
@@ -23,12 +27,12 @@ class MongoServiceFactory(client: MongoClient) : ServiceFactory {
         this.budgets = getCollectionInDatabase(client, "budgetManager", "budgets")
     }
 
-    override fun createExpenseDao(): ExpenseDao {
-        return MongoExpenseDao(expenses)
+    override fun createExpenseDao(): ActualExpenseDao {
+        return MongoActualExpenseDao(expenses)
     }
 
-    override fun createTemplateDao(): ExpenseDao {
-        return MongoExpenseDao(templates)
+    override fun createTemplateDao(): ExpenseTemplateDao {
+        return MongoExpenseTemplateDao(templates)
     }
 
     override fun createBudgetDao(): BudgetDao {

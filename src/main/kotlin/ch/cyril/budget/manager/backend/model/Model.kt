@@ -55,31 +55,6 @@ data class MonthYearPeriod(val from: MonthYear, val to: MonthYear)
 
 data class BudgetInPeriod(val category: Category, val amount: Amount)
 
-data class ExpenseWithoutId(
-        val name: Name,
-        val amount: Amount,
-        val category: Category,
-        val date: Timestamp,
-        val method: PaymentMethod,
-        val author: Author,
-        val tags: Set<Tag>) {
-
-    fun withId(id: Id) = Expense(id, name, amount, category, date, method, author, tags)
-}
-
-data class Expense(
-        val id: Id,
-        val name: Name,
-        val amount: Amount,
-        val category: Category,
-        val date: Timestamp,
-        val method: PaymentMethod,
-        val author: Author,
-        val tags: Set<Tag>) {
-
-    fun withoutId() = ExpenseWithoutId(name, amount, category, date, method, author, tags)
-}
-
 data class Tag(val name: String)
 
 data class PaymentMethod(val name: String)

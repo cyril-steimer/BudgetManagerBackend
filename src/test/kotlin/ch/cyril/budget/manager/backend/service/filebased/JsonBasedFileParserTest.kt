@@ -1,16 +1,14 @@
 package ch.cyril.budget.manager.backend.service.filebased
 
 import ch.cyril.budget.manager.backend.model.*
-import ch.cyril.budget.manager.backend.rest.GSON
 import ch.cyril.budget.manager.backend.service.filebased.budget.BudgetParser
-import ch.cyril.budget.manager.backend.service.filebased.expense.ExpenseParser
+import ch.cyril.budget.manager.backend.service.filebased.expense.ActualExpenseParser
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.nio.file.Files
-import java.nio.file.Path
 
 class JsonBasedFileParserTest {
 
@@ -54,7 +52,7 @@ class JsonBasedFileParserTest {
         ]
         """.trimIndent()
 
-    val expense = Expense(
+    val expense = ActualExpense(
             Id("1"),
             Name("Test"),
             Amount(BigDecimal.valueOf(50.5)),
@@ -103,7 +101,7 @@ class JsonBasedFileParserTest {
     fun deserializeExpense() {
         TempFile().use {
             Files.write(it.file, expenseJson.toByteArray(Charsets.UTF_8))
-            val actual = ExpenseParser().read(it.file)
+            val actual = ActualExpenseParser().read(it.file)
             Assertions.assertEquals(listOf(expense), actual)
         }
     }
@@ -111,7 +109,7 @@ class JsonBasedFileParserTest {
     @Test
     fun serializeExpense() {
         TempFile().use {
-            ExpenseParser().write(it.file, listOf(expense))
+            ActualExpenseParser().write(it.file, listOf(expense))
             val actual = Gson().fromJson(Files.newBufferedReader(it.file, Charsets.UTF_8), JsonArray::class.java)
             val expected = Gson().fromJson(expenseJson, JsonArray::class.java)
             Assertions.assertEquals(expected, actual)
