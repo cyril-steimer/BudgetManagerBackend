@@ -5,6 +5,8 @@ import ch.cyril.budget.manager.backend.service.MathComparison
 import ch.cyril.budget.manager.backend.service.StringCase
 import ch.cyril.budget.manager.backend.service.StringComparison
 import ch.cyril.budget.manager.backend.util.Identifiable
+import ch.cyril.budget.manager.backend.util.IdentifiableTypeAdapter
+import ch.cyril.budget.manager.backend.util.gson.Serializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
@@ -31,6 +33,7 @@ interface ExpenseQueryDescriptor : Identifiable {
     }
 }
 
+@Serializer(SimpleExpenseQueryDescriptorTypeAdapter::class)
 enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     : Identifiable, ExpenseQueryDescriptor {
 
@@ -143,6 +146,8 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
         return value.asString.toBigDecimal()
     }
 }
+
+class SimpleExpenseQueryDescriptorTypeAdapter : IdentifiableTypeAdapter<SimpleExpenseQueryDescriptor>(SimpleExpenseQueryDescriptor::class)
 
 enum class CompositeExpenseQueryDescriptor
     (override val identifier: String, private val factory: (List<ExpenseQuery>) -> ExpenseQuery)
