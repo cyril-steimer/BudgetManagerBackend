@@ -1,5 +1,8 @@
 package ch.cyril.budget.manager.backend.model
 
+import ch.cyril.budget.manager.backend.util.gson.AnnotatedTypeAdapterFactory
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
@@ -7,6 +10,10 @@ import java.time.LocalDate
 import java.time.Month
 
 class ScheduleTest {
+
+    private val gson = GsonBuilder()
+            .registerTypeAdapterFactory(AnnotatedTypeAdapterFactory())
+            .create()
 
     @Test
     fun weekly() {
@@ -56,5 +63,36 @@ class ScheduleTest {
 
         today = LocalDate.of(2020, Month.FEBRUARY, 1)
         Assertions.assertEquals(LocalDate.of(2020, Month.FEBRUARY, 29), schedule.getNextDate(today))
+    }
+
+    @Test
+    fun serialize() {
+        var actual = gson.toJsonTree(WeeklySchedule(DayOfWeek.FRIDAY))
+
+        var expected = JsonObject()
+        expected.addProperty("dayOfWeek", "FRIDAY")
+        Assertions.assertEquals(expected, actual)
+
+        actual = gson.toJsonTree(MonthlySchedule(20))
+
+        expected = JsonObject()
+        expected.addProperty("dayOfMonth", 20)
+
+        Assertions.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun deserialize() {
+        var json = """{"dayOfWeek": "MONDAY"}"""
+        var actual = gson.fromJson(json, Schedule::class.java)
+
+        var expected : Schedule = WeeklySchedule(DayOfWeek.MONDAY)
+        Assertions.assertEquals(expected, actual)
+
+        json = """{"dayOfMonth": 30}"""
+        actual = gson.fromJson(json, Schedule::class.java)
+
+        expected = MonthlySchedule(30)
+        Assertions.assertEquals(expected, actual)
     }
 }

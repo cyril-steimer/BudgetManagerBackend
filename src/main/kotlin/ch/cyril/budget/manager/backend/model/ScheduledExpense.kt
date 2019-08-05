@@ -1,7 +1,12 @@
 package ch.cyril.budget.manager.backend.model
 
+import ch.cyril.budget.manager.backend.util.gson.NullHandlingTypeAdapter
+import ch.cyril.budget.manager.backend.util.gson.Serializer
 import ch.cyril.budget.manager.backend.util.gson.Validatable
 import com.google.gson.JsonParseException
+import com.google.gson.TypeAdapter
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
 import java.lang.AssertionError
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -37,11 +42,31 @@ data class ScheduledExpense(
     }
 }
 
+@Serializer(ScheduleTypeAdapter::class)
 interface Schedule {
     fun getNextDate(today: LocalDate): LocalDate
 }
 
-class WeeklySchedule(private val dayOfWeek: DayOfWeek) : Schedule {
+class ScheduleTypeAdapter : NullHandlingTypeAdapter<Schedule>() {
+
+    override fun doWrite(out: JsonWriter, value: Schedule) {
+        throw JsonParseException("Adapter should never be used for writing")
+    }
+
+    override fun doRead(`in`: JsonReader): Schedule {
+        `in`.beginObject()
+        val name = `in`.nextName()
+        val schedule = when(name) {
+            "dayOfWeek" -> WeeklySchedule(DayOfWeek.valueOf(`in`.nextString()))
+            "dayOfMonth" -> MonthlySchedule(`in`.nextInt())
+            else -> throw JsonParseException("Unknown key '$name'")
+        }
+        `in`.endObject()
+        return schedule
+    }
+}
+
+data class WeeklySchedule(private val dayOfWeek: DayOfWeek) : Schedule {
 
     override fun getNextDate(today: LocalDate): LocalDate {
         for (days in 0 until DayOfWeek.values().size) {
@@ -54,7 +79,7 @@ class WeeklySchedule(private val dayOfWeek: DayOfWeek) : Schedule {
     }
 }
 
-class MonthlySchedule(private val dayOfMonth: Int) : Schedule, Validatable {
+data class MonthlySchedule(private val dayOfMonth: Int) : Schedule, Validatable {
 
     override fun getNextDate(today: LocalDate): LocalDate {
         if (dayOfMonth > today.lengthOfMonth()) {
