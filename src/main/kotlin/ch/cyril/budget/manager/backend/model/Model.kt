@@ -1,6 +1,8 @@
 package ch.cyril.budget.manager.backend.model
 
 import ch.cyril.budget.manager.backend.util.Identifiable
+import ch.cyril.budget.manager.backend.util.gson.Validatable
+import com.google.gson.JsonParseException
 import java.math.BigDecimal
 
 data class Budget(val category: Category, val amounts: List<BudgetAmount>)
@@ -14,14 +16,21 @@ data class BudgetAmount(
         val to: MonthYear) : Validatable {
 
     override fun validate() {
-        //TODO Validate amount, from < to
+        if (from.toEpochMonth() > to.toEpochMonth()) {
+            throw JsonParseException("From must be before to. From was '${from}', to was '${to}'")
+        }
     }
 }
 
 data class MonthYear(val month: Int, val year: Int) : Validatable {
 
     override fun validate() {
-        //TODO Validate month
+        if (year < 0) {
+            throw JsonParseException("Year must be >= 0, was ${year}")
+        }
+        if (month < 1 || month > 12) {
+            throw JsonParseException("Month must be between 1 and 12, was ${month}")
+        }
     }
 
     fun toEpochMonth(): Int {
@@ -53,11 +62,7 @@ data class ExpenseWithoutId(
         val date: Timestamp,
         val method: PaymentMethod,
         val author: Author,
-        val tags: Set<Tag>): Validatable {
-
-    override fun validate() {
-        amount.validate()
-    }
+        val tags: Set<Tag>) {
 
     fun withId(id: Id) = Expense(id, name, amount, category, date, method, author, tags)
 }
@@ -70,11 +75,7 @@ data class Expense(
         val date: Timestamp,
         val method: PaymentMethod,
         val author: Author,
-        val tags: Set<Tag>) : Validatable {
-
-    override fun validate() {
-        amount.validate()
-    }
+        val tags: Set<Tag>) {
 
     fun withoutId() = ExpenseWithoutId(name, amount, category, date, method, author, tags)
 }
@@ -87,7 +88,7 @@ data class Amount(val amount: BigDecimal) : Validatable {
 
     override fun validate() {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw ValidationException("Amount must be greater than zero")
+            throw JsonParseException("Amount must be >= 0, was ${amount}")
         }
     }
 }
