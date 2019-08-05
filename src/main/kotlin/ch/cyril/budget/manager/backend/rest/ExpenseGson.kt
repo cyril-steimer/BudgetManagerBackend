@@ -6,6 +6,7 @@ import ch.cyril.budget.manager.backend.service.expense.SimpleExpenseQueryDescrip
 import ch.cyril.budget.manager.backend.service.expense.SortDirection
 import ch.cyril.budget.manager.backend.service.expense.ExpenseSortField
 import ch.cyril.budget.manager.backend.util.Identifiable
+import ch.cyril.budget.manager.backend.util.gson.NullSafeTypeAdapterFactory
 import ch.cyril.budget.manager.backend.util.gson.ValidatingTypeAdapterFactory
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
@@ -20,6 +21,7 @@ val GSON = GsonBuilder()
         .registerTypeAdapter(ExpenseSortField::class.java, ExpenseSortFieldAdapter().nullSafe())
         .registerTypeAdapter(SortDirection::class.java, SortDirectionAdapter().nullSafe())
         .registerTypeAdapter(BudgetPeriod::class.java, BudgetPeriodAdapter().nullSafe())
+        .registerTypeAdapterFactory(NullSafeTypeAdapterFactory())
         .registerTypeAdapterFactory(ValidatingTypeAdapterFactory())
         .create()
 

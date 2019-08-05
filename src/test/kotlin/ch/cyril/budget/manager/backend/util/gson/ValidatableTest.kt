@@ -16,7 +16,7 @@ class ValidatableTest {
             .create()
 
     @Test
-    fun notValidated () {
+    fun notValidated() {
         val json = "{\"name\":\"Some name\"}"
         val value = gson.fromJson(json, Author::class.java)
 
@@ -28,7 +28,7 @@ class ValidatableTest {
         val json = "{\"amount\":10}"
         val value = gson.fromJson(json, Amount::class.java)
 
-        Assertions.assertEquals(BigDecimal.valueOf(10), value.amount)
+        Assertions.assertEquals(10, value.amount.toInt())
     }
 
     @Test
