@@ -11,10 +11,12 @@ abstract class RestServerInitializer {
 
         val expenseDao = serviceFactory.createExpenseDao()
         val templateDao = serviceFactory.createTemplateDao()
+        val scheduledExpensesDao = serviceFactory.createScheduledExpenseDao()
         val budgetDao = serviceFactory.createBudgetDao()
 
         RestMethodRegisterer(server, paramParser, ActualExpenseRestHandler(expenseDao)).register()
         RestMethodRegisterer(server, paramParser, ExpenseTemplateRestHandler(templateDao)).register()
+        RestMethodRegisterer(server, paramParser, ScheduledExpenseRestHandler(scheduledExpensesDao)).register()
         RestMethodRegisterer(server, paramParser, UtilsRestHandler(expenseDao)).register()
         RestMethodRegisterer(server, paramParser, BudgetRestHandler(budgetDao)).register()
         RestMethodRegisterer(server, paramParser, ImportExportRestHandler(budgetDao, expenseDao)).register()

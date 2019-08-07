@@ -174,3 +174,22 @@ class ExpenseTemplateRestHandler(dao: ExpenseTemplateDao) : ExpenseRestHandler<E
         dao.updateExpense(expense)
     }
 }
+
+class ScheduledExpenseRestHandler(dao: ScheduledExpenseDao) : ExpenseRestHandler<ScheduledExpense, ScheduledExpenseDao>(dao, "schedules") {
+
+    override fun getHandlerMethods(): List<RestHandlerMethod> {
+        val res = mutableListOf(
+                RestHandlerMethod(::addExpense, HttpVerb.POST, "/api/v1/schedules"),
+                RestHandlerMethod(::updateExpense, HttpVerb.PUT, "/api/v1/schedules"))
+        res.addAll(super.getHandlerMethods())
+        return res
+    }
+
+    fun addExpense(@Body expense: ScheduledExpenseWithoutId) {
+        dao.addExpense(expense)
+    }
+
+    fun updateExpense(@Body expense: ScheduledExpense) {
+        dao.updateExpense(expense)
+    }
+}

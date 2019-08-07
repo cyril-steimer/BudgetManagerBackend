@@ -65,3 +65,13 @@ interface ExpenseTemplateDao: ExpenseDao<ExpenseTemplate> {
                 .applyBulkUpdate(this, query, update)
     }
 }
+
+interface ScheduledExpenseDao: ExpenseDao<ScheduledExpense> {
+
+    fun addExpense(expense: ScheduledExpenseWithoutId)
+
+    override fun applyBulkUpdate(query: ExpenseQuery?, update: ExpenseUpdate) {
+        GenericUpdateVisitor<ScheduledExpense> { expense, author -> expense.copy(author = author) }
+                .applyBulkUpdate(this, query, update)
+    }
+}

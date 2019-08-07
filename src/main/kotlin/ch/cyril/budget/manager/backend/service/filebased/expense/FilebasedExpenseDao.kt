@@ -133,3 +133,12 @@ class FilebasedExpenseTemplateDao(file: Path) :
         contentCache.add(expense.withId(getNewId()))
     }
 }
+
+class FilebasedScheduledExpenseDao(file: Path) :
+        FilebasedExpenseDao<ScheduledExpense>(file, ScheduledExpenseParser()),
+        ScheduledExpenseDao {
+
+    override fun addExpense(expense: ScheduledExpenseWithoutId) {
+        contentCache.add(expense.withId(getNewId()))
+    }
+}

@@ -4,6 +4,7 @@ import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.mongo.*
 import org.bson.Document
 import org.bson.types.Decimal128
+import java.time.DayOfWeek
 
 abstract class MongoExpenseSerialization<T1 : Expense, T2: ExpenseWithoutId> {
 
@@ -56,9 +57,51 @@ class MongoActualExpenseSerialization : MongoExpenseSerialization<ActualExpense,
     }
 }
 
-class MongoExpenseTemplateSerialization: MongoExpenseSerialization<ExpenseTemplate, ExpenseTemplateWithoutId>() {
+class MongoExpenseTemplateSerialization : MongoExpenseSerialization<ExpenseTemplate, ExpenseTemplateWithoutId>() {
 
     override fun doDeserialize(doc: Document, id: Id, amount: Amount, category: Category, method: PaymentMethod, name: Name, author: Author, tags: Set<Tag>): ExpenseTemplate {
         return ExpenseTemplate(id, name, amount, category, method, author, tags)
+    }
+}
+
+class SerializingScheduleVisitor : ScheduleVisitor<Document, Document> {
+
+    override fun visitWeeklySchedule(schedule: WeeklySchedule, arg: Document): Document {
+        return arg.append(KEY_WEEKLY, schedule.dayOfWeek.value)
+    }
+
+    override fun visitMonthlySchedule(schedule: MonthlySchedule, arg: Document): Document {
+        return arg.append(KEY_MONTHLY, schedule.dayOfMonth)
+    }
+}
+
+// TODO Test this
+class MongoScheduledExpenseSerialization : MongoExpenseSerialization<ScheduledExpense, ScheduledExpenseWithoutId>() {
+
+    private val expenseSerialization = MongoActualExpenseSerialization()
+
+    override fun serialize(expense: ScheduledExpenseWithoutId): Document {
+        val res = super.serialize(expense)
+        expense.schedule.accept(SerializingScheduleVisitor(), res)
+        if (expense.lastExpense != null) {
+            res.append(KEY_LAST_UPDATE, expenseSerialization.serialize(expense.lastExpense.withoutId()))
+        }
+        return res
+    }
+
+    override fun doDeserialize(doc: Document, id: Id, amount: Amount, category: Category, method: PaymentMethod, name: Name, author: Author, tags: Set<Tag>): ScheduledExpense {
+        val schedule = deserializeSchedule(doc)
+        var lastExpense: ActualExpense? = null
+        if (doc.containsKey(KEY_LAST_UPDATE)) {
+            lastExpense = expenseSerialization.deserialize(doc.get(KEY_LAST_UPDATE, Document::class.java))
+        }
+        return ScheduledExpense(id, name, amount, category, method, author, tags, schedule, lastExpense)
+    }
+
+    private fun deserializeSchedule(doc: Document): Schedule {
+        if (doc.containsKey(KEY_WEEKLY)) {
+            return WeeklySchedule(DayOfWeek.of(doc.getInteger(KEY_WEEKLY)))
+        }
+        return MonthlySchedule(doc.getInteger(KEY_MONTHLY))
     }
 }

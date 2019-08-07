@@ -24,8 +24,9 @@ enum class ServiceFactoryType {
             }
             val expenses = Paths.get(params.get("expenses").asString)
             val templates = Paths.get(params.get("templates").asString)
+            val scheduled = Paths.get(params.get("schedules").asString)
             val budget = Paths.get(params.get("budget").asString)
-            return FilebasedServiceFactory(expenses, templates, budget)
+            return FilebasedServiceFactory(expenses, templates, scheduled, budget)
         }
     };
 

@@ -123,3 +123,12 @@ class MongoExpenseTemplateDao(collection: MongoCollection<Document>) :
         collection.insertOne(serialization.serialize(expense))
     }
 }
+
+class MongoScheduledExpenseDao(collection: MongoCollection<Document>) :
+        MongoExpenseDao<ScheduledExpense, ScheduledExpenseWithoutId>(collection, MongoScheduledExpenseSerialization()),
+        ScheduledExpenseDao {
+
+    override fun addExpense(expense: ScheduledExpenseWithoutId) {
+        collection.insertOne(serialization.serialize(expense))
+    }
+}

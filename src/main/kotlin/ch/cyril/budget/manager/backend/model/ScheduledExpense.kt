@@ -19,10 +19,11 @@ data class ScheduledExpenseWithoutId(
         override val method: PaymentMethod,
         override val author: Author,
         override val tags: Set<Tag>,
-        val schedule: Schedule): ExpenseWithoutId {
+        val schedule: Schedule,
+        val lastExpense: ActualExpense?): ExpenseWithoutId {
 
-    override fun withId(id: Id): Expense {
-        return ScheduledExpense(id, name, amount, category, method, author, tags, schedule, null)
+    override fun withId(id: Id): ScheduledExpense {
+        return ScheduledExpense(id, name, amount, category, method, author, tags, schedule, lastExpense)
     }
 }
 
@@ -37,14 +38,23 @@ data class ScheduledExpense(
         val schedule: Schedule,
         val lastExpense: ActualExpense?) : Expense {
 
-    override fun withoutId(): ExpenseWithoutId {
-        return ScheduledExpenseWithoutId(name, amount, category, method, author, tags, schedule)
+    override fun withoutId(): ScheduledExpenseWithoutId {
+        return ScheduledExpenseWithoutId(name, amount, category, method, author, tags, schedule, lastExpense)
     }
 }
 
 @Serializer(ScheduleTypeAdapter::class)
 interface Schedule {
     fun getNextDate(today: LocalDate): LocalDate
+
+    fun <A, R> accept(visitor: ScheduleVisitor<A, R>, arg: A): R
+}
+
+interface ScheduleVisitor<A, R> {
+
+    fun visitWeeklySchedule(schedule: WeeklySchedule, arg: A): R
+
+    fun visitMonthlySchedule(schedule: MonthlySchedule, arg: A): R
 }
 
 class ScheduleTypeAdapter : NullHandlingTypeAdapter<Schedule>() {
@@ -66,7 +76,7 @@ class ScheduleTypeAdapter : NullHandlingTypeAdapter<Schedule>() {
     }
 }
 
-data class WeeklySchedule(private val dayOfWeek: DayOfWeek) : Schedule {
+data class WeeklySchedule(val dayOfWeek: DayOfWeek) : Schedule {
 
     override fun getNextDate(today: LocalDate): LocalDate {
         for (days in 0 until DayOfWeek.values().size) {
@@ -77,9 +87,13 @@ data class WeeklySchedule(private val dayOfWeek: DayOfWeek) : Schedule {
         }
         throw AssertionError("Today: ${today}, day: ${dayOfWeek}")
     }
+
+    override fun <A, R> accept(visitor: ScheduleVisitor<A, R>, arg: A): R {
+        return visitor.visitWeeklySchedule(this, arg)
+    }
 }
 
-data class MonthlySchedule(private val dayOfMonth: Int) : Schedule, Validatable {
+data class MonthlySchedule(val dayOfMonth: Int) : Schedule, Validatable {
 
     override fun getNextDate(today: LocalDate): LocalDate {
         if (dayOfMonth > today.lengthOfMonth()) {
@@ -92,6 +106,10 @@ data class MonthlySchedule(private val dayOfMonth: Int) : Schedule, Validatable 
             }
         }
         throw AssertionError("Today: ${today}, day: ${dayOfMonth}")
+    }
+
+    override fun <A, R> accept(visitor: ScheduleVisitor<A, R>, arg: A): R {
+        return visitor.visitMonthlySchedule(this, arg)
     }
 
     override fun validate() {
