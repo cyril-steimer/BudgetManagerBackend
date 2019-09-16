@@ -28,7 +28,7 @@ abstract class RestServerInitializer {
 
         val scheduledExpenseInstantiator = ScheduledExpenseInstantiator(scheduledExpensesDao, expenseDao)
         val scheduledExecutor = Executors.newScheduledThreadPool(1)
-        scheduledExecutor.scheduleAtFixedRate(scheduledExpenseInstantiator, 1, 1, TimeUnit.HOURS)
+        scheduledExecutor.scheduleAtFixedRate(scheduledExpenseInstantiator, 1, 1, TimeUnit.MINUTES)
 
         println("Started server on port ${config.port}")
 

@@ -120,7 +120,7 @@ class Timestamp private constructor(private val date: LocalDate) {
     }
 
     override fun toString(): String {
-        return "Timestamp(epochDay=${getEpochDay()})"
+        return FORMATTER.format(this.date)
     }
 
     fun getEpochDay(): Long {
@@ -143,7 +143,7 @@ class TimestampTypeAdapter : NullHandlingTypeAdapter<Timestamp>() {
 
     override fun doWrite(out: JsonWriter, value: Timestamp) {
         out.beginObject()
-                .name("epochDay").value(value.getEpochDay())
+                .name("date").value(value.toString())
             .endObject()
     }
 
@@ -152,12 +152,11 @@ class TimestampTypeAdapter : NullHandlingTypeAdapter<Timestamp>() {
         val name = `in`.nextName()
         val result = when(name) {
             "date" -> Timestamp.parse(`in`.nextString())
-            "epochDay" -> Timestamp.ofEpochDay(`in`.nextLong())
             "timestamp" -> {
                 // This is how the timestamp was serialized in previous versions.
                 val instant = Instant.ofEpochMilli(`in`.nextLong())
                 val zoned = instant.atZone(ZoneId.of("UTC"))
-                return Timestamp.ofEpochDay(zoned.toLocalDate().toEpochDay())
+                Timestamp.ofEpochDay(zoned.toLocalDate().toEpochDay())
             }
             else -> throw IllegalStateException("Unknown name ${name} for timestamp deserialization")
         }

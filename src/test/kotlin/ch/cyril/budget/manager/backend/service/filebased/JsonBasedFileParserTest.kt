@@ -36,7 +36,7 @@ class JsonBasedFileParserTest {
                     "name":"Clothes"
                 },
                 "date":{
-                    "epochDay":18111545
+                    "date":"2019-08-03"
                 },
                 "method":{
                     "name":"Maestro"
@@ -58,7 +58,7 @@ class JsonBasedFileParserTest {
             Name("Test"),
             Amount(BigDecimal.valueOf(50.5)),
             Category("Clothes"),
-            Timestamp.ofEpochDay(18111545),
+            Timestamp.ofEpochDay(18111),
             PaymentMethod("Maestro"),
             Author("Cyril"),
             setOf(Tag("H&M")))
