@@ -17,6 +17,7 @@ apply plugin: 'kotlin'
 
 ext.ktor_version = '1.0.0'
 ext.junit_version = '5.3.2'
+ext.mockk_version = '1.9.3'
 
 sourceCompatibility = 1.8
 
@@ -46,6 +47,7 @@ dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api:$junit_version"
     testCompile "org.junit.jupiter:junit-jupiter-params:$junit_version"
     testCompile "io.ktor:ktor-client-apache:$ktor_version"
+    testImplementation "io.mockk:mockk:${mockk_version}"
 }
 
 compileKotlin {

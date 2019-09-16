@@ -8,6 +8,7 @@ import ch.cyril.budget.manager.backend.service.filebased.JsonBasedFileParser
 import ch.cyril.budget.manager.backend.util.SubList
 import java.math.BigDecimal
 import java.nio.file.Path
+import java.time.LocalDate
 
 abstract class FilebasedExpenseDao<T : Expense>(file: Path, parser: JsonBasedFileParser<T>): ExpenseDao<T> {
 
@@ -41,7 +42,7 @@ abstract class FilebasedExpenseDao<T : Expense>(file: Path, parser: JsonBasedFil
         }
 
         override fun caseDate(arg: Unit): Comparator<Expense> {
-            return Comparator.comparing<Expense, Long> { if (it is ActualExpense) it.date.timestamp else 0 }
+            return Comparator.comparing<Expense, Long> { if (it is ActualExpense) it.date.getEpochDay() else 0 }
         }
     }
 
@@ -100,8 +101,10 @@ class FilebasedActualExpenseDao(file: Path) :
         FilebasedExpenseDao<ActualExpense>(file, ActualExpenseParser()),
         ActualExpenseDao {
 
-    override fun addExpense(expense: ActualExpenseWithoutId) {
-        contentCache.add(expense.withId(getNewId()))
+    override fun addExpense(expense: ActualExpenseWithoutId): ActualExpense {
+        val withId = expense.withId(getNewId())
+        contentCache.add(withId)
+        return withId
     }
 
     override fun getPaymentMethods(): Set<PaymentMethod> {
@@ -129,8 +132,10 @@ class FilebasedExpenseTemplateDao(file: Path) :
         FilebasedExpenseDao<ExpenseTemplate>(file, ExpenseTemplateParser()),
         ExpenseTemplateDao {
 
-    override fun addExpense(expense: ExpenseTemplateWithoutId) {
-        contentCache.add(expense.withId(getNewId()))
+    override fun addExpense(expense: ExpenseTemplateWithoutId): ExpenseTemplate {
+        val withId = expense.withId(getNewId())
+        contentCache.add(withId)
+        return withId
     }
 }
 
@@ -138,7 +143,9 @@ class FilebasedScheduledExpenseDao(file: Path) :
         FilebasedExpenseDao<ScheduledExpense>(file, ScheduledExpenseParser()),
         ScheduledExpenseDao {
 
-    override fun addExpense(expense: ScheduledExpenseWithoutId) {
-        contentCache.add(expense.withId(getNewId()))
+    override fun addExpense(expense: ScheduledExpenseWithoutId): ScheduledExpense {
+        val withId = expense.withId(getNewId())
+        contentCache.add(withId)
+        return withId
     }
 }

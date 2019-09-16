@@ -84,11 +84,11 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     },
     DATE("date") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
-            return DateExpenseQuery(Timestamp(getBigDecimal(value).toLong()))
+            return DateExpenseQuery(Timestamp.parse(value.asString))
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {
-            val date = Timestamp(value.get("date").asLong)
+            val date = Timestamp.parse(value.get("date").asString)
             val comparison = Identifiable.byIdentifier<MathComparison>(value.get("comparison").asString)
             return DateExpenseQuery(date, comparison)
         }

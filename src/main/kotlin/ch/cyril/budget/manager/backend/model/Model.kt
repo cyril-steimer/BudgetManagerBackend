@@ -8,7 +8,12 @@ import com.google.gson.JsonParseException
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import java.lang.IllegalStateException
 import java.math.BigDecimal
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 data class Budget(val category: Category, val amounts: List<BudgetAmount>)
 
@@ -95,4 +100,68 @@ data class Name(val name: String)
 
 data class Category(val name: String)
 
-data class Timestamp(val timestamp: Long)
+@JsonAdapter(TimestampTypeAdapter::class)
+class Timestamp private constructor(private val date: LocalDate) {
+
+    companion object {
+        private val FORMATTER = DateTimeFormatter.ISO_DATE
+
+        fun parse (text: String): Timestamp {
+            return Timestamp(LocalDate.from(FORMATTER.parse(text)))
+        }
+
+        fun ofEpochDay(day: Long): Timestamp {
+            return Timestamp(LocalDate.ofEpochDay(day))
+        }
+
+        fun now(): Timestamp {
+            return ofEpochDay(LocalDate.now().toEpochDay())
+        }
+    }
+
+    override fun toString(): String {
+        return "Timestamp(epochDay=${getEpochDay()})"
+    }
+
+    fun getEpochDay(): Long {
+        return this.date.toEpochDay()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is Timestamp) {
+            return date == other.date
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return date.hashCode()
+    }
+}
+
+class TimestampTypeAdapter : NullHandlingTypeAdapter<Timestamp>() {
+
+    override fun doWrite(out: JsonWriter, value: Timestamp) {
+        out.beginObject()
+                .name("epochDay").value(value.getEpochDay())
+            .endObject()
+    }
+
+    override fun doRead(`in`: JsonReader): Timestamp {
+        `in`.beginObject()
+        val name = `in`.nextName()
+        val result = when(name) {
+            "date" -> Timestamp.parse(`in`.nextString())
+            "epochDay" -> Timestamp.ofEpochDay(`in`.nextLong())
+            "timestamp" -> {
+                // This is how the timestamp was serialized in previous versions.
+                val instant = Instant.ofEpochMilli(`in`.nextLong())
+                val zoned = instant.atZone(ZoneId.of("UTC"))
+                return Timestamp.ofEpochDay(zoned.toLocalDate().toEpochDay())
+            }
+            else -> throw IllegalStateException("Unknown name ${name} for timestamp deserialization")
+        }
+        `in`.endObject()
+        return result
+    }
+}

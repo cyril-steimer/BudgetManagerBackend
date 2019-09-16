@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.nio.file.Files
+import java.time.LocalDate
 
 class JsonBasedFileParserTest {
 
@@ -35,7 +36,7 @@ class JsonBasedFileParserTest {
                     "name":"Clothes"
                 },
                 "date":{
-                    "timestamp":1564837557542
+                    "epochDay":18111545
                 },
                 "method":{
                     "name":"Maestro"
@@ -57,7 +58,7 @@ class JsonBasedFileParserTest {
             Name("Test"),
             Amount(BigDecimal.valueOf(50.5)),
             Category("Clothes"),
-            Timestamp(1564837557542),
+            Timestamp.ofEpochDay(18111545),
             PaymentMethod("Maestro"),
             Author("Cyril"),
             setOf(Tag("H&M")))

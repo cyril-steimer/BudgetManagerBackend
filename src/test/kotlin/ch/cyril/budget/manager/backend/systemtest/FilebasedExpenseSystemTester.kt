@@ -22,7 +22,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             Name("Expense1"),
             Amount(BigDecimal(200)),
             Category("Budget1"),
-            Timestamp(600),
+            Timestamp.ofEpochDay(2),
             PaymentMethod("Amex"),
             Author(""),
             setOf(Tag("Tag1"), Tag("Tag2")))
@@ -32,17 +32,17 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             Name("Expense2"),
             Amount(BigDecimal(300)),
             Category("Budget2"),
-            Timestamp(200),
+            Timestamp.ofEpochDay(0),
             PaymentMethod(""),
             Author(""),
-            setOf(Tag("Tag1")));
+            setOf(Tag("Tag1"), Tag("200")));
 
     private val e3 = ActualExpense(
             Id("Id3"),
             Name("Expense3"),
             Amount(BigDecimal(300)),
             Category("Budget1"),
-            Timestamp(400),
+            Timestamp.ofEpochDay(1),
             PaymentMethod("Amex"),
             Author("Cyril"),
             emptySet())
@@ -56,7 +56,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
             Name("Expense4"),
             Amount(BigDecimal(700)),
             Category("Budget2"),
-            Timestamp(600),
+            Timestamp.ofEpochDay(2),
             PaymentMethod("MasterCard"),
             Author("Diana"),
             setOf(Tag("Tag1"), Tag("Tag4")))
@@ -88,9 +88,10 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         getExpensesByDate()
         getExpensesByAuthor()
         getExpensesBySearchTag()
+        getExpensesBySearchDate()
         getExpensesBySearchName()
-        getExpensesBySearchAmountAndDateSortedByDate()
-        getExpensesBySearchAndPost()
+        getExpensesBySearchAmountAndTag()
+        getExpensesBySearchUsingPost()
         getExpensesBySearchOrPostSortedByIdDescending()
         getTags()
         getPaymentMethods()
@@ -144,7 +145,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
     }
 
     private fun getExpensesByDate () {
-        val url = "/api/v1/expenses/field/date/200"
+        val url = "/api/v1/expenses/field/date/1970-01-01"
         assertEqualList(listOf(e2), client.getJson(url))
     }
 
@@ -158,6 +159,11 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         assertEqualList(listOf(e1, e2), client.getJson(url))
     }
 
+    private fun getExpensesBySearchDate () {
+        val url = "/api/v1/expenses/search/1970-01-03"
+        assertEqualList(listOf(e1), client.getJson(url))
+    }
+
     private fun getExpensesBySearchName () {
         var url = "/api/v1/expenses/search/Expense"
         assertEqualList(listOf(e1, e2, e3), client.getJson(url))
@@ -165,12 +171,12 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
         assertEqualList(listOf(e1), client.getJson(url))
     }
 
-    private fun getExpensesBySearchAmountAndDateSortedByDate () {
-        val url = "/api/v1/expenses/search/200?sort=date"
-        assertEqualList(listOf(e2, e1), client.getJson(url))
+    private fun getExpensesBySearchAmountAndTag () {
+        val url = "/api/v1/expenses/search/200"
+        assertEqualList(listOf(e1, e2), client.getJson(url))
     }
 
-    private fun getExpensesBySearchAndPost () {
+    private fun getExpensesBySearchUsingPost () {
         val tagQuery = jsonObject("tag", JsonPrimitive("Tag1"))
         val methodQuery = jsonObject("method", JsonPrimitive("Amex"))
         val queries = jsonArray(tagQuery, methodQuery)
@@ -190,7 +196,7 @@ class FilebasedExpenseSystemTester(tempDir: Path, server: ServerType, port: Int)
 
     private fun getTags () {
         val url = "/api/v1/tag"
-        assertEquals(e1.tags, client.getJson<Set<Tag>>(url))
+        assertEquals(setOf(Tag("Tag1"), Tag("Tag2"), Tag("200")), client.getJson<Set<Tag>>(url))
     }
 
     private fun getPaymentMethods () {

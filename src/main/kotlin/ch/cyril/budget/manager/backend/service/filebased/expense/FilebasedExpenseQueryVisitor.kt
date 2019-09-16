@@ -88,8 +88,8 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<Expense, Boolean> {
 
     override fun visitDateQuery(query: DateExpenseQuery, arg: Expense): Boolean {
         if (arg is ActualExpense) {
-            val switch = MathComparatorSwitch(query.date.timestamp)
-            return query.comparison.switch(switch, arg.date.timestamp)
+            val switch = MathComparatorSwitch(query.date.getEpochDay())
+            return query.comparison.switch(switch, arg.date.getEpochDay())
         }
         return false
     }

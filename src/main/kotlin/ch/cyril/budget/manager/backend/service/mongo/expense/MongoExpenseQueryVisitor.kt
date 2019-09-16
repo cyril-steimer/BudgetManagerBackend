@@ -98,7 +98,7 @@ class MongoExpenseQueryVisitor : ExpenseQueryVisitor<Unit, Bson> {
     }
 
     override fun visitDateQuery(query: DateExpenseQuery, arg: Unit): Bson {
-        return query.comparison.switch(MathComparisonFilter(KEY_DATE), query.date.timestamp)
+        return query.comparison.switch(MathComparisonFilter(KEY_DATE), query.date.getEpochDay())
     }
 
     override fun visitAmountQuery(query: AmountExpenseQuery, arg: Unit): Bson {

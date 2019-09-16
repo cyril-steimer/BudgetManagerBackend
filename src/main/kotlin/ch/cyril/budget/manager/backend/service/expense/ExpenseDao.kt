@@ -11,6 +11,10 @@ interface ExpenseDao<T : Expense> {
             sort: ExpenseSort?,
             pagination: Pagination?): SubList<T>
 
+    fun getExpenses(): SubList<T> {
+        return getExpenses(null, null, null)
+    }
+
     fun getOneExpense(
             query: ExpenseQuery?,
             sort: ExpenseSort?): T? {
@@ -42,7 +46,7 @@ internal class GenericUpdateVisitor<T : Expense>(private val copyWithAuthor: (T,
 
 interface ActualExpenseDao : ExpenseDao<ActualExpense> {
 
-    fun addExpense(expense: ActualExpenseWithoutId)
+    fun addExpense(expense: ActualExpenseWithoutId): ActualExpense
 
     override fun applyBulkUpdate(query: ExpenseQuery?, update: ExpenseUpdate) {
         GenericUpdateVisitor<ActualExpense> { expense, author -> expense.copy(author = author) }
@@ -58,7 +62,7 @@ interface ActualExpenseDao : ExpenseDao<ActualExpense> {
 
 interface ExpenseTemplateDao: ExpenseDao<ExpenseTemplate> {
 
-    fun addExpense(expense: ExpenseTemplateWithoutId)
+    fun addExpense(expense: ExpenseTemplateWithoutId): ExpenseTemplate
 
     override fun applyBulkUpdate(query: ExpenseQuery?, update: ExpenseUpdate) {
         GenericUpdateVisitor<ExpenseTemplate> { expense, author -> expense.copy(author = author) }
@@ -68,7 +72,7 @@ interface ExpenseTemplateDao: ExpenseDao<ExpenseTemplate> {
 
 interface ScheduledExpenseDao: ExpenseDao<ScheduledExpense> {
 
-    fun addExpense(expense: ScheduledExpenseWithoutId)
+    fun addExpense(expense: ScheduledExpenseWithoutId): ScheduledExpense
 
     override fun applyBulkUpdate(query: ExpenseQuery?, update: ExpenseUpdate) {
         GenericUpdateVisitor<ScheduledExpense> { expense, author -> expense.copy(author = author) }

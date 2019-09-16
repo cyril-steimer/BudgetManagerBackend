@@ -4,13 +4,15 @@ import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.mongo.*
 import org.bson.Document
 import org.bson.types.Decimal128
+import org.bson.types.ObjectId
 import java.time.DayOfWeek
 
-abstract class MongoExpenseSerialization<T1 : Expense, T2: ExpenseWithoutId> {
+abstract class MongoExpenseSerialization<T: Expense> {
 
-    open fun serialize(expense: T2): Document {
+    open fun serialize(expense: T): Document {
         // TODO Can this be automated?
         return Document()
+                .append(KEY_ID, ObjectId(expense.id.id))
                 .append(KEY_TAGS, expense.tags.map { tag -> tag.name })
                 .append(KEY_AMOUNT, expense.amount.amount)
                 .append(KEY_CATEGORY, expense.category.name)
@@ -19,7 +21,7 @@ abstract class MongoExpenseSerialization<T1 : Expense, T2: ExpenseWithoutId> {
                 .append(KEY_AUTHOR, expense.author.name)
     }
 
-    fun deserialize(doc: Document): T1 {
+    fun deserialize(doc: Document): T {
         // TODO Can this be automated?
         val id = Id(doc.getObjectId(KEY_ID).toHexString())
         val amount = Amount(doc.get(KEY_AMOUNT, Decimal128::class.java).bigDecimalValue())
@@ -41,23 +43,23 @@ abstract class MongoExpenseSerialization<T1 : Expense, T2: ExpenseWithoutId> {
             method: PaymentMethod,
             name: Name,
             author: Author,
-            tags: Set<Tag>): T1
+            tags: Set<Tag>): T
 }
 
-class MongoActualExpenseSerialization : MongoExpenseSerialization<ActualExpense, ActualExpenseWithoutId>() {
+class MongoActualExpenseSerialization : MongoExpenseSerialization<ActualExpense>() {
 
-    override fun serialize(expense: ActualExpenseWithoutId): Document {
+    override fun serialize(expense: ActualExpense): Document {
         return super.serialize(expense)
-                .append(KEY_DATE, expense.date.timestamp)
+                .append(KEY_DATE, expense.date.getEpochDay())
     }
 
     override fun doDeserialize(doc: Document, id: Id, amount: Amount, category: Category, method: PaymentMethod, name: Name, author: Author, tags: Set<Tag>): ActualExpense {
-        val date = Timestamp(doc.getLong(KEY_DATE))
+        val date = Timestamp.ofEpochDay(doc.getLong(KEY_DATE))
         return ActualExpense(id, name, amount, category, date, method, author, tags)
     }
 }
 
-class MongoExpenseTemplateSerialization : MongoExpenseSerialization<ExpenseTemplate, ExpenseTemplateWithoutId>() {
+class MongoExpenseTemplateSerialization : MongoExpenseSerialization<ExpenseTemplate>() {
 
     override fun doDeserialize(doc: Document, id: Id, amount: Amount, category: Category, method: PaymentMethod, name: Name, author: Author, tags: Set<Tag>): ExpenseTemplate {
         return ExpenseTemplate(id, name, amount, category, method, author, tags)
@@ -76,17 +78,19 @@ class SerializingScheduleVisitor : ScheduleVisitor<Document, Document> {
 }
 
 // TODO Test this
-class MongoScheduledExpenseSerialization : MongoExpenseSerialization<ScheduledExpense, ScheduledExpenseWithoutId>() {
+class MongoScheduledExpenseSerialization : MongoExpenseSerialization<ScheduledExpense>() {
 
     private val expenseSerialization = MongoActualExpenseSerialization()
 
-    override fun serialize(expense: ScheduledExpenseWithoutId): Document {
+    override fun serialize(expense: ScheduledExpense): Document {
         val res = super.serialize(expense)
-        res.append(KEY_START_DATE, expense.startDate.timestamp)
-        res.append(KEY_END_DATE, expense.endDate.timestamp)
+        res.append(KEY_START_DATE, expense.startDate.getEpochDay())
+        if (expense.endDate != null) {
+            res.append(KEY_END_DATE, expense.endDate.getEpochDay())
+        }
         expense.schedule.accept(SerializingScheduleVisitor(), res)
         if (expense.lastExpense != null) {
-            res.append(KEY_LAST_UPDATE, expenseSerialization.serialize(expense.lastExpense.withoutId()))
+            res.append(KEY_LAST_UPDATE, expenseSerialization.serialize(expense.lastExpense))
         }
         return res
     }
@@ -94,8 +98,11 @@ class MongoScheduledExpenseSerialization : MongoExpenseSerialization<ScheduledEx
     override fun doDeserialize(doc: Document, id: Id, amount: Amount, category: Category, method: PaymentMethod, name: Name, author: Author, tags: Set<Tag>): ScheduledExpense {
         val schedule = deserializeSchedule(doc)
         var lastExpense: ActualExpense? = null
-        val startDate = Timestamp(doc.getLong(KEY_START_DATE))
-        val endDate = Timestamp(doc.getLong(KEY_END_DATE))
+        var endDate: Timestamp? = null
+        val startDate = Timestamp.ofEpochDay(doc.getLong(KEY_START_DATE))
+        if (doc.containsKey(KEY_END_DATE)) {
+            endDate = Timestamp.ofEpochDay(doc.getLong(KEY_END_DATE))
+        }
         if (doc.containsKey(KEY_LAST_UPDATE)) {
             lastExpense = expenseSerialization.deserialize(doc.get(KEY_LAST_UPDATE, Document::class.java))
         }

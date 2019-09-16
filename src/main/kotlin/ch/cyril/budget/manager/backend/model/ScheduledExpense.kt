@@ -19,7 +19,7 @@ data class ScheduledExpenseWithoutId(
         override val author: Author,
         override val tags: Set<Tag>,
         val startDate: Timestamp,
-        val endDate: Timestamp,
+        val endDate: Timestamp?,
         val schedule: Schedule,
         val lastExpense: ActualExpense?): ExpenseWithoutId {
 
@@ -37,18 +37,27 @@ data class ScheduledExpense(
         override val author: Author,
         override val tags: Set<Tag>,
         val startDate: Timestamp,
-        val endDate: Timestamp,
+        val endDate: Timestamp?,
         val schedule: Schedule,
         val lastExpense: ActualExpense?) : Expense {
 
     override fun withoutId(): ScheduledExpenseWithoutId {
         return ScheduledExpenseWithoutId(name, amount, category, method, author, tags, startDate, endDate, schedule, lastExpense)
     }
+
+    fun getExpenseToAdd(today: Timestamp): ActualExpenseWithoutId {
+        return ActualExpenseWithoutId(name, amount, category, today, method, author, tags)
+    }
 }
 
 @JsonAdapter(ScheduleTypeAdapter::class)
 interface Schedule {
-    fun getNextDate(today: LocalDate): LocalDate
+    fun getNextDate(from: Timestamp): Timestamp {
+        val date = getNextDate(LocalDate.ofEpochDay(from.getEpochDay()))
+        return Timestamp.ofEpochDay(date.toEpochDay())
+    }
+
+    fun getNextDate(from: LocalDate): LocalDate
 
     fun <A, R> accept(visitor: ScheduleVisitor<A, R>, arg: A): R
 }
@@ -81,14 +90,14 @@ class ScheduleTypeAdapter : NullHandlingTypeAdapter<Schedule>() {
 
 data class WeeklySchedule(val dayOfWeek: DayOfWeek) : Schedule {
 
-    override fun getNextDate(today: LocalDate): LocalDate {
+    override fun getNextDate(from: LocalDate): LocalDate {
         for (days in 0 until DayOfWeek.values().size) {
-            val date = today.plusDays(days.toLong() )
+            val date = from.plusDays(days.toLong() )
             if (date.dayOfWeek == dayOfWeek) {
                 return date
             }
         }
-        throw AssertionError("Today: ${today}, day: ${dayOfWeek}")
+        throw AssertionError("Today: ${from}, day: ${dayOfWeek}")
     }
 
     override fun <A, R> accept(visitor: ScheduleVisitor<A, R>, arg: A): R {
@@ -98,17 +107,17 @@ data class WeeklySchedule(val dayOfWeek: DayOfWeek) : Schedule {
 
 data class MonthlySchedule(val dayOfMonth: Int) : Schedule, Validatable {
 
-    override fun getNextDate(today: LocalDate): LocalDate {
-        if (dayOfMonth > today.lengthOfMonth()) {
-            return LocalDate.of(today.year, today.month, today.lengthOfMonth())
+    override fun getNextDate(from: LocalDate): LocalDate {
+        if (dayOfMonth > from.lengthOfMonth()) {
+            return LocalDate.of(from.year, from.month, from.lengthOfMonth())
         }
-        for (days in 0 until today.lengthOfMonth()) {
-            val date = today.plusDays(days.toLong())
+        for (days in 0 until from.lengthOfMonth()) {
+            val date = from.plusDays(days.toLong())
             if (date.dayOfMonth == dayOfMonth) {
                 return date
             }
         }
-        throw AssertionError("Today: ${today}, day: ${dayOfMonth}")
+        throw AssertionError("Today: ${from}, day: ${dayOfMonth}")
     }
 
     override fun <A, R> accept(visitor: ScheduleVisitor<A, R>, arg: A): R {
