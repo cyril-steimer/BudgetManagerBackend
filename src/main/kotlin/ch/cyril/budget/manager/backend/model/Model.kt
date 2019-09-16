@@ -3,10 +3,9 @@ package ch.cyril.budget.manager.backend.model
 import ch.cyril.budget.manager.backend.util.Identifiable
 import ch.cyril.budget.manager.backend.util.IdentifiableTypeAdapter
 import ch.cyril.budget.manager.backend.util.gson.NullHandlingTypeAdapter
-import ch.cyril.budget.manager.backend.util.gson.Serializer
 import ch.cyril.budget.manager.backend.util.gson.Validatable
 import com.google.gson.JsonParseException
-import com.google.gson.TypeAdapter
+import com.google.gson.annotations.JsonAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import java.math.BigDecimal
@@ -52,7 +51,7 @@ data class MonthYear(val month: Int, val year: Int) : Validatable {
     }
 }
 
-@Serializer(BudgetPeriodTypeAdapter::class)
+@JsonAdapter(BudgetPeriodTypeAdapter::class)
 enum class BudgetPeriod(override val identifier: String) : Identifiable {
     YEARLY("yearly"),
     MONTHLY("monthly")
@@ -79,7 +78,7 @@ data class Amount(val amount: BigDecimal) : Validatable {
 
 data class Author(val name: String)
 
-@Serializer(IdTypeAdapter::class)
+@JsonAdapter(IdTypeAdapter::class)
 data class Id(val id: String)
 
 class IdTypeAdapter : NullHandlingTypeAdapter<Id>() {

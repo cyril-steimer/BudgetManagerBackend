@@ -1,10 +1,9 @@
 package ch.cyril.budget.manager.backend.model
 
 import ch.cyril.budget.manager.backend.util.gson.NullHandlingTypeAdapter
-import ch.cyril.budget.manager.backend.util.gson.Serializer
 import ch.cyril.budget.manager.backend.util.gson.Validatable
 import com.google.gson.JsonParseException
-import com.google.gson.TypeAdapter
+import com.google.gson.annotations.JsonAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import java.lang.AssertionError
@@ -47,7 +46,7 @@ data class ScheduledExpense(
     }
 }
 
-@Serializer(ScheduleTypeAdapter::class)
+@JsonAdapter(ScheduleTypeAdapter::class)
 interface Schedule {
     fun getNextDate(today: LocalDate): LocalDate
 

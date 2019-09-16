@@ -6,10 +6,10 @@ import ch.cyril.budget.manager.backend.service.StringCase
 import ch.cyril.budget.manager.backend.service.StringComparison
 import ch.cyril.budget.manager.backend.util.Identifiable
 import ch.cyril.budget.manager.backend.util.IdentifiableTypeAdapter
-import ch.cyril.budget.manager.backend.util.gson.Serializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import com.google.gson.annotations.JsonAdapter
 import java.math.BigDecimal
 
 interface ExpenseQueryDescriptor : Identifiable {
@@ -33,7 +33,7 @@ interface ExpenseQueryDescriptor : Identifiable {
     }
 }
 
-@Serializer(SimpleExpenseQueryDescriptorTypeAdapter::class)
+@JsonAdapter(SimpleExpenseQueryDescriptorTypeAdapter::class)
 enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     : Identifiable, ExpenseQueryDescriptor {
 

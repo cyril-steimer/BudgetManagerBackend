@@ -2,11 +2,11 @@ package ch.cyril.budget.manager.backend.service.expense
 
 import ch.cyril.budget.manager.backend.util.Identifiable
 import ch.cyril.budget.manager.backend.util.IdentifiableTypeAdapter
-import ch.cyril.budget.manager.backend.util.gson.Serializer
+import com.google.gson.annotations.JsonAdapter
 
 class ExpenseSort(val field: ExpenseSortField, val direction: SortDirection)
 
-@Serializer(SortDirectionTypeAdapter::class)
+@JsonAdapter(SortDirectionTypeAdapter::class)
 enum class SortDirection(override val identifier: String) : Identifiable {
     ASCENDING("asc"),
     DESCENDING("desc");
@@ -31,7 +31,7 @@ interface SortDirectionSwitch<A, R> {
     fun caseDescending(arg: A): R
 }
 
-@Serializer(ExpenseSortFieldTypeAdapter::class)
+@JsonAdapter(ExpenseSortFieldTypeAdapter::class)
 enum class ExpenseSortField(override val identifier: String) : Identifiable {
     ID("id"),
     AMOUNT("amount"),

@@ -1,6 +1,5 @@
 package ch.cyril.budget.manager.backend.model
 
-import ch.cyril.budget.manager.backend.util.gson.AnnotatedTypeAdapterFactory
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import org.junit.jupiter.api.Assertions
@@ -11,9 +10,7 @@ import java.time.Month
 
 class ScheduleTest {
 
-    private val gson = GsonBuilder()
-            .registerTypeAdapterFactory(AnnotatedTypeAdapterFactory())
-            .create()
+    private val gson = GsonBuilder().create()
 
     @Test
     fun weekly() {

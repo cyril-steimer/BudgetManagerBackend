@@ -9,9 +9,7 @@ import org.junit.jupiter.api.Test
 
 class AnnotatedTest {
 
-    private val gson = GsonBuilder()
-            .registerTypeAdapterFactory(AnnotatedTypeAdapterFactory())
-            .create()
+    private val gson = GsonBuilder().create()
 
     @Test
     fun serializeId() {
