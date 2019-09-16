@@ -36,7 +36,9 @@ class JsonBasedFileParserTest {
                     "name":"Clothes"
                 },
                 "date":{
-                    "date":"2019-08-03"
+                    "year":2019,
+                    "month":8,
+                    "day":3
                 },
                 "method":{
                     "name":"Maestro"

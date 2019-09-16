@@ -4,11 +4,11 @@ import ch.cyril.budget.manager.backend.util.Identifiable
 import ch.cyril.budget.manager.backend.util.IdentifiableTypeAdapter
 import ch.cyril.budget.manager.backend.util.gson.NullHandlingTypeAdapter
 import ch.cyril.budget.manager.backend.util.gson.Validatable
-import com.google.gson.JsonParseException
+import com.google.gson.*
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import java.lang.IllegalStateException
+import java.lang.reflect.Type
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -100,8 +100,8 @@ data class Name(val name: String)
 
 data class Category(val name: String)
 
-@JsonAdapter(TimestampTypeAdapter::class)
-class Timestamp private constructor(private val date: LocalDate) {
+@JsonAdapter(TimestampAdapter::class)
+class Timestamp internal constructor(internal val date: LocalDate) {
 
     companion object {
         private val FORMATTER = DateTimeFormatter.ISO_DATE
@@ -139,28 +139,27 @@ class Timestamp private constructor(private val date: LocalDate) {
     }
 }
 
-class TimestampTypeAdapter : NullHandlingTypeAdapter<Timestamp>() {
+class TimestampAdapter : JsonSerializer<Timestamp>, JsonDeserializer<Timestamp> {
 
-    override fun doWrite(out: JsonWriter, value: Timestamp) {
-        out.beginObject()
-                .name("date").value(value.toString())
-            .endObject()
+    override fun serialize(src: Timestamp, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+        val res = JsonObject()
+        res.addProperty("day", src.date.dayOfMonth)
+        res.addProperty("month", src.date.monthValue)
+        res.addProperty("year", src.date.year)
+        return res
     }
 
-    override fun doRead(`in`: JsonReader): Timestamp {
-        `in`.beginObject()
-        val name = `in`.nextName()
-        val result = when(name) {
-            "date" -> Timestamp.parse(`in`.nextString())
-            "timestamp" -> {
-                // This is how the timestamp was serialized in previous versions.
-                val instant = Instant.ofEpochMilli(`in`.nextLong())
-                val zoned = instant.atZone(ZoneId.of("UTC"))
-                Timestamp.ofEpochDay(zoned.toLocalDate().toEpochDay())
-            }
-            else -> throw IllegalStateException("Unknown name ${name} for timestamp deserialization")
+    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Timestamp {
+        val obj = json.asJsonObject
+        if (obj.has("timestamp")) {
+            // This is how the timestamp was serialized in previous versions.
+            val instant = Instant.ofEpochMilli(obj.get("timestamp").asLong)
+            val zoned = instant.atZone(ZoneId.of("UTC"))
+            return Timestamp.ofEpochDay(zoned.toLocalDate().toEpochDay())
         }
-        `in`.endObject()
-        return result
+        val dayOfMonth = obj.get("day").asInt
+        val month = obj.get("month").asInt
+        val year = obj.get("year").asInt
+        return Timestamp(LocalDate.of(year, month, dayOfMonth))
     }
 }

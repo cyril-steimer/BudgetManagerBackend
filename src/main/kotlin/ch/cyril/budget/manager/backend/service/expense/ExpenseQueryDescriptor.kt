@@ -1,6 +1,7 @@
 package ch.cyril.budget.manager.backend.service.expense
 
 import ch.cyril.budget.manager.backend.model.*
+import ch.cyril.budget.manager.backend.rest.GSON
 import ch.cyril.budget.manager.backend.service.MathComparison
 import ch.cyril.budget.manager.backend.service.StringCase
 import ch.cyril.budget.manager.backend.service.StringComparison
@@ -88,7 +89,7 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {
-            val date = Timestamp.parse(value.get("date").asString)
+            val date = GSON.fromJson(value.get("date"), Timestamp::class.java)
             val comparison = Identifiable.byIdentifier<MathComparison>(value.get("comparison").asString)
             return DateExpenseQuery(date, comparison)
         }

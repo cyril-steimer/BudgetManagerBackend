@@ -4,8 +4,6 @@ import ch.cyril.budget.manager.backend.main.ServerConfig
 import ch.cyril.budget.manager.backend.rest.*
 import ch.cyril.budget.manager.backend.service.ServiceFactory
 import ch.cyril.budget.manager.backend.service.expense.ScheduledExpenseInstantiator
-import java.time.Duration
-import java.time.LocalDateTime
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -28,7 +26,7 @@ abstract class RestServerInitializer {
 
         val scheduledExpenseInstantiator = ScheduledExpenseInstantiator(scheduledExpensesDao, expenseDao)
         val scheduledExecutor = Executors.newScheduledThreadPool(1)
-        scheduledExecutor.scheduleAtFixedRate(scheduledExpenseInstantiator, 1, 1, TimeUnit.MINUTES)
+        scheduledExecutor.scheduleAtFixedRate(scheduledExpenseInstantiator, 1, 1, TimeUnit.HOURS)
 
         println("Started server on port ${config.port}")
 
