@@ -19,11 +19,13 @@ data class ScheduledExpenseWithoutId(
         override val method: PaymentMethod,
         override val author: Author,
         override val tags: Set<Tag>,
+        val startDate: Timestamp,
+        val endDate: Timestamp,
         val schedule: Schedule,
         val lastExpense: ActualExpense?): ExpenseWithoutId {
 
     override fun withId(id: Id): ScheduledExpense {
-        return ScheduledExpense(id, name, amount, category, method, author, tags, schedule, lastExpense)
+        return ScheduledExpense(id, name, amount, category, method, author, tags, startDate, endDate, schedule, lastExpense)
     }
 }
 
@@ -35,11 +37,13 @@ data class ScheduledExpense(
         override val method: PaymentMethod,
         override val author: Author,
         override val tags: Set<Tag>,
+        val startDate: Timestamp,
+        val endDate: Timestamp,
         val schedule: Schedule,
         val lastExpense: ActualExpense?) : Expense {
 
     override fun withoutId(): ScheduledExpenseWithoutId {
-        return ScheduledExpenseWithoutId(name, amount, category, method, author, tags, schedule, lastExpense)
+        return ScheduledExpenseWithoutId(name, amount, category, method, author, tags, startDate, endDate, schedule, lastExpense)
     }
 }
 

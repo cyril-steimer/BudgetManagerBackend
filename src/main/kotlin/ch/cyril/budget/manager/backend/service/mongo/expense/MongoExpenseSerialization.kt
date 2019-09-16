@@ -82,6 +82,8 @@ class MongoScheduledExpenseSerialization : MongoExpenseSerialization<ScheduledEx
 
     override fun serialize(expense: ScheduledExpenseWithoutId): Document {
         val res = super.serialize(expense)
+        res.append(KEY_START_DATE, expense.startDate.timestamp)
+        res.append(KEY_END_DATE, expense.endDate.timestamp)
         expense.schedule.accept(SerializingScheduleVisitor(), res)
         if (expense.lastExpense != null) {
             res.append(KEY_LAST_UPDATE, expenseSerialization.serialize(expense.lastExpense.withoutId()))
@@ -92,10 +94,12 @@ class MongoScheduledExpenseSerialization : MongoExpenseSerialization<ScheduledEx
     override fun doDeserialize(doc: Document, id: Id, amount: Amount, category: Category, method: PaymentMethod, name: Name, author: Author, tags: Set<Tag>): ScheduledExpense {
         val schedule = deserializeSchedule(doc)
         var lastExpense: ActualExpense? = null
+        val startDate = Timestamp(doc.getLong(KEY_START_DATE))
+        val endDate = Timestamp(doc.getLong(KEY_END_DATE))
         if (doc.containsKey(KEY_LAST_UPDATE)) {
             lastExpense = expenseSerialization.deserialize(doc.get(KEY_LAST_UPDATE, Document::class.java))
         }
-        return ScheduledExpense(id, name, amount, category, method, author, tags, schedule, lastExpense)
+        return ScheduledExpense(id, name, amount, category, method, author, tags, startDate, endDate, schedule, lastExpense)
     }
 
     private fun deserializeSchedule(doc: Document): Schedule {
