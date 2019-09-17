@@ -4,6 +4,7 @@ import ch.cyril.budget.manager.backend.main.ServerType
 import ch.cyril.budget.manager.backend.main.startServer
 import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.rest.lib.RestServer
+import ch.cyril.budget.manager.backend.service.filebased.budget.BudgetParser
 import ch.cyril.budget.manager.backend.util.SubList
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -17,13 +18,6 @@ class FilebasedBudgetSystemTester(
         port: Int) : AutoCloseable {
 
     private val client = HttpClient(port)
-
-    private val budgetContent = """
-        Budget1,900,monthly
-        Budget2,yearly,1200,1,2018,1,2019,monthly,1400,1,2019,12,2019
-    """.trimIndent()
-
-    private val budgetFile = Files.write(tempDir.resolve("budget"), budgetContent.toByteArray())
 
     private val budget1 = Budget(
             Category("Budget1"),
@@ -66,11 +60,17 @@ class FilebasedBudgetSystemTester(
                             MonthYear(1, 2016),
                             MonthYear(12, 2020))))
 
+    private val budgetFile: Path
+
     private val restServer: RestServer<*>
 
     init {
         val expensesFile = Files.createFile(tempDir.resolve("expenses"))
-        val config = ParamBuilder.fileBased(expensesFile, budgetFile, server, port)
+        val templateFile = Files.createFile(tempDir.resolve("templates"))
+        val scheduleFile = Files.createFile(tempDir.resolve("schedules"))
+        budgetFile = tempDir.resolve("budget")
+        BudgetParser().write(budgetFile, listOf(budget1, budget2))
+        val config = ParamBuilder.fileBased(expensesFile, templateFile, scheduleFile, budgetFile, server, port)
         val configFile = Files.write(tempDir.resolve("config.json"), config.toByteArray())
         val params = arrayOf(configFile.toString())
         restServer = startServer(params)

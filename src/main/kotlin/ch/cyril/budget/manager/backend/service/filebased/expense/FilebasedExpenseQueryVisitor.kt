@@ -1,5 +1,6 @@
 package ch.cyril.budget.manager.backend.service.filebased.expense
 
+import ch.cyril.budget.manager.backend.model.ActualExpense
 import ch.cyril.budget.manager.backend.model.Expense
 import ch.cyril.budget.manager.backend.service.*
 import ch.cyril.budget.manager.backend.service.expense.*
@@ -86,8 +87,11 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<Expense, Boolean> {
     }
 
     override fun visitDateQuery(query: DateExpenseQuery, arg: Expense): Boolean {
-        val switch = MathComparatorSwitch(query.date.timestamp)
-        return query.comparison.switch(switch, arg.date.timestamp)
+        if (arg is ActualExpense) {
+            val switch = MathComparatorSwitch(query.date.getEpochDay())
+            return query.comparison.switch(switch, arg.date.getEpochDay())
+        }
+        return false
     }
 
     override fun visitAmountQuery(query: AmountExpenseQuery, arg: Expense): Boolean {

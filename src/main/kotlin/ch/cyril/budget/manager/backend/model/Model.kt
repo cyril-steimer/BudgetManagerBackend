@@ -1,7 +1,19 @@
 package ch.cyril.budget.manager.backend.model
 
 import ch.cyril.budget.manager.backend.util.Identifiable
+import ch.cyril.budget.manager.backend.util.IdentifiableTypeAdapter
+import ch.cyril.budget.manager.backend.util.gson.NullHandlingTypeAdapter
+import ch.cyril.budget.manager.backend.util.gson.Validatable
+import com.google.gson.*
+import com.google.gson.annotations.JsonAdapter
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
+import java.lang.reflect.Type
 import java.math.BigDecimal
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 data class Budget(val category: Category, val amounts: List<BudgetAmount>)
 
@@ -14,14 +26,21 @@ data class BudgetAmount(
         val to: MonthYear) : Validatable {
 
     override fun validate() {
-        //TODO Validate amount, from < to
+        if (from.toEpochMonth() > to.toEpochMonth()) {
+            throw JsonParseException("From must be before to. From was '${from}', to was '${to}'")
+        }
     }
 }
 
 data class MonthYear(val month: Int, val year: Int) : Validatable {
 
     override fun validate() {
-        //TODO Validate month
+        if (year < 0) {
+            throw JsonParseException("Year must be >= 0, was ${year}")
+        }
+        if (month < 1 || month > 12) {
+            throw JsonParseException("Month must be between 1 and 12, was ${month}")
+        }
     }
 
     fun toEpochMonth(): Int {
@@ -37,47 +56,17 @@ data class MonthYear(val month: Int, val year: Int) : Validatable {
     }
 }
 
+@JsonAdapter(BudgetPeriodTypeAdapter::class)
 enum class BudgetPeriod(override val identifier: String) : Identifiable {
     YEARLY("yearly"),
     MONTHLY("monthly")
 }
 
+class BudgetPeriodTypeAdapter : IdentifiableTypeAdapter<BudgetPeriod>(BudgetPeriod::class)
+
 data class MonthYearPeriod(val from: MonthYear, val to: MonthYear)
 
 data class BudgetInPeriod(val category: Category, val amount: Amount)
-
-data class ExpenseWithoutId(
-        val name: Name,
-        val amount: Amount,
-        val category: Category,
-        val date: Timestamp,
-        val method: PaymentMethod,
-        val author: Author,
-        val tags: Set<Tag>): Validatable {
-
-    override fun validate() {
-        amount.validate()
-    }
-
-    fun withId(id: Id) = Expense(id, name, amount, category, date, method, author, tags)
-}
-
-data class Expense(
-        val id: Id,
-        val name: Name,
-        val amount: Amount,
-        val category: Category,
-        val date: Timestamp,
-        val method: PaymentMethod,
-        val author: Author,
-        val tags: Set<Tag>) : Validatable {
-
-    override fun validate() {
-        amount.validate()
-    }
-
-    fun withoutId() = ExpenseWithoutId(name, amount, category, date, method, author, tags)
-}
 
 data class Tag(val name: String)
 
@@ -87,17 +76,90 @@ data class Amount(val amount: BigDecimal) : Validatable {
 
     override fun validate() {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw ValidationException("Amount must be greater than zero")
+            throw JsonParseException("Amount must be >= 0, was ${amount}")
         }
     }
 }
 
 data class Author(val name: String)
 
+@JsonAdapter(IdTypeAdapter::class)
 data class Id(val id: String)
+
+class IdTypeAdapter : NullHandlingTypeAdapter<Id>() {
+    override fun doRead(`in`: JsonReader): Id {
+        return Id(`in`.nextString())
+    }
+
+    override fun doWrite(out: JsonWriter, value: Id) {
+        out.value(value.id)
+    }
+}
 
 data class Name(val name: String)
 
 data class Category(val name: String)
 
-data class Timestamp(val timestamp: Long)
+@JsonAdapter(TimestampAdapter::class)
+class Timestamp internal constructor(internal val date: LocalDate) {
+
+    companion object {
+        private val FORMATTER = DateTimeFormatter.ISO_DATE
+
+        fun parse (text: String): Timestamp {
+            return Timestamp(LocalDate.from(FORMATTER.parse(text)))
+        }
+
+        fun ofEpochDay(day: Long): Timestamp {
+            return Timestamp(LocalDate.ofEpochDay(day))
+        }
+
+        fun now(): Timestamp {
+            return ofEpochDay(LocalDate.now().toEpochDay())
+        }
+    }
+
+    override fun toString(): String {
+        return FORMATTER.format(this.date)
+    }
+
+    fun getEpochDay(): Long {
+        return this.date.toEpochDay()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is Timestamp) {
+            return date == other.date
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return date.hashCode()
+    }
+}
+
+class TimestampAdapter : JsonSerializer<Timestamp>, JsonDeserializer<Timestamp> {
+
+    override fun serialize(src: Timestamp, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+        val res = JsonObject()
+        res.addProperty("day", src.date.dayOfMonth)
+        res.addProperty("month", src.date.monthValue)
+        res.addProperty("year", src.date.year)
+        return res
+    }
+
+    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Timestamp {
+        val obj = json.asJsonObject
+        if (obj.has("timestamp")) {
+            // This is how the timestamp was serialized in previous versions.
+            val instant = Instant.ofEpochMilli(obj.get("timestamp").asLong)
+            val zoned = instant.atZone(ZoneId.of("UTC"))
+            return Timestamp.ofEpochDay(zoned.toLocalDate().toEpochDay())
+        }
+        val dayOfMonth = obj.get("day").asInt
+        val month = obj.get("month").asInt
+        val year = obj.get("year").asInt
+        return Timestamp(LocalDate.of(year, month, dayOfMonth))
+    }
+}

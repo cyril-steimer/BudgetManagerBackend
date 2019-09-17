@@ -1,13 +1,16 @@
 package ch.cyril.budget.manager.backend.service.expense
 
 import ch.cyril.budget.manager.backend.model.*
+import ch.cyril.budget.manager.backend.rest.GSON
 import ch.cyril.budget.manager.backend.service.MathComparison
 import ch.cyril.budget.manager.backend.service.StringCase
 import ch.cyril.budget.manager.backend.service.StringComparison
 import ch.cyril.budget.manager.backend.util.Identifiable
+import ch.cyril.budget.manager.backend.util.IdentifiableTypeAdapter
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import com.google.gson.annotations.JsonAdapter
 import java.math.BigDecimal
 
 interface ExpenseQueryDescriptor : Identifiable {
@@ -31,6 +34,7 @@ interface ExpenseQueryDescriptor : Identifiable {
     }
 }
 
+@JsonAdapter(SimpleExpenseQueryDescriptorTypeAdapter::class)
 enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     : Identifiable, ExpenseQueryDescriptor {
 
@@ -81,11 +85,11 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
     },
     DATE("date") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
-            return DateExpenseQuery(Timestamp(getBigDecimal(value).toLong()))
+            return DateExpenseQuery(Timestamp.parse(value.asString))
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {
-            val date = Timestamp(value.get("date").asLong)
+            val date = GSON.fromJson(value.get("date"), Timestamp::class.java)
             val comparison = Identifiable.byIdentifier<MathComparison>(value.get("comparison").asString)
             return DateExpenseQuery(date, comparison)
         }
@@ -143,6 +147,8 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
         return value.asString.toBigDecimal()
     }
 }
+
+class SimpleExpenseQueryDescriptorTypeAdapter : IdentifiableTypeAdapter<SimpleExpenseQueryDescriptor>(SimpleExpenseQueryDescriptor::class)
 
 enum class CompositeExpenseQueryDescriptor
     (override val identifier: String, private val factory: (List<ExpenseQuery>) -> ExpenseQuery)

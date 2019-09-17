@@ -1,20 +1,20 @@
 package ch.cyril.budget.manager.backend.rest.lib
 
-import ch.cyril.budget.manager.backend.model.Validatable
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.instanceParameter
 
 class RestMethod private constructor(
         private val owner: Any,
-        private val method: HttpMethod,
-        private val function: KFunction<*>,
+        private val method: RestHandlerMethod,
         private val parser: RestParamParser) {
 
     suspend fun invoke(ctx: RestContext): RestResult? {
         val params = gatherParams(ctx)
-        val res = function.call(owner, *params)
+        val res = doInvoke(method.function, params)
         if (res is RestResult) {
             return res
         }
@@ -29,8 +29,15 @@ class RestMethod private constructor(
         return RestMethodPath.parse(method.path)
     }
 
+    private suspend fun doInvoke(func: KFunction<*>, params: Array<Any?>): Any? {
+        if (func.instanceParameter == null) {
+            return func.call(*params)
+        }
+        return func.call(owner, *params)
+    }
+
     private suspend fun gatherParams(ctx: RestContext): Array<Any?> {
-        return function.parameters
+        return method.function.parameters
                 .filter { p -> p.name != null }
                 .map { p -> getParamValue(p, ctx) }
                 .toTypedArray()
@@ -63,9 +70,6 @@ class RestMethod private constructor(
         if (value != null && !cls.isInstance(value)) {
             throw IllegalArgumentException("Value '$value' for param '$param' is of wrong type")
         }
-        if (value is Validatable) {
-            value.validate()
-        }
     }
 
     private suspend fun getRawParamValue(param: KParameter, ctx: RestContext): Any? {
@@ -97,13 +101,19 @@ class RestMethod private constructor(
     companion object {
         fun of(owner: Any, function: KFunction<*>, parser: RestParamParser): RestMethod? {
             val method = function.findAnnotation<HttpMethod>()
-            val returnType = function.returnType.classifier
-            if (returnType != RestResult::class && returnType != Unit::class) {
-                return null
-            } else if (method == null) {
+            if (method == null) {
                 return null
             }
-            return RestMethod(owner, method, function, parser)
+            val handlerMethod = RestHandlerMethod(function, method.verb, method.path)
+            return of(owner, handlerMethod, parser)
+        }
+
+        fun of (owner: Any, method: RestHandlerMethod, parser: RestParamParser): RestMethod? {
+            val returnType = method.function.returnType.classifier
+            if (returnType != RestResult::class && returnType != Unit::class) {
+                return null
+            }
+            return RestMethod(owner, method, parser)
         }
     }
 }

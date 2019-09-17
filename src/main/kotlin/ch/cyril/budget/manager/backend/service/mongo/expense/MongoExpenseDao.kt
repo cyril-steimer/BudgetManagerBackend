@@ -14,7 +14,9 @@ import org.bson.Document
 import org.bson.conversions.Bson
 import org.bson.types.ObjectId
 
-class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
+abstract class MongoExpenseDao<T : Expense>(
+        protected val collection: MongoCollection<Document>,
+        protected val serialization: MongoExpenseSerialization<T>) : ExpenseDao<T> {
 
     private class MongoSortDirectionSwitch : SortDirectionSwitch<String, Bson> {
 
@@ -52,14 +54,12 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
 
     private val visitor = MongoExpenseQueryVisitor()
 
-    private val serialization = MongoExpenseSerialization()
-
     private val util = MongoUtil()
 
     override fun getExpenses(
             query: ExpenseQuery?,
             sort: ExpenseSort?,
-            pagination: Pagination?): SubList<Expense> {
+            pagination: Pagination?): SubList<T> {
         val iterable: FindIterable<Document>
         if (query != null) {
             iterable = collection.find(query.accept(visitor, Unit))
@@ -77,17 +77,24 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
         return SubList.of(list)
     }
 
-    override fun addExpense(expense: ExpenseWithoutId) {
-        collection.insertOne(serialization.serialize(expense))
-    }
-
-    override fun updateExpense(expense: Expense) {
-        val update = util.toUpdate(serialization.serialize(expense.withoutId()))
+    override fun updateExpense(expense: T) {
+        val update = util.toUpdate(serialization.serialize(expense))
         collection.updateOne(eq(KEY_ID, ObjectId(expense.id.id)), update)
     }
 
     override fun deleteExpense(id: Id) {
         collection.deleteOne(eq(KEY_ID, ObjectId(id.id)))
+    }
+}
+
+class MongoActualExpenseDao(collection: MongoCollection<Document>) :
+        MongoExpenseDao<ActualExpense>(collection, MongoActualExpenseSerialization()),
+        ActualExpenseDao {
+
+    override fun addExpense(expense: ActualExpenseWithoutId): ActualExpense {
+        val withId = expense.withId(Id(ObjectId().toHexString()))
+        collection.insertOne(serialization.serialize(withId))
+        return withId
     }
 
     override fun getPaymentMethods(): Set<PaymentMethod> {
@@ -106,5 +113,27 @@ class MongoExpenseDao(val collection: MongoCollection<Document>) : ExpenseDao {
         return collection.distinct(KEY_AUTHOR, String::class.java)
                 .map { value -> Author(value) }
                 .toSet()
+    }
+}
+
+class MongoExpenseTemplateDao(collection: MongoCollection<Document>) :
+        MongoExpenseDao<ExpenseTemplate>(collection, MongoExpenseTemplateSerialization()),
+        ExpenseTemplateDao {
+
+    override fun addExpense(expense: ExpenseTemplateWithoutId): ExpenseTemplate {
+        val withId = expense.withId(Id(ObjectId().toHexString()))
+        collection.insertOne(serialization.serialize(withId))
+        return withId
+    }
+}
+
+class MongoScheduledExpenseDao(collection: MongoCollection<Document>) :
+        MongoExpenseDao<ScheduledExpense>(collection, MongoScheduledExpenseSerialization()),
+        ScheduledExpenseDao {
+
+    override fun addExpense(expense: ScheduledExpenseWithoutId): ScheduledExpense {
+        val withId = expense.withId(Id(ObjectId().toHexString()))
+        collection.insertOne(serialization.serialize(withId))
+        return withId
     }
 }

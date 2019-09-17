@@ -4,11 +4,13 @@ import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.service.expense.*
 import ch.cyril.budget.manager.backend.service.filebased.FileContentCache
+import ch.cyril.budget.manager.backend.service.filebased.JsonBasedFileParser
 import ch.cyril.budget.manager.backend.util.SubList
 import java.math.BigDecimal
 import java.nio.file.Path
+import java.time.LocalDate
 
-class FilebasedExpenseDao(file: Path): ExpenseDao {
+abstract class FilebasedExpenseDao<T : Expense>(file: Path, parser: JsonBasedFileParser<T>): ExpenseDao<T> {
 
     private class ComparatorSortDirectionSwitch<T> : SortDirectionSwitch<Comparator<T>, Comparator<T>> {
 
@@ -40,22 +42,22 @@ class FilebasedExpenseDao(file: Path): ExpenseDao {
         }
 
         override fun caseDate(arg: Unit): Comparator<Expense> {
-            return Comparator.comparing<Expense, Long> { e -> e.date.timestamp }
+            return Comparator.comparing<Expense, Long> { if (it is ActualExpense) it.date.getEpochDay() else 0 }
         }
     }
 
+    protected val contentCache: FileContentCache<T, Id>
+
     private val visitor = FilebasedExpenseQueryVisitor()
 
-    private val contentCache: FileContentCache<Expense, Id>
-
     init {
-        contentCache = FileContentCache(file, ExpenseParser()) { e -> e.id }
+        contentCache = FileContentCache(file, parser) { e -> e.id }
     }
 
     override fun getExpenses(
             query: ExpenseQuery?,
             sort: ExpenseSort?,
-            pagination: Pagination?): SubList<Expense> {
+            pagination: Pagination?): SubList<T> {
 
         var expenses = getAllExpenses()
         if (query != null) {
@@ -72,16 +74,37 @@ class FilebasedExpenseDao(file: Path): ExpenseDao {
         return SubList.of(expenses)
     }
 
-    override fun addExpense(expense: ExpenseWithoutId) {
-        contentCache.add(expense.withId(getNewId()))
-    }
-
-    override fun updateExpense(expense: Expense) {
+    override fun updateExpense(expense: T) {
         contentCache.update(expense)
     }
 
     override fun deleteExpense(id: Id) {
         contentCache.delete(id)
+    }
+
+    protected fun getAllExpenses(): List<T> {
+        return contentCache.getAll()
+    }
+
+    protected fun getNewId(): Id {
+        val max = getAllExpenses()
+                .map { e -> e.id.id }
+                .map { id -> id.toIntOrNull() }
+                .filterNotNull()
+                .max()
+        val newId = (max ?: 0) + 1
+        return Id(newId.toString())
+    }
+}
+
+class FilebasedActualExpenseDao(file: Path) :
+        FilebasedExpenseDao<ActualExpense>(file, ActualExpenseParser()),
+        ActualExpenseDao {
+
+    override fun addExpense(expense: ActualExpenseWithoutId): ActualExpense {
+        val withId = expense.withId(getNewId())
+        contentCache.add(withId)
+        return withId
     }
 
     override fun getPaymentMethods(): Set<PaymentMethod> {
@@ -103,18 +126,26 @@ class FilebasedExpenseDao(file: Path): ExpenseDao {
                 .filter { a -> a.name.isNotEmpty() }
                 .toSet()
     }
+}
 
-    private fun getAllExpenses(): List<Expense> {
-        return contentCache.getAll()
+class FilebasedExpenseTemplateDao(file: Path) :
+        FilebasedExpenseDao<ExpenseTemplate>(file, ExpenseTemplateParser()),
+        ExpenseTemplateDao {
+
+    override fun addExpense(expense: ExpenseTemplateWithoutId): ExpenseTemplate {
+        val withId = expense.withId(getNewId())
+        contentCache.add(withId)
+        return withId
     }
+}
 
-    private fun getNewId(): Id {
-        val max = getAllExpenses()
-                .map { e -> e.id.id }
-                .map { id -> id.toIntOrNull() }
-                .filterNotNull()
-                .max()
-        val newId = (max ?: 0) + 1
-        return Id(newId.toString())
+class FilebasedScheduledExpenseDao(file: Path) :
+        FilebasedExpenseDao<ScheduledExpense>(file, ScheduledExpenseParser()),
+        ScheduledExpenseDao {
+
+    override fun addExpense(expense: ScheduledExpenseWithoutId): ScheduledExpense {
+        val withId = expense.withId(getNewId())
+        contentCache.add(withId)
+        return withId
     }
 }

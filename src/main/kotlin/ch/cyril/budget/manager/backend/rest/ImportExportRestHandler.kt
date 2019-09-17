@@ -1,5 +1,6 @@
 package ch.cyril.budget.manager.backend.rest
 
+import ch.cyril.budget.manager.backend.model.ActualExpense
 import ch.cyril.budget.manager.backend.model.Budget
 import ch.cyril.budget.manager.backend.model.Expense
 import ch.cyril.budget.manager.backend.rest.lib.Body
@@ -7,13 +8,14 @@ import ch.cyril.budget.manager.backend.rest.lib.HttpMethod
 import ch.cyril.budget.manager.backend.rest.lib.HttpVerb
 import ch.cyril.budget.manager.backend.rest.lib.RestResult
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
+import ch.cyril.budget.manager.backend.service.expense.ActualExpenseDao
 import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
 
-class ImportExport(val budgets: List<Budget>, val expenses: List<Expense>)
+class ImportExport(val budgets: List<Budget>, val expenses: List<ActualExpense>)
 
 class ImportExportRestHandler(
         private val budgetDao: BudgetDao,
-        private val expenseDao: ExpenseDao) {
+        private val expenseDao: ActualExpenseDao) {
 
     @HttpMethod(HttpVerb.GET, "/api/v1/export")
     fun export(): RestResult {
