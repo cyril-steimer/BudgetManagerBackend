@@ -7,7 +7,6 @@ import ch.cyril.budget.manager.backend.rest.lib.HttpVerb
 import ch.cyril.budget.manager.backend.rest.lib.RestResult
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
 import ch.cyril.budget.manager.backend.service.expense.ActualExpenseDao
-import ch.cyril.budget.manager.backend.service.expense.ExpenseDao
 import ch.cyril.budget.manager.backend.service.expense.ExpenseTemplateDao
 import ch.cyril.budget.manager.backend.service.expense.ScheduledExpenseDao
 
@@ -55,10 +54,7 @@ class ImportExportRestHandler(
         for (scheduledExpense in values.scheduledExpenses ?: emptyList()) {
             // Each scheduled expense refers to the last expense which it generated. We need to update this reference,
             // as we won't be using the same IDs anymore.
-            var lastExpense: ActualExpense? = null
-            if (scheduledExpense.lastExpense != null) {
-                lastExpense = oldIdToNewExpense[scheduledExpense.lastExpense.id]
-            }
+            val lastExpense = scheduledExpense.lastExpense?.id?.let { oldIdToNewExpense[it] }
             val scheduledExpenseToAdd = scheduledExpense.copy(lastExpense = lastExpense)
             scheduledExpenseDao.addExpense(scheduledExpenseToAdd.withoutId())
         }

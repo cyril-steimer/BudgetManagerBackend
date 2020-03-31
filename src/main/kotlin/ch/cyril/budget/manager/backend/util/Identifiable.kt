@@ -1,9 +1,7 @@
 package ch.cyril.budget.manager.backend.util
 
 import ch.cyril.budget.manager.backend.util.gson.NullHandlingTypeAdapter
-import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import kotlin.reflect.KClass
 

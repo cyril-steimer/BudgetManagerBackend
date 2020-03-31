@@ -3,7 +3,6 @@ package ch.cyril.budget.manager.backend.service.expense
 import ch.cyril.budget.manager.backend.model.ScheduledExpense
 import ch.cyril.budget.manager.backend.model.Timestamp
 import org.slf4j.LoggerFactory
-import java.lang.Exception
 
 /**
  * Instantiates scheduled expenses. This runnable is meant to be run periodically (e.g. daily after midnight) to ensure

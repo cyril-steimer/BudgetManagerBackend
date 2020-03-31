@@ -1,6 +1,7 @@
 package ch.cyril.budget.manager.backend.service.mongo
 
-import com.mongodb.client.model.Updates.*
+import com.mongodb.client.model.Updates.combine
+import com.mongodb.client.model.Updates.set
 import org.bson.Document
 import org.bson.conversions.Bson
 

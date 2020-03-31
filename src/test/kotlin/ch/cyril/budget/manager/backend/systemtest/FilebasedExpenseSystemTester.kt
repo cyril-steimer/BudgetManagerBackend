@@ -6,7 +6,10 @@ import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.rest.lib.RestServer
 import ch.cyril.budget.manager.backend.service.filebased.expense.ActualExpenseParser
 import ch.cyril.budget.manager.backend.util.SubList
-import com.google.gson.*
+import com.google.gson.JsonArray
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import java.math.BigDecimal

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.nio.file.Files
-import java.time.LocalDate
 
 class JsonBasedFileParserTest {
 

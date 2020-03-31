@@ -8,7 +8,6 @@ import ch.cyril.budget.manager.backend.service.filebased.JsonBasedFileParser
 import ch.cyril.budget.manager.backend.util.SubList
 import java.math.BigDecimal
 import java.nio.file.Path
-import java.time.LocalDate
 
 abstract class FilebasedExpenseDao<T : Expense>(file: Path, parser: JsonBasedFileParser<T>): ExpenseDao<T> {
 
