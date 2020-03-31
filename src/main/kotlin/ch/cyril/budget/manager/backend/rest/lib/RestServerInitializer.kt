@@ -22,7 +22,7 @@ abstract class RestServerInitializer {
         RestMethodRegisterer(server, paramParser, ScheduledExpenseRestHandler(scheduledExpensesDao)).register()
         RestMethodRegisterer(server, paramParser, UtilsRestHandler(expenseDao)).register()
         RestMethodRegisterer(server, paramParser, BudgetRestHandler(budgetDao)).register()
-        RestMethodRegisterer(server, paramParser, ImportExportRestHandler(budgetDao, expenseDao)).register()
+        RestMethodRegisterer(server, paramParser, ImportExportRestHandler(budgetDao, expenseDao, templateDao, scheduledExpensesDao)).register()
 
         val scheduledExpenseInstantiator = ScheduledExpenseInstantiator(scheduledExpensesDao, expenseDao)
         val scheduledExecutor = Executors.newScheduledThreadPool(1)
