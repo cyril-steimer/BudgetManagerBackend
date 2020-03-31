@@ -4,16 +4,17 @@ import ch.cyril.budget.manager.backend.rest.lib.RestContext
 import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.withCharset
+import io.ktor.request.contentCharset
 import io.ktor.request.header
-import io.ktor.request.receiveText
+import io.ktor.request.receiveStream
 import io.ktor.response.respond
 import io.ktor.response.respondText
-import java.nio.charset.StandardCharsets
 
 class KtorRestContext(private val call: ApplicationCall) : RestContext {
 
     override suspend fun sendResponse(contentType: String, content: String) {
-        call.respondText(content, ContentType.parse(contentType))
+        call.respondText(content, ContentType.parse(contentType).withCharset(Charsets.UTF_8))
     }
 
     override suspend fun sendOk(code: Int) {
@@ -25,11 +26,12 @@ class KtorRestContext(private val call: ApplicationCall) : RestContext {
     }
 
     override suspend fun getBody(): String {
-        return call.receiveText()
+        val charset = call.request.contentCharset() ?: Charsets.UTF_8
+        return call.receiveStream().reader(charset).readText();
     }
 
     override suspend fun getRawBody(): ByteArray {
-        return getBody().toByteArray(StandardCharsets.UTF_8)
+        return call.receiveStream().readBytes()
     }
 
     override fun getHeader(name: String): String? {

@@ -3,7 +3,6 @@ package ch.cyril.budget.manager.backend.rest.lib
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
-import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.instanceParameter
 
@@ -29,7 +28,7 @@ class RestMethod private constructor(
         return RestMethodPath.parse(method.path)
     }
 
-    private suspend fun doInvoke(func: KFunction<*>, params: Array<Any?>): Any? {
+    private fun doInvoke(func: KFunction<*>, params: Array<Any?>): Any? {
         if (func.instanceParameter == null) {
             return func.call(*params)
         }

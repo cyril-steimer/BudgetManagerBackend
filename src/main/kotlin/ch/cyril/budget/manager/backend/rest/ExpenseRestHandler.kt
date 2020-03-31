@@ -74,6 +74,7 @@ abstract class ExpenseRestHandler<T : Expense, D : ExpenseDao<T>>(protected val 
         val query = desc.createQuery(JsonPrimitive(arg))
         return handleQuery(query, ExpenseSortField.sort(field, dir), Pagination.of(from, count), single)
     }
+
     fun getAllExpenses(
             @QueryParam("sort") field: ExpenseSortField?,
             @QueryParam("dir") dir: SortDirection?,

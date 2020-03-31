@@ -7,7 +7,6 @@ import com.google.gson.JsonParseException
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.math.BigDecimal
 
 class ValidatableTest {
 

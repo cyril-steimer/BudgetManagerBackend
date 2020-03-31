@@ -8,7 +8,6 @@ import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.routing.*
 import io.ktor.server.engine.ApplicationEngine
-import java.util.concurrent.TimeUnit
 
 class KtorRestServer(private val engine: ApplicationEngine) : RestServer<ApplicationCall>() {
 
@@ -53,6 +52,6 @@ class KtorRestServer(private val engine: ApplicationEngine) : RestServer<Applica
     }
 
     override fun close() {
-        engine.stop(0, 0, TimeUnit.MILLISECONDS)
+        engine.stop(0, 0)
     }
 }

@@ -4,8 +4,8 @@ import ch.cyril.budget.manager.backend.rest.lib.Handler
 import ch.cyril.budget.manager.backend.rest.lib.RestContext
 import ch.cyril.budget.manager.backend.rest.lib.RestMethodPath
 import ch.cyril.budget.manager.backend.rest.lib.RestServer
-import io.javalin.Context
 import io.javalin.Javalin
+import io.javalin.http.Context
 import kotlinx.coroutines.runBlocking
 
 class JavalinRestServer(private val javalin: Javalin) : RestServer<Context>() {
