@@ -1,7 +1,7 @@
 package ch.cyril.budget.manager.backend.rest.lib.javalin
 
 import ch.cyril.budget.manager.backend.rest.lib.RestContext
-import io.javalin.Context
+import io.javalin.http.Context
 
 class JavalinRestContext(val ctx: Context) : RestContext {
 

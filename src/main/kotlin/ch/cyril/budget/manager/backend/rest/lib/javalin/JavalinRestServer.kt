@@ -4,7 +4,7 @@ import ch.cyril.budget.manager.backend.rest.lib.Handler
 import ch.cyril.budget.manager.backend.rest.lib.RestContext
 import ch.cyril.budget.manager.backend.rest.lib.RestMethodPath
 import ch.cyril.budget.manager.backend.rest.lib.RestServer
-import io.javalin.Context
+import io.javalin.http.Context
 import io.javalin.Javalin
 import kotlinx.coroutines.runBlocking
 
