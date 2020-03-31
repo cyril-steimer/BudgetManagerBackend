@@ -100,7 +100,7 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<Expense, Boolean> {
     }
 
     override fun visitTagQuery(query: TagExpenseQuery, arg: Expense): Boolean {
-        return arg.tags.contains(query.tag)
+        return arg.tags.any { tag -> doesStringMatch(query.tag.name, query.case, query.comparison, tag.name) }
     }
 
     override fun visitAndQuery(query: AndExpenseQuery, arg: Expense): Boolean {

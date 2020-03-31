@@ -106,7 +106,9 @@ class MongoExpenseQueryVisitor : ExpenseQueryVisitor<Unit, Bson> {
     }
 
     override fun visitTagQuery(query: TagExpenseQuery, arg: Unit): Bson {
-        return eq(KEY_TAGS, query.tag.name)
+        return regex(
+                KEY_TAGS,
+                createPatternWithCaseAndComparison(query.tag.name, query.comparison, query.case))
     }
 
     override fun visitOrQuery(query: OrExpenseQuery, arg: Unit): Bson {
