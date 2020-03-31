@@ -29,7 +29,7 @@ class RestMethod private constructor(
         return RestMethodPath.parse(method.path)
     }
 
-    private suspend fun doInvoke(func: KFunction<*>, params: Array<Any?>): Any? {
+    private fun doInvoke(func: KFunction<*>, params: Array<Any?>): Any? {
         if (func.instanceParameter == null) {
             return func.call(*params)
         }
