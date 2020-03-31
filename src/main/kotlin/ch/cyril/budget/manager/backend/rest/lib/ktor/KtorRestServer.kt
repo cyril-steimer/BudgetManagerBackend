@@ -53,6 +53,6 @@ class KtorRestServer(private val engine: ApplicationEngine) : RestServer<Applica
     }
 
     override fun close() {
-        engine.stop(0, 0, TimeUnit.MILLISECONDS)
+        engine.stop(0, 0)
     }
 }
