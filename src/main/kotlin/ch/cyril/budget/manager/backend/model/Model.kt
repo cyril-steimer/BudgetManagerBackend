@@ -15,7 +15,24 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-data class Budget(val category: Category, val amounts: List<BudgetAmount>)
+data class BudgetWithoutId(
+        val category: Category,
+        val amounts: List<BudgetAmount>) {
+
+    fun withId(id: Id): Budget {
+        return Budget(id, category, amounts)
+    }
+}
+
+data class Budget(
+        val id: Id,
+        val category: Category,
+        val amounts: List<BudgetAmount>) {
+
+    fun withoutId(): BudgetWithoutId {
+        return BudgetWithoutId(category, amounts)
+    }
+}
 
 // TODO Don't allow overlapping budget amounts in all DAOs (or maybe the validate method?)
 
@@ -66,7 +83,7 @@ class BudgetPeriodTypeAdapter : IdentifiableTypeAdapter<BudgetPeriod>(BudgetPeri
 
 data class MonthYearPeriod(val from: MonthYear, val to: MonthYear)
 
-data class BudgetInPeriod(val category: Category, val amount: Amount)
+data class BudgetInPeriod(val budget: Budget, val amount: Amount)
 
 data class Tag(val name: String)
 

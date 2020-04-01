@@ -6,12 +6,8 @@ import ch.cyril.budget.manager.backend.service.expense.ExpenseTemplateDao
 import ch.cyril.budget.manager.backend.service.expense.ScheduledExpenseDao
 
 interface ServiceFactory {
-
-    fun createExpenseDao(): ActualExpenseDao
-
-    fun createTemplateDao(): ExpenseTemplateDao
-
-    fun createScheduledExpenseDao(): ScheduledExpenseDao
-
-    fun createBudgetDao(): BudgetDao
+    val expenseDao: ActualExpenseDao
+    val templateDao: ExpenseTemplateDao
+    val scheduledExpenseDao: ScheduledExpenseDao
+    val budgetDao: BudgetDao
 }

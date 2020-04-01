@@ -36,7 +36,7 @@ class NullSafeTypeAdapter<T>(delegate: TypeAdapter<T>) : DelegatingTypeAdapter<T
                     property.getter.isAccessible = true
                     val value = property.getter.call(res)
                     if (value == null) {
-                        throw JsonParseException("Property '" + property.name + "' is not nullable")
+                        throw JsonParseException("Property '${property.name}' of type '${cls.simpleName}' is not nullable")
                     }
                 }
             }

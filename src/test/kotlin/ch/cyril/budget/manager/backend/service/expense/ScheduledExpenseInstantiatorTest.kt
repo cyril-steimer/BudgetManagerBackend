@@ -129,15 +129,15 @@ class ScheduledExpenseInstantiatorTest {
         val id = Id("id")
         val name = Name("name")
         val amount = Amount(BigDecimal(100))
-        val category = Category("category")
+        val budget = Budget(Id("id2"), Category("category"), emptyList())
         val method = PaymentMethod("method")
         val author = Author("author")
         val tags = emptySet<Tag>()
         var lastExpense: ActualExpense? = null
         if (lastExpenseTimestamp != null) {
-            lastExpense = ActualExpense(id, name, amount, category, lastExpenseTimestamp, method, author, tags)
+            lastExpense = ActualExpense(id, name, amount, budget, lastExpenseTimestamp, method, author, tags)
         }
-        val res = ScheduledExpense(id, name, amount, category, method, author, tags, startDate, endDate, schedule, lastExpense)
+        val res = ScheduledExpense(id, name, amount, budget, method, author, tags, startDate, endDate, schedule, lastExpense)
         every { scheduledExpenseDao.getExpenses() } returns SubList.of(listOf(res))
         return res
     }

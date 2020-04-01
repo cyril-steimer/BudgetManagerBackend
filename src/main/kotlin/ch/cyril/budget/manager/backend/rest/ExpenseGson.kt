@@ -4,7 +4,8 @@ import ch.cyril.budget.manager.backend.util.gson.NullSafeTypeAdapterFactory
 import ch.cyril.budget.manager.backend.util.gson.ValidatingTypeAdapterFactory
 import com.google.gson.GsonBuilder
 
-val GSON = GsonBuilder()
+val GSON_BUILDER = GsonBuilder()
         .registerTypeAdapterFactory(NullSafeTypeAdapterFactory())
         .registerTypeAdapterFactory(ValidatingTypeAdapterFactory())
-        .create()
+
+val GSON = GSON_BUILDER.create()

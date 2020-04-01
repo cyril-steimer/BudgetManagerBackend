@@ -20,6 +20,7 @@ class FilebasedBudgetSystemTester(
     private val client = HttpClient(port)
 
     private val budget1 = Budget(
+            Id("1"),
             Category("Budget1"),
             listOf(
                     BudgetAmount(
@@ -29,6 +30,7 @@ class FilebasedBudgetSystemTester(
                             MonthYear(1, 9999))))
 
     private val newBudget1 = Budget(
+            Id("1"),
             Category("Budget1"),
             listOf(
                     BudgetAmount(
@@ -38,6 +40,7 @@ class FilebasedBudgetSystemTester(
                             MonthYear(12, 2018))))
 
     private val budget2 = Budget(
+            Id("2"),
             Category("Budget2"),
             listOf(
                     BudgetAmount(
@@ -52,6 +55,7 @@ class FilebasedBudgetSystemTester(
                             MonthYear(12, 2019))));
 
     private val newBudget3 = Budget(
+            Id("3"),
             Category("Budget3"),
             listOf(
                     BudgetAmount(
@@ -78,74 +82,80 @@ class FilebasedBudgetSystemTester(
 
     fun runBudgetSystemTests() {
         getAllBudgets()
+        getBudgetById()
         getBudgetByCategory()
-        getCategories()
         updateBudget()
         addBudget()
+        updateBudgetCategory()
         deleteBudget()
-        addExistingBudget()
         updateNotExistingBudget()
         deleteNotExistingBudget()
+        updateBudgetCategoryToExistingName()
     }
 
     override fun close() {
         restServer.close()
     }
 
-    private fun getAllBudgets () {
+    private fun getAllBudgets() {
         val budgets = client.getJson<SubList<Budget>>("/api/v1/budget")
         assertEquals(2, budgets.count)
         assertEquals(listOf(budget1, budget2), budgets.values)
     }
 
-    private fun getBudgetByCategory () {
+    private fun getBudgetById() {
+        var budget: Budget = client.getJson("/api/v1/budget/id/1")
+        assertEquals(budget1, budget)
+        budget = client.getJson("/api/v1/budget/id/2")
+        assertEquals(budget2, budget)
+    }
+
+    private fun getBudgetByCategory() {
         var budget: Budget = client.getJson("/api/v1/budget/category/Budget1")
         assertEquals(budget1, budget)
         budget = client.getJson("/api/v1/budget/category/Budget2")
         assertEquals(budget2, budget)
     }
 
-    private fun getCategories () {
-        val categories = client.getJson<SubList<Category>>("/api/v1/category")
-        assertEquals(2, categories.count)
-        assertEquals(budget1.category, categories.values[0])
-        assertEquals(budget2.category, categories.values[1])
-    }
-
-    private fun updateBudget () {
+    private fun updateBudget() {
         client.put("/api/v1/budget", newBudget1)
-        val budget = client.getJson<Budget>("/api/v1/budget/category/Budget1")
+        val budget = client.getJson<Budget>("/api/v1/budget/id/1")
         assertEquals(newBudget1, budget)
         //TODO Check that the fîle was written
     }
 
-    private fun addBudget () {
+    private fun addBudget() {
         client.post("/api/v1/budget", newBudget3)
-        val budget = client.getJson<Budget>("/api/v1/budget/category/Budget3")
+        val budget = client.getJson<Budget>("/api/v1/budget/id/3")
         assertEquals(newBudget3, budget)
         //TODO Check that the file was written
     }
 
-    private fun deleteBudget () {
-        client.delete("/api/v1/budget?category=Budget3")
+    private fun updateBudgetCategory() {
+        val budget3WithNewCategory = newBudget3.copy(category = Category("This is another category"))
+        client.put("/api/v1/budget", budget3WithNewCategory)
+        val budget = client.getJson<Budget>("/api/v1/budget/id/3")
+        assertEquals(budget3WithNewCategory, budget)
+    }
+
+    private fun deleteBudget() {
+        client.delete("/api/v1/budget?id=3")
         //TODO Can we determine the exception more exactly? Or even get the status code?
-        assertThrows(Exception::class.java) { client.getJson<Budget>("/api/v1/budget/category/Budget3") }
+        assertThrows(Exception::class.java) { client.getJson<Budget>("/api/v1/budget/id/3") }
         //TODO Check that the file was written
     }
 
-    private fun addExistingBudget () {
-        assertThrows(Exception::class.java) { client.post("/api/v1/budget", budget1) }
-        val budget = client.getJson<Budget>("/api/v1/budget/category/Budget1")
-        assertEquals(newBudget1, budget)
-    }
-
-    private fun updateNotExistingBudget () {
-        val budget4 = Budget(Category("Budget4"), budget1.amounts)
+    private fun updateNotExistingBudget() {
+        val budget4 = Budget(Id("4"), Category("Budget4"), budget1.amounts)
         assertThrows(Exception::class.java) { client.put("/api/v1/budget", budget4) }
-        assertThrows(Exception::class.java) { client.getJson<Budget>("/api/v1/budget/category/Budget4") }
+        assertThrows(Exception::class.java) { client.getJson<Budget>("/api/v1/budget/id/4") }
     }
 
-    private fun deleteNotExistingBudget () {
-        assertThrows(Exception::class.java) { client.delete("/api/v1/budget?category=Budget4") }
+    private fun deleteNotExistingBudget() {
+        assertThrows(Exception::class.java) { client.delete("/api/v1/budget?id=4") }
+    }
+
+    private fun updateBudgetCategoryToExistingName() {
+        assertThrows(java.lang.Exception::class.java) { client.put("/api/v1/budget", budget1.copy(category = Category("Budget2")))}
     }
 }
