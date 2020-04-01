@@ -4,8 +4,9 @@ import ch.cyril.budget.manager.backend.main.ServerType
 import ch.cyril.budget.manager.backend.main.StaticFiles
 import ch.cyril.budget.manager.backend.main.startServer
 import io.ktor.client.HttpClient
-import io.ktor.client.call.call
-import io.ktor.client.response.readText
+import io.ktor.client.request.request
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
@@ -49,11 +50,11 @@ class StaticFilesSystemTest {
     private fun checkContentAndContentType (path: String, expectedContent: String, expectedContentType: ContentType) {
         val client = HttpClient()
         runBlocking {
-            val call = client.call("http://127.0.0.1:$PORT$path") {
+            val response = client.request<HttpResponse>("http://127.0.0.1:$PORT$path") {
                 method = HttpMethod.Get
             }
-            assertEquals(expectedContentType, call.response.contentType())
-            assertEquals(expectedContent, call.response.readText())
+            assertEquals(expectedContentType, response.contentType())
+            assertEquals(expectedContent, response.readText(Charsets.UTF_8))
         }
     }
 }

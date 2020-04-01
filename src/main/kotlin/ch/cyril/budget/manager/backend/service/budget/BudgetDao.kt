@@ -7,8 +7,6 @@ import java.math.RoundingMode
 
 interface BudgetDao {
 
-    fun getCategories(): SubList<Category>
-
     fun getBudgets(period: MonthYearPeriod): SubList<BudgetInPeriod> {
         // TODO Can this be optimized for some DAOs?
         val all = getBudgets().values
@@ -16,15 +14,17 @@ interface BudgetDao {
         return SubList.of(res)
     }
 
+    fun getOneBudget(id: Id): Budget?
+
     fun getOneBudget(category: Category): Budget?
 
     fun getBudgets(): SubList<Budget>
 
-    fun addBudget(budget: Budget)
+    fun addBudget(budget: BudgetWithoutId): Budget
 
     fun updateBudget(budget: Budget)
 
-    fun deleteBudget(category: Category)
+    fun deleteBudget(id: Id)
 
     fun getBudgetsInPeriod(budgets: List<Budget>, period: MonthYearPeriod): List<BudgetInPeriod> {
         return budgets.map { b -> getBudget(b, period.from, period.to) }
@@ -37,7 +37,7 @@ interface BudgetDao {
                 .filterNotNull()
                 .fold(BigDecimal.ZERO) { acc, amount -> acc.add(amount.amount) }
 
-        return if (amount == BigDecimal.ZERO) null else BudgetInPeriod(budget.category, Amount(amount))
+        return if (amount == BigDecimal.ZERO) null else BudgetInPeriod(budget, Amount(amount))
     }
 
     private fun calculateOverlap(amount: BudgetAmount, from: MonthYear, to: MonthYear): Amount? {

@@ -2,6 +2,7 @@ package ch.cyril.budget.manager.backend.service.filebased.expense
 
 import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.service.Pagination
+import ch.cyril.budget.manager.backend.service.budget.BudgetDao
 import ch.cyril.budget.manager.backend.service.expense.*
 import ch.cyril.budget.manager.backend.service.filebased.FileContentCache
 import ch.cyril.budget.manager.backend.service.filebased.JsonBasedFileParser
@@ -37,7 +38,7 @@ abstract class FilebasedExpenseDao<T : Expense>(file: Path, parser: JsonBasedFil
         }
 
         override fun caseCategory(arg: Unit): Comparator<Expense> {
-            return Comparator.comparing<Expense, String> { e -> e.category.name }
+            return Comparator.comparing<Expense, String> { e -> e.budget?.category?.name ?: "" }
         }
 
         override fun caseDate(arg: Unit): Comparator<Expense> {
@@ -81,29 +82,34 @@ abstract class FilebasedExpenseDao<T : Expense>(file: Path, parser: JsonBasedFil
         contentCache.delete(id)
     }
 
+    fun reloadFromFile() {
+        contentCache.reloadFromFile()
+    }
+
     protected fun getAllExpenses(): List<T> {
         return contentCache.getAll()
     }
 
     protected fun getNewId(): Id {
-        val max = getAllExpenses()
-                .map { e -> e.id.id }
-                .map { id -> id.toIntOrNull() }
-                .filterNotNull()
-                .max()
-        val newId = (max ?: 0) + 1
-        return Id(newId.toString())
+        return getNewId(getAllExpenses().map { e -> e.id })
     }
 }
 
-class FilebasedActualExpenseDao(file: Path) :
-        FilebasedExpenseDao<ActualExpense>(file, ActualExpenseParser()),
+fun getNewId(usedIds: List<Id>): Id {
+    val max = usedIds
+            .map { id -> id.id.toIntOrNull() }
+            .filterNotNull()
+            .max()
+    val newId = (max ?: 0) + 1
+    return Id(newId.toString())
+}
+
+class FilebasedActualExpenseDao(file: Path, budgetDao: BudgetDao) :
+        FilebasedExpenseDao<ActualExpense>(file, ActualExpenseParser(budgetDao)),
         ActualExpenseDao {
 
     override fun addExpense(expense: ActualExpenseWithoutId): ActualExpense {
-        val withId = expense.withId(getNewId())
-        contentCache.add(withId)
-        return withId
+        return contentCache.add(expense.withId(getNewId()))
     }
 
     override fun getPaymentMethods(): Set<PaymentMethod> {
@@ -127,24 +133,20 @@ class FilebasedActualExpenseDao(file: Path) :
     }
 }
 
-class FilebasedExpenseTemplateDao(file: Path) :
-        FilebasedExpenseDao<ExpenseTemplate>(file, ExpenseTemplateParser()),
+class FilebasedExpenseTemplateDao(file: Path, budgetDao: BudgetDao) :
+        FilebasedExpenseDao<ExpenseTemplate>(file, ExpenseTemplateParser(budgetDao)),
         ExpenseTemplateDao {
 
     override fun addExpense(expense: ExpenseTemplateWithoutId): ExpenseTemplate {
-        val withId = expense.withId(getNewId())
-        contentCache.add(withId)
-        return withId
+        return contentCache.add(expense.withId(getNewId()))
     }
 }
 
-class FilebasedScheduledExpenseDao(file: Path) :
-        FilebasedExpenseDao<ScheduledExpense>(file, ScheduledExpenseParser()),
+class FilebasedScheduledExpenseDao(file: Path, budgetDao: BudgetDao) :
+        FilebasedExpenseDao<ScheduledExpense>(file, ScheduledExpenseParser(budgetDao)),
         ScheduledExpenseDao {
 
     override fun addExpense(expense: ScheduledExpenseWithoutId): ScheduledExpense {
-        val withId = expense.withId(getNewId())
-        contentCache.add(withId)
-        return withId
+        return contentCache.add(expense.withId(getNewId()))
     }
 }

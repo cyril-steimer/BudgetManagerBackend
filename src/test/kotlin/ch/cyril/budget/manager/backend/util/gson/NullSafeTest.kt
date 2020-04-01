@@ -23,7 +23,7 @@ class NullSafeTest {
             gson.fromJson(json, Amount::class.java)
         }
 
-        Assertions.assertEquals("Property 'amount' is not nullable", exc.message)
+        Assertions.assertEquals("Property 'amount' of type 'Amount' is not nullable", exc.message)
 
         json = "{\"amount\":10}"
         val value = gson.fromJson(json, Amount::class.java)
@@ -51,7 +51,7 @@ class NullSafeTest {
             gson.fromJson(json, Private::class.java)
         }
 
-        Assertions.assertEquals("Property 'private' is not nullable", exc.message)
+        Assertions.assertEquals("Property 'private' of type 'Private' is not nullable", exc.message)
     }
 
     @Test

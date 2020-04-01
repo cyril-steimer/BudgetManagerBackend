@@ -13,7 +13,7 @@ import java.time.Month
 data class ScheduledExpenseWithoutId(
         override val name: Name,
         override val amount: Amount,
-        override val category: Category,
+        override val budget: Budget?,
         override val method: PaymentMethod,
         override val author: Author,
         override val tags: Set<Tag>,
@@ -23,7 +23,7 @@ data class ScheduledExpenseWithoutId(
         val lastExpense: ActualExpense?): ExpenseWithoutId {
 
     override fun withId(id: Id): ScheduledExpense {
-        return ScheduledExpense(id, name, amount, category, method, author, tags, startDate, endDate, schedule, lastExpense)
+        return ScheduledExpense(id, name, amount, budget, method, author, tags, startDate, endDate, schedule, lastExpense)
     }
 }
 
@@ -31,7 +31,7 @@ data class ScheduledExpense(
         override val id: Id,
         override val name: Name,
         override val amount: Amount,
-        override val category: Category,
+        override val budget: Budget?,
         override val method: PaymentMethod,
         override val author: Author,
         override val tags: Set<Tag>,
@@ -41,11 +41,11 @@ data class ScheduledExpense(
         val lastExpense: ActualExpense?) : Expense {
 
     override fun withoutId(): ScheduledExpenseWithoutId {
-        return ScheduledExpenseWithoutId(name, amount, category, method, author, tags, startDate, endDate, schedule, lastExpense)
+        return ScheduledExpenseWithoutId(name, amount, budget, method, author, tags, startDate, endDate, schedule, lastExpense)
     }
 
     fun getExpenseToAdd(today: Timestamp): ActualExpenseWithoutId {
-        return ActualExpenseWithoutId(name, amount, category, today, method, author, tags)
+        return ActualExpenseWithoutId(name, amount, budget, today, method, author, tags)
     }
 }
 

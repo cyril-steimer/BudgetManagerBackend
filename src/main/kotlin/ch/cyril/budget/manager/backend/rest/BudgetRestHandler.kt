@@ -1,8 +1,6 @@
 package ch.cyril.budget.manager.backend.rest
 
-import ch.cyril.budget.manager.backend.model.Budget
-import ch.cyril.budget.manager.backend.model.Category
-import ch.cyril.budget.manager.backend.model.MonthYearPeriod
+import ch.cyril.budget.manager.backend.model.*
 import ch.cyril.budget.manager.backend.rest.lib.*
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
 
@@ -21,14 +19,21 @@ class BudgetRestHandler(private val budgetDao: BudgetDao) {
     }
 
     @HttpMethod(HttpVerb.GET, "/api/v1/budget/category/:category")
-    fun getBudget(@PathParam("category") category: String): RestResult {
+    fun getBudgetByCategory(@PathParam("category") category: String): RestResult {
         val res = budgetDao.getOneBudget(Category(category))
         val nonNull = res ?: throw IllegalArgumentException("No budget with category $category")
         return RestResult.json(GSON.toJson(nonNull))
     }
 
+    @HttpMethod(HttpVerb.GET, "/api/v1/budget/id/:id")
+    fun getBudgetById(@PathParam("id") id: String): RestResult {
+        val res = budgetDao.getOneBudget(Id(id))
+        val nonNull = res ?: throw IllegalArgumentException("No budget with id $id")
+        return RestResult.json(GSON.toJson(nonNull))
+    }
+
     @HttpMethod(HttpVerb.POST, "/api/v1/budget")
-    fun addBudget(@Body budget: Budget) {
+    fun addBudget(@Body budget: BudgetWithoutId) {
         budgetDao.addBudget(budget)
     }
 
@@ -38,13 +43,7 @@ class BudgetRestHandler(private val budgetDao: BudgetDao) {
     }
 
     @HttpMethod(HttpVerb.DELETE, "/api/v1/budget")
-    fun deleteBudget(@QueryParam("category") category: String) {
-        budgetDao.deleteBudget(Category(category))
-    }
-
-    @HttpMethod(HttpVerb.GET, "/api/v1/category")
-    fun getCategories(): RestResult {
-        val res = budgetDao.getCategories()
-        return RestResult.json(GSON.toJson(res))
+    fun deleteBudget(@QueryParam("id") id: String) {
+        budgetDao.deleteBudget(Id(id))
     }
 }

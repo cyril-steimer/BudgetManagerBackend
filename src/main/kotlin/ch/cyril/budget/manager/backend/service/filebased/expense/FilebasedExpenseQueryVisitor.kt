@@ -79,7 +79,8 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<Expense, Boolean> {
     }
 
     override fun visitCategoryQuery(query: CategoryExpenseQuery, arg: Expense): Boolean {
-        return doesStringMatch(query.category.name, query.case, query.comparison, arg.category.name)
+        val category = arg.budget?.category?.name ?: return false
+        return doesStringMatch(query.category.name, query.case, query.comparison, category)
     }
 
     override fun visitAuthorQuery(query: AuthorExpenseQuery, arg: Expense): Boolean {
