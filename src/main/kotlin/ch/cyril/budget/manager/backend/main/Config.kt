@@ -6,7 +6,7 @@ import ch.cyril.budget.manager.backend.rest.lib.ktor.KtorRestServerInitializer
 import com.google.gson.JsonObject
 
 data class Config(
-        val type: ServiceFactoryType = ServiceFactoryType.MONGO_DB,
+        val type: ServiceFactoryType = ServiceFactoryType.FILE_BASED,
         val params: JsonObject? = null,
         val server: ServerType = ServerType.KTOR,
         val serverConfig: ServerConfig = ServerConfig())
