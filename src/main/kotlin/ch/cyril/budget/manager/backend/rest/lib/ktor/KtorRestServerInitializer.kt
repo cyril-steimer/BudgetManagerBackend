@@ -27,7 +27,7 @@ class KtorRestServerInitializer : RestServerInitializer() {
         return KtorRestServer(server)
     }
 
-    private fun registerStaticFiles (server: ApplicationEngine, staticFiles: StaticFiles) {
+    private fun registerStaticFiles(server: ApplicationEngine, staticFiles: StaticFiles) {
         val indexHtml = Files.readAllBytes(Paths.get(staticFiles.indexPage))
         server.environment.application.routing {
             get("/{path...}") {

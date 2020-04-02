@@ -10,6 +10,8 @@ interface ExpenseQueryVisitor<A, R> {
 
     fun visitCategoryQuery(query: CategoryExpenseQuery, arg: A): R
 
+    fun visitBudgetIdQuery(query: BudgetIdQuery, arg: A): R
+
     fun visitDateQuery(query: DateExpenseQuery, arg: A): R
 
     fun visitAmountQuery(query: AmountExpenseQuery, arg: A): R

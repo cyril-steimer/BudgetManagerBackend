@@ -5,20 +5,32 @@ import ch.cyril.budget.manager.backend.service.filebased.budget.FilebasedBudgetD
 import ch.cyril.budget.manager.backend.service.filebased.expense.FilebasedActualExpenseDao
 import ch.cyril.budget.manager.backend.service.filebased.expense.FilebasedExpenseTemplateDao
 import ch.cyril.budget.manager.backend.service.filebased.expense.FilebasedScheduledExpenseDao
-import java.nio.file.Path
+import ch.cyril.budget.manager.backend.service.filebased.view.FilebasedViewDao
+import java.nio.file.Paths
 
-class FilebasedServiceFactory(expenseFile: Path, templateFile: Path, scheduledExpenseFile: Path, budgetFile: Path) : ServiceFactory {
+interface FilebasedDao {
+    fun reloadFromFile()
+}
+
+class FilebasedServiceFactory(
+        expenseFile: String,
+        templateFile: String,
+        scheduledExpenseFile: String,
+        budgetFile: String,
+        budgetViewFile: String) : ServiceFactory {
 
     override val budgetDao: FilebasedBudgetDao
     override val expenseDao: FilebasedActualExpenseDao
     override val templateDao: FilebasedExpenseTemplateDao
     override val scheduledExpenseDao: FilebasedScheduledExpenseDao
+    override val viewDao: FilebasedViewDao
 
     init {
-        budgetDao = FilebasedBudgetDao(budgetFile)
-        expenseDao = FilebasedActualExpenseDao(expenseFile, budgetDao)
-        templateDao = FilebasedExpenseTemplateDao(templateFile, budgetDao)
-        scheduledExpenseDao = FilebasedScheduledExpenseDao(scheduledExpenseFile, budgetDao)
-        budgetDao.expenseDaos = listOf(expenseDao, templateDao, scheduledExpenseDao)
+        budgetDao = FilebasedBudgetDao(Paths.get(budgetFile))
+        expenseDao = FilebasedActualExpenseDao(Paths.get(expenseFile), budgetDao)
+        templateDao = FilebasedExpenseTemplateDao(Paths.get(templateFile), budgetDao)
+        scheduledExpenseDao = FilebasedScheduledExpenseDao(Paths.get(scheduledExpenseFile), budgetDao)
+        viewDao = FilebasedViewDao(Paths.get(budgetViewFile), budgetDao)
+        budgetDao.daosToReloadAfterUpdate = listOf(expenseDao, templateDao, scheduledExpenseDao, viewDao)
     }
 }

@@ -11,11 +11,11 @@ import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 
-class ActualExpenseParser(budgetDao: BudgetDao) : JsonBasedFileParser<ActualExpense>(ActualExpense::class.java, gson(budgetDao))
+class ActualExpenseParser(budgetDao: BudgetDao) : JsonBasedFileParser<ActualExpense>(ActualExpense::class.java, getBudgetByIdGson(budgetDao))
 
-class ExpenseTemplateParser(budgetDao: BudgetDao) : JsonBasedFileParser<ExpenseTemplate>(ExpenseTemplate::class.java, gson(budgetDao))
+class ExpenseTemplateParser(budgetDao: BudgetDao) : JsonBasedFileParser<ExpenseTemplate>(ExpenseTemplate::class.java, getBudgetByIdGson(budgetDao))
 
-class ScheduledExpenseParser(budgetDao: BudgetDao): JsonBasedFileParser<ScheduledExpense>(ScheduledExpense::class.java, gson(budgetDao))
+class ScheduledExpenseParser(budgetDao: BudgetDao) : JsonBasedFileParser<ScheduledExpense>(ScheduledExpense::class.java, getBudgetByIdGson(budgetDao))
 
 private class BudgetByIdTypeAdapter(
         private val budgetDao: BudgetDao,
@@ -41,7 +41,8 @@ private class BudgetByIdTypeAdapterFactory(private val budgetDao: BudgetDao) : T
         return null
     }
 }
-private fun gson(budgetDao: BudgetDao): Gson {
+
+fun getBudgetByIdGson(budgetDao: BudgetDao): Gson {
     return GSON_BUILDER
             .registerTypeAdapterFactory(BudgetByIdTypeAdapterFactory(budgetDao))
             .create()

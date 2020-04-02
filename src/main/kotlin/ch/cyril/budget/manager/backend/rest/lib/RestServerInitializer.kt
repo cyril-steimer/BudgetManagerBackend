@@ -16,6 +16,7 @@ abstract class RestServerInitializer {
         val templateDao = serviceFactory.templateDao
         val scheduledExpensesDao = serviceFactory.scheduledExpenseDao
         val budgetDao = serviceFactory.budgetDao
+        val viewDao = serviceFactory.viewDao
 
         RestMethodRegisterer(server, paramParser, ActualExpenseRestHandler(expenseDao)).register()
         RestMethodRegisterer(server, paramParser, ExpenseTemplateRestHandler(templateDao)).register()
@@ -23,6 +24,7 @@ abstract class RestServerInitializer {
         RestMethodRegisterer(server, paramParser, UtilsRestHandler(expenseDao)).register()
         RestMethodRegisterer(server, paramParser, BudgetRestHandler(budgetDao)).register()
         RestMethodRegisterer(server, paramParser, ImportExportRestHandler(budgetDao, expenseDao, templateDao, scheduledExpensesDao)).register()
+        RestMethodRegisterer(server, paramParser, ViewRestHandler(viewDao)).register()
 
         val scheduledExpenseInstantiator = ScheduledExpenseInstantiator(scheduledExpensesDao, expenseDao)
         val scheduledExecutor = Executors.newScheduledThreadPool(1)

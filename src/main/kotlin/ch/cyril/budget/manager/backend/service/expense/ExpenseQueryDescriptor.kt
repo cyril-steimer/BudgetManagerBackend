@@ -71,6 +71,16 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
             return CategoryExpenseQuery(Category(category), comparison, case)
         }
     },
+    BUDGET_ID("budgetId") {
+        override fun createQuery(value: JsonPrimitive): ExpenseQuery {
+            return BudgetIdQuery(Id(value.asString))
+        }
+
+        override fun createQuery(value: JsonObject): ExpenseQuery {
+            throw IllegalStateException("Budget Id query is never complex")
+        }
+
+    },
     AMOUNT("amount") {
         override fun createQuery(value: JsonPrimitive): ExpenseQuery {
             val amount = getBigDecimal(value)
@@ -125,7 +135,10 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
         }
 
         override fun createQuery(value: JsonObject): ExpenseQuery {
-            return TagExpenseQuery(Tag(value.get("tag").asString))
+            return TagExpenseQuery(
+                    Tag(value.get("tag").asString),
+                    Identifiable.byIdentifier(value.get("comparison").asString),
+                    Identifiable.byIdentifier(value.get("case").asString))
         }
     };
 
@@ -151,7 +164,7 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
 class SimpleExpenseQueryDescriptorTypeAdapter : IdentifiableTypeAdapter<SimpleExpenseQueryDescriptor>(SimpleExpenseQueryDescriptor::class)
 
 enum class CompositeExpenseQueryDescriptor
-    (override val identifier: String, private val factory: (List<ExpenseQuery>) -> ExpenseQuery)
+(override val identifier: String, private val factory: (List<ExpenseQuery>) -> ExpenseQuery)
     : Identifiable, ExpenseQueryDescriptor {
 
     OR("or", ::OrExpenseQuery),

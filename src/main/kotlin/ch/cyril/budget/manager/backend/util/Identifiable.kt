@@ -30,7 +30,7 @@ interface Identifiable {
 }
 
 open class IdentifiableTypeAdapter<T>(private val cls: KClass<T>) : NullHandlingTypeAdapter<T>()
-    where T : Enum<T>, T : Identifiable {
+        where T : Enum<T>, T : Identifiable {
 
     override fun doWrite(out: JsonWriter, value: T) {
         out.value(value.identifier)

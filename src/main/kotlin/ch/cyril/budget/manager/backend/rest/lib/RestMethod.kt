@@ -107,7 +107,7 @@ class RestMethod private constructor(
             return of(owner, handlerMethod, parser)
         }
 
-        fun of (owner: Any, method: RestHandlerMethod, parser: RestParamParser): RestMethod? {
+        fun of(owner: Any, method: RestHandlerMethod, parser: RestParamParser): RestMethod? {
             val returnType = method.function.returnType.classifier
             if (returnType != RestResult::class && returnType != Unit::class) {
                 return null

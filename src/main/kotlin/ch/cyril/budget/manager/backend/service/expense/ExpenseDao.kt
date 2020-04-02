@@ -60,7 +60,7 @@ interface ActualExpenseDao : ExpenseDao<ActualExpense> {
     fun getAuthors(): Set<Author>
 }
 
-interface ExpenseTemplateDao: ExpenseDao<ExpenseTemplate> {
+interface ExpenseTemplateDao : ExpenseDao<ExpenseTemplate> {
 
     fun addExpense(expense: ExpenseTemplateWithoutId): ExpenseTemplate
 
@@ -70,7 +70,7 @@ interface ExpenseTemplateDao: ExpenseDao<ExpenseTemplate> {
     }
 }
 
-interface ScheduledExpenseDao: ExpenseDao<ScheduledExpense> {
+interface ScheduledExpenseDao : ExpenseDao<ScheduledExpense> {
 
     fun addExpense(expense: ScheduledExpenseWithoutId): ScheduledExpense
 

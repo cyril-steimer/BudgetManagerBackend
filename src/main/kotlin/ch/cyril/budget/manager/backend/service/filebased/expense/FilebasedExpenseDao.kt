@@ -5,12 +5,13 @@ import ch.cyril.budget.manager.backend.service.Pagination
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
 import ch.cyril.budget.manager.backend.service.expense.*
 import ch.cyril.budget.manager.backend.service.filebased.FileContentCache
+import ch.cyril.budget.manager.backend.service.filebased.FilebasedDao
 import ch.cyril.budget.manager.backend.service.filebased.JsonBasedFileParser
 import ch.cyril.budget.manager.backend.util.SubList
 import java.math.BigDecimal
 import java.nio.file.Path
 
-abstract class FilebasedExpenseDao<T : Expense>(file: Path, parser: JsonBasedFileParser<T>): ExpenseDao<T> {
+abstract class FilebasedExpenseDao<T : Expense>(file: Path, parser: JsonBasedFileParser<T>) : ExpenseDao<T>, FilebasedDao {
 
     private class ComparatorSortDirectionSwitch<T> : SortDirectionSwitch<Comparator<T>, Comparator<T>> {
 
@@ -82,7 +83,7 @@ abstract class FilebasedExpenseDao<T : Expense>(file: Path, parser: JsonBasedFil
         contentCache.delete(id)
     }
 
-    fun reloadFromFile() {
+    override fun reloadFromFile() {
         contentCache.reloadFromFile()
     }
 

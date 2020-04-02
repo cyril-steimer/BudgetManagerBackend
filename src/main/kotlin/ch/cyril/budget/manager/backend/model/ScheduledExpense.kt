@@ -20,7 +20,7 @@ data class ScheduledExpenseWithoutId(
         val startDate: Timestamp,
         val endDate: Timestamp?,
         val schedule: Schedule,
-        val lastExpense: ActualExpense?): ExpenseWithoutId {
+        val lastExpense: ActualExpense?) : ExpenseWithoutId {
 
     override fun withId(id: Id): ScheduledExpense {
         return ScheduledExpense(id, name, amount, budget, method, author, tags, startDate, endDate, schedule, lastExpense)
@@ -77,7 +77,7 @@ class ScheduleTypeAdapter : NullHandlingTypeAdapter<Schedule>() {
     override fun doRead(`in`: JsonReader): Schedule {
         `in`.beginObject()
         val name = `in`.nextName()
-        val schedule = when(name) {
+        val schedule = when (name) {
             "dayOfWeek" -> WeeklySchedule(DayOfWeek.valueOf(`in`.nextString()))
             "dayOfMonth" -> MonthlySchedule(`in`.nextInt())
             else -> throw JsonParseException("Unknown key '$name'")
@@ -91,7 +91,7 @@ data class WeeklySchedule(val dayOfWeek: DayOfWeek) : Schedule {
 
     override fun getNextDate(from: LocalDate): LocalDate {
         for (days in 0 until DayOfWeek.values().size) {
-            val date = from.plusDays(days.toLong() )
+            val date = from.plusDays(days.toLong())
             if (date.dayOfWeek == dayOfWeek) {
                 return date
             }

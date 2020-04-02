@@ -39,7 +39,7 @@ class ScheduledExpenseInstantiator(
             from = Timestamp.ofEpochDay(scheduled.lastExpense.date.getEpochDay() + 1)
         }
         while (canPossiblyAddMoreExpenses(scheduled, today, from)) {
-           from = tryInstantiateOneExpense(today, scheduled, from)
+            from = tryInstantiateOneExpense(today, scheduled, from)
         }
     }
 
@@ -55,6 +55,6 @@ class ScheduledExpenseInstantiator(
 
     private fun canPossiblyAddMoreExpenses(scheduled: ScheduledExpense, today: Timestamp, from: Timestamp): Boolean {
         return from.getEpochDay() <= today.getEpochDay()
-            && (scheduled.endDate == null || from.getEpochDay() <= scheduled.endDate.getEpochDay())
+                && (scheduled.endDate == null || from.getEpochDay() <= scheduled.endDate.getEpochDay())
     }
 }

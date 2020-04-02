@@ -40,6 +40,13 @@ class CategoryExpenseQuery(
     }
 }
 
+class BudgetIdQuery(val budgetId: Id) : ExpenseQuery {
+
+    override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
+        return visitor.visitBudgetIdQuery(this, arg)
+    }
+}
+
 class IdExpenseQuery(val id: Id) : ExpenseQuery {
 
     override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {

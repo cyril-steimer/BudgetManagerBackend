@@ -13,7 +13,7 @@ class RestMethodRegisterer(
                 .forEach { m -> registerMethod(m!!) }
     }
 
-    private fun getRestMethods (): List<RestMethod?> {
+    private fun getRestMethods(): List<RestMethod?> {
         if (handler is RestHandler) {
             return handler.getHandlerMethods()
                     .map { m -> RestMethod.of(handler, m, parser) }

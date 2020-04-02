@@ -123,7 +123,7 @@ class Timestamp internal constructor(internal val date: LocalDate) {
     companion object {
         private val FORMATTER = DateTimeFormatter.ISO_DATE
 
-        fun parse (text: String): Timestamp {
+        fun parse(text: String): Timestamp {
             return Timestamp(LocalDate.from(FORMATTER.parse(text)))
         }
 

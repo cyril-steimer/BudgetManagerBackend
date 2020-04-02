@@ -28,7 +28,7 @@ class NullSafeTypeAdapter<T>(delegate: TypeAdapter<T>) : DelegatingTypeAdapter<T
         }
     }
 
-    private fun checkAllFieldsInitialized (res: Any, cls: Class<*>) {
+    private fun checkAllFieldsInitialized(res: Any, cls: Class<*>) {
         if (isKotlinClass(cls)) {
             val kotlin = cls.kotlin // The code below does not work for Java classes!
             for (property in kotlin.memberProperties) {

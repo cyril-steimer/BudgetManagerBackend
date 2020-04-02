@@ -1,10 +1,17 @@
 package ch.cyril.budget.manager.backend.main
 
+import ch.cyril.budget.manager.backend.rest.GSON
 import ch.cyril.budget.manager.backend.service.ServiceFactory
 import ch.cyril.budget.manager.backend.service.filebased.FilebasedServiceFactory
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
-import java.nio.file.Paths
+
+class FilebasedConfig(
+        val expenses: String,
+        val templates: String,
+        val schedules: String,
+        val budget: String,
+        val budgetViews: String)
 
 enum class ServiceFactoryType {
     @SerializedName("file")
@@ -13,11 +20,8 @@ enum class ServiceFactoryType {
             if (params == null) {
                 throw IllegalArgumentException("Cannot create file-based factory without params")
             }
-            val expenses = Paths.get(params.get("expenses").asString)
-            val templates = Paths.get(params.get("templates").asString)
-            val scheduled = Paths.get(params.get("schedules").asString)
-            val budget = Paths.get(params.get("budget").asString)
-            return FilebasedServiceFactory(expenses, templates, scheduled, budget)
+            val config = GSON.fromJson(params, FilebasedConfig::class.java)
+            return FilebasedServiceFactory(config.expenses, config.templates, config.schedules, config.budget, config.budgetViews)
         }
     };
 

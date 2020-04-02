@@ -83,6 +83,10 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<Expense, Boolean> {
         return doesStringMatch(query.category.name, query.case, query.comparison, category)
     }
 
+    override fun visitBudgetIdQuery(query: BudgetIdQuery, arg: Expense): Boolean {
+        return arg.budget?.let { it.id == query.budgetId } ?: false
+    }
+
     override fun visitAuthorQuery(query: AuthorExpenseQuery, arg: Expense): Boolean {
         return doesStringMatch(query.author.name, query.case, query.comparison, arg.author.name)
     }
