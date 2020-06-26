@@ -23,4 +23,6 @@ interface ExpenseQueryVisitor<A, R> {
     fun visitOrQuery(query: OrExpenseQuery, arg: A): R
 
     fun visitAndQuery(query: AndExpenseQuery, arg: A): R
+
+    fun visitNotQuery(query: NotExpenseQuery, arg: A): R
 }

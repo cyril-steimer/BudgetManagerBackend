@@ -1,7 +1,8 @@
 package ch.cyril.budget.manager.backend.service.filebased.view
 
-import ch.cyril.budget.manager.backend.model.BudgetView
 import ch.cyril.budget.manager.backend.model.Id
+import ch.cyril.budget.manager.backend.model.View
+import ch.cyril.budget.manager.backend.model.ViewType
 import ch.cyril.budget.manager.backend.service.budget.BudgetDao
 import ch.cyril.budget.manager.backend.service.filebased.FileContentCache
 import ch.cyril.budget.manager.backend.service.filebased.FilebasedDao
@@ -11,25 +12,27 @@ import ch.cyril.budget.manager.backend.service.view.ViewDao
 import ch.cyril.budget.manager.backend.util.SubList
 import java.nio.file.Path
 
-class BudgetViewParser(budgetDao: BudgetDao) : JsonBasedFileParser<BudgetView>(BudgetView::class.java, getBudgetByIdGson(budgetDao))
+class BudgetViewParser(budgetDao: BudgetDao) : JsonBasedFileParser<View>(View::class.java, getBudgetByIdGson(budgetDao))
 
-class FilebasedViewDao(budgetViewPath: Path, budgetDao: BudgetDao) : ViewDao, FilebasedDao {
+class FilebasedViewDao(viewPath: Path, budgetDao: BudgetDao) : ViewDao, FilebasedDao {
 
-    private val budgetViewCache: FileContentCache<BudgetView, Id>
+    private val viewCache: FileContentCache<View, Id>
 
     init {
-        budgetViewCache = FileContentCache(budgetViewPath, BudgetViewParser(budgetDao)) { view -> view.id }
+        viewCache = FileContentCache(viewPath, BudgetViewParser(budgetDao)) { view -> view.id }
     }
 
-    override fun getBudgetViews(): SubList<BudgetView> {
-        return SubList.of(budgetViewCache.getAll().sortedBy { v -> v.order.order })
+    override fun getViews(type: ViewType): SubList<View> {
+        return SubList.of(viewCache.getAll()
+                .filter { type == it.type }
+                .sortedBy { it.order.order })
     }
 
-    override fun getBudgetView(id: Id): BudgetView? {
-        return budgetViewCache.getById(id)
+    override fun getView(id: Id): View? {
+        return viewCache.getById(id)
     }
 
     override fun reloadFromFile() {
-        return budgetViewCache.reloadFromFile()
+        return viewCache.reloadFromFile()
     }
 }

@@ -116,6 +116,10 @@ class FilebasedExpenseQueryVisitor : ExpenseQueryVisitor<Expense, Boolean> {
         return query.queries.any { it.accept(this, arg) }
     }
 
+    override fun visitNotQuery(query: NotExpenseQuery, arg: Expense): Boolean {
+        return !query.query.accept(this, arg);
+    }
+
     private fun doesStringMatch(
             expected: String,
             case: StringCase,

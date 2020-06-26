@@ -105,3 +105,10 @@ class AndExpenseQuery(val queries: List<ExpenseQuery>) : ExpenseQuery {
         return visitor.visitAndQuery(this, arg)
     }
 }
+
+class NotExpenseQuery(val query: ExpenseQuery) : ExpenseQuery {
+
+    override fun <A, R> accept(visitor: ExpenseQueryVisitor<A, R>, arg: A): R {
+        return visitor.visitNotQuery(this, arg)
+    }
+}

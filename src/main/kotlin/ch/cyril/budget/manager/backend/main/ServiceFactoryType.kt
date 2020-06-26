@@ -11,7 +11,7 @@ class FilebasedConfig(
         val templates: String,
         val schedules: String,
         val budget: String,
-        val budgetViews: String)
+        val views: String)
 
 enum class ServiceFactoryType {
     @SerializedName("file")
@@ -21,7 +21,7 @@ enum class ServiceFactoryType {
                 throw IllegalArgumentException("Cannot create file-based factory without params")
             }
             val config = GSON.fromJson(params, FilebasedConfig::class.java)
-            return FilebasedServiceFactory(config.expenses, config.templates, config.schedules, config.budget, config.budgetViews)
+            return FilebasedServiceFactory(config.expenses, config.templates, config.schedules, config.budget, config.views)
         }
     };
 

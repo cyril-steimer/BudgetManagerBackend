@@ -17,7 +17,7 @@ class FilebasedServiceFactory(
         templateFile: String,
         scheduledExpenseFile: String,
         budgetFile: String,
-        budgetViewFile: String) : ServiceFactory {
+        viewFile: String) : ServiceFactory {
 
     override val budgetDao: FilebasedBudgetDao
     override val expenseDao: FilebasedActualExpenseDao
@@ -30,7 +30,7 @@ class FilebasedServiceFactory(
         expenseDao = FilebasedActualExpenseDao(Paths.get(expenseFile), budgetDao)
         templateDao = FilebasedExpenseTemplateDao(Paths.get(templateFile), budgetDao)
         scheduledExpenseDao = FilebasedScheduledExpenseDao(Paths.get(scheduledExpenseFile), budgetDao)
-        viewDao = FilebasedViewDao(Paths.get(budgetViewFile), budgetDao)
+        viewDao = FilebasedViewDao(Paths.get(viewFile), budgetDao)
         budgetDao.daosToReloadAfterUpdate = listOf(expenseDao, templateDao, scheduledExpenseDao, viewDao)
     }
 }

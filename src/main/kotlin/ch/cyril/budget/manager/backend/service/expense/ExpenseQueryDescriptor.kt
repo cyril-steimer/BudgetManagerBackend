@@ -164,15 +164,27 @@ enum class SimpleExpenseQueryDescriptor(override val identifier: String)
 class SimpleExpenseQueryDescriptorTypeAdapter : IdentifiableTypeAdapter<SimpleExpenseQueryDescriptor>(SimpleExpenseQueryDescriptor::class)
 
 enum class CompositeExpenseQueryDescriptor
-(override val identifier: String, private val factory: (List<ExpenseQuery>) -> ExpenseQuery)
+(override val identifier: String)
     : Identifiable, ExpenseQueryDescriptor {
 
-    OR("or", ::OrExpenseQuery),
-    AND("and", ::AndExpenseQuery);
+    OR("or") {
+        override fun createQuery(value: JsonElement): ExpenseQuery {
+            return OrExpenseQuery(toQueryList(value));
+        }
+    },
+    AND("and") {
+        override fun createQuery(value: JsonElement): ExpenseQuery {
+            return AndExpenseQuery(toQueryList(value));
+        }
+    },
+    NOT("not") {
+        override fun createQuery(value: JsonElement): ExpenseQuery {
+            return NotExpenseQuery(ExpenseQueryDescriptor.createQuery(value.asJsonObject));
+        }
+    };
 
-    override fun createQuery(value: JsonElement): ExpenseQuery {
-        val queries = value.asJsonArray
+    protected fun toQueryList(value: JsonElement): List<ExpenseQuery> {
+        return value.asJsonArray
                 .map { o -> ExpenseQueryDescriptor.createQuery(o.asJsonObject) }
-        return factory.invoke(queries)
     }
 }
